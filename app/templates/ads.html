@@ -1,0 +1,25 @@
+{% if ads %}
+
+{% for ad in ads %}
+<table id="ad_table" class="table-condensed col-md-8 col-md-offset-4">
+    <thead><tr><th colspan="2"> {{ad.title}}  </th></tr><thead>
+        <tr>
+            <td>
+                <img src="{{url_for('uploaded_file',filename=ad.pic)}}" width="107px" height="80px">   
+            </td>
+
+
+            <td>
+                {{ad.body}} 
+            </td>
+
+        </tr>
+    
+
+        <tr><td colspan="2"><a href="http://{{ad.website}}">{{ad.website}}</a></td></tr>                
+</table>
+
+{% endfor %}
+
+
+{% endif %}

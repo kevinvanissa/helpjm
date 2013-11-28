@@ -1,0 +1,26 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="span12">
+    <h3>Advertise With Us</h3>
+    <hr>
+    <br />
+    <p>
+        <b>To advertise on HelpJM, please send an email to:</b> 
+        <br />
+        <br />
+       
+    <h4><a href="mailto:support@helpjm.com">support@helpjm.com</a></h4>
+        <br /> 
+        <br />
+
+        You can also <a href="{{url_for('contactus')}}">click here</a> to contact us and enter "Advertise" in the topic field. 
+
+
+    </p>
+    </div>
+</div>
+{% endblock %}

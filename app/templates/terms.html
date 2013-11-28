@@ -1,0 +1,30 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="span12">
+    <h3>Terms and Conditions</h3>
+    <hr>
+    <br />
+
+    Welcome to HelpJM. Thank you for using the services of HelpJM. Your use of our services is subject to our terms and conditions. While our terms and conditions may change from time to time, you will always be notified.
+    <br />
+    <br />
+<h4>Summary of Terms</h4> 
+<br />
+<br />
+<ul>
+    <li> You are responsible for your use of the services provided by your friends.</li>
+    <li> Please help us keep HelpJM helpful, fun and clean. Do not post any content that could offend the privacy of any person, or that is illegal, harmful or offensive. We have the right to disable your account if such cases are reported.</li>
+    <li> You are responsible for any misuse of your account.</li>
+    <li> You should be at least 13 years of age to register for a HelpJM account. If you are under 18, you should request the permission of your parent(s) or guardian(s) before you register.</li>
+    <li> Your privacy is important to us and we take great care to protect it. We do not sell or give your personal information to any third party. Please see our <a href="{{url_for('privacy')}}">Privacy Policy.</a></li>
+    <li>We may include advertisements on certain pages that may target the content of Services. </li>
+
+
+</ul>
+    </div>
+</div>
+{% endblock %}

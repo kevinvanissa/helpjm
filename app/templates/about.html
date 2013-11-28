@@ -1,0 +1,27 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+    <h3>About Us</h3>
+    <hr>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+    <br />
+
+    <h4>Summary of HelpJM</h4>
+    <p>
+HelpJM is a startup that will make it easy to find good services and help from your friends in Jamaica. 
+</p>
+
+<p>
+Through HelpJM, you have the ability to easily contact your friends to recommend services for you. Therefore, instead of making phone calls to multiple persons when you need a good painter or a good baby sitter, etc., you will now be provided with an efficient and also free way to get trusted answers from your friends. 
+    </p>
+    <br />
+    <p>
+        Before starting, you can read on how to use HelpJM <a href="{{url_for('gettingstarted')}}">here</a>
+    </p>
+
+    </div>
+</div>
+{% endblock %}

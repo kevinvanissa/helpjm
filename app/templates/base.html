@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% if title %}
+    <title>{{title}} - HelpJM</title>
+    {% else %}
+    <title>HelpJM</title>
+    {% endif %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" type="image/png" href="/static/img/favicon.png" />
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/main.css" rel="stylesheet">
+    <script src="/static/js/jquery-1.9.0.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/moment.min.js"></script>
+    <script src="/static/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/bootstrap-maxlength.min.js"></script>
+    <script src="/static/js/main.js"></script>
+
+ 
+  </head>
+  <body>
+    <div id="wrap">
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{url_for('login')}}"><img src="/static/img/logo.png" height="20px">&nbsp;<span style="color:yellow;font-size:9pt">Beta</span></a> 
+     <!--<a class="navbar-brand" href="{{url_for('login')}}">JaHelp - Jamaican Help</a>-->
+
+        </div>
+        <div class="navbar-collapse collapse">
+       
+            <ul class="nav navbar-nav">
+                {% if not g.user.is_authenticated() %}
+                <li {% if request.path == "/" or request.path =="/index" %}class="active"{% endif %} ><a href="{{url_for('login')}}">Home</a></li>
+                <li {% if request.path == "/gettingstarted"%}class="active"{% endif %} ><a href="{{url_for('gettingstarted')}}">Getting Started</a></li>
+                <li {% if request.path == "/about"%}class="active"{% endif %} ><a href="{{url_for('about')}}">About Us</a></li>
+                <li {% if request.path == "/contactus"%}class="active"{% endif %} ><a href="{{url_for('contactus')}}">Contact Us</a></li>
+                <li {% if request.path == "/advertise"%}class="active"{% endif %} ><a href="{{url_for('advertise')}}">Advertise With Us</a></li>
+                
+                {% endif %}
+
+              {% if g.user.is_authenticated() %}
+              <li {% if request.path == "/main"%}class="active"{% endif %}><a href="{{url_for('index')}}">My Asks</a></li>
+              <li {% if request.path == "/recommendations"%}class="active"{% endif %}><a href="{{url_for('recommendations')}}">My Recommendations</a></li>
+              <li {% if request.path == "/friends"%}class="active"{% endif %}><a href="{{url_for('friends')}}">Friends</a></li>
+              <li {% if request.path == "/search"%}class="active"{% endif %}><a href="{{url_for('search')}}">Search</a></li>
+
+              {% if g.user.is_admin() %}
+
+              <li {% if request.path == "/listads"%}class="active"{% endif %}><a href="{{url_for('listads')}}">Ads</a></li>
+
+              {% endif %}
+
+
+
+              {% endif %}
+
+
+            </ul>
+
+      
+              {% if g.user.is_authenticated() %}
+            <ul class="nav navbar-nav navbar-right">
+              <li {% if  request.path == "/edit" %}class="active"{% endif %}><a href="{{ url_for('edituser')}}">Your Profile</a></li>
+              <li {% if  request.path == "/reset" %}class="active"{% endif %}><a href="{{ url_for('reset')}}">Reset Password</a></li>
+              <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+              {% endif %}
+
+        {% if not g.user.is_authenticated() %}
+            <ul class="nav navbar-nav navbar-right">
+                <li><a><span style="color:yellow;font-weight:bold;">Don't have an account?</span></a></li>
+                <li {% if request.path == "/register" %}class="active" {% endif %}><a href="{{ url_for('register') }}">Create an Account</a></li>
+            </ul>
+              {% endif %}
+
+
+
+
+
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+        <div class="container">
+
+            {% block content %}{% endblock %}
+            <br />
+        </div>
+    </div>
+
+        <div id="footer" class="navbar-inverse"> 
+            <div class="container">
+            <div class="row">
+            <!--<div class="col-md-6">-->
+            <!--<p class="copyright">&copy; HelpJM 2013</p>-->
+            <!--</div>-->
+            <div class="col-md-12">
+                <br />
+            <p style="text-align:center">
+                <span class="copyright">Copyright &copy; HelpJM 2013. </span>
+                &nbsp;
+                <a href="{{url_for('gettingstarted')}}" class="mainlink">Getting Started</a> <span class="divider">| </span>
+                <a href="{{url_for('terms')}}" class="mainlink">Terms and Conditions</a> <span class="divider">| </span>
+            <a href="{{url_for('privacy')}}" class="mainlink">Privacy Policy</a> <span class="divider">| </span>
+ 
+                <a href="{{url_for('about')}}" class="mainlink">About Us</a>  <span class="divider">| </span>
+                <a href="{{url_for('contactus')}}" class="mainlink">Contact Us</a> <span class="divider">| </span>
+                <a href="{{url_for('advertise')}}" class="mainlink">Advertise With Us</a>
+            </p>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+<script type="text/javascript">
+
+  $('.form_datetime').datetimepicker({
+        //language:  'fr',
+        //weekStart: 1,
+		//todayHighlight: 1,
+		//startView: 2,
+		//forceParse: 0,
+        //showMeridian: 1
+        todayBtn:  1,
+		autoclose: 1,
+        pickerPosition: "bottom-left",
+        format: 'yyyy-mm-dd hh:ii:ss'
+    });
+
+</script> 
+
+
+
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+    {% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-8">
+    <h3>Send To Friends</h3>
+    <hr>
+    <br />
+
+
+                <form action="" method="post" name="sendmultiplefriends" id="sendmultiplefriends">
+                    {% for friend in friends %}
+
+                        <input type="checkbox"  name="emailfriends" value="{{friend.id}}"> {{friend.firstname }} {{friend.lastname}} <br />
+
+                    {% endfor %}
+            <br />
+            <br />
+            <button type="submit" class="btn btn-primary btn-xs" name="btn" value="send">Send Selected Friends</button>
+            <a href="{{url_for('index')}}" class="btn btn-danger btn-xs">Cancel</a>
+                </form>
+
+    </div>
+
+
+    <div class="col-md-4">
+        {% include 'ads.html' %}
+    </div>
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-12">
+    <h3>Recommendation</h3>
+    <hr>
+    <br />
+    <b>{{recommender.firstname}} {{recommender.lastname}}'s</b> Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
+    <h3>{{recommendation.name}} {% if recommendation.company %}- {{recommendation.company}} {% endif %}</h3>
+    {% if recommendation.phone %}<span class="detailheading">Phone:</span> <span class="detail">{{recommendation.phone}}</span>, {% endif %}
+    {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail">{{recommendation.email}}</span>, {% endif %}
+    {% if recommendation.website %}<span class="detailheading">Website:</span> <span class="detail">{{recommendation.website}}</span>, {% endif %}
+    {% if recommendation.parish %}<span class="detailheading">Parish:</span> <span class="detail">{{recommendation.parish}}</span>, {% endif %}
+    {% if recommendation.area %}<span class="detailheading">Area:</span> <span class="detail">{{recommendation.area}}</span> {% endif %}
+
+    <br />
+    <br />
+    <!--<span class="detailheading">Category:</span> <span class="detail">{{recommendation.category}}</span> <br />-->
+    <!--<span class="detailheading">Service:</span> <span class="detail">{{recommendation.service}}</span><br />-->
+
+
+    <br />
+
+
+
+    <h2>{{recommender.firstname}}'s Review</h2>
+    <br />
+    <div class="alert alert-info">
+        {% if recommendation.review %}<span class="viewreview">{{recommendation.review}}</span>{% else %} <span class="help-inline myerror">[{{recommender.firstname}} did not write a review ]</span>{% endif %} <br />
+    <br /> 
+    <b>Rating:</b> <span class='label label-{%if recommendation.rating=='Excellent' %}success{% elif recommendation.rating=='Very Good'%}primary{% elif recommendation.rating=='Average'%}default{% elif recommendation.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{recommendation.rating}}</span> &nbsp;
+    
+    {% if recommendation.rating == 'Excellent' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+    {% elif recommendation.rating == 'Very Good' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif recommendation.rating == 'Average' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif recommendation.rating == 'Poor' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% else %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% endif %} 
+
+    <br /> 
+    <b>created:</b> <i>{{ momentjs(recommendation.created).calendar() }}</i>
+    </div>
+
+    <hr>
+
+
+
+
+
+
+
+
+        
+    </div>
+    </div>
+{% endblock %}

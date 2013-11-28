@@ -1,0 +1,160 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Edit Recommendation </h2> 
+
+
+<form class="form-horizontal col-md-8" action="" method="post" name="editrecommendation" role="form">
+                    {{form.hidden_tag()}}
+
+                    
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category:</label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.service %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="service">Service:</label>
+                        <div class="col-md-8">
+                            {{ form.service(class="form-control" )}}
+                            {% for error in form.errors.service %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.name %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="name">Name:</label>
+                        <div class="col-md-8">
+                            {{ form.name(class="form-control")}}
+                            {% for error in form.errors.name %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.company %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="company">Company:</label>
+                        <div class="col-md-8">
+                            {{ form.company(class="form-control")}}
+                            {% for error in form.errors.company %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.phone %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="phone">Phone:</label>
+                        <div class="col-md-8">
+                            {{ form.phone(class="form-control",placeholder='7 digits only. No dashes.')}}
+                            {% for error in form.errors.phone %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                   <div class="form-group{% if form.errors.email %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="email">Email:</label>
+                        <div class="col-md-8">
+                            {{ form.email(class="form-control")}}
+                            {% for error in form.errors.email %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.website %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="website">Website:</label>
+                        <div class="col-md-8">
+                            {{ form.website(class="form-control")}}
+                            {% for error in form.errors.website %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="parish">Parish:</label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.area %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="area">Area:</label>
+                        <div class="col-md-8">
+                            {{ form.area(class="form-control")}}
+                            {% for error in form.errors.area %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.rating %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="rating">Rating:</label>
+                        <div class="col-md-8">
+                            {{ form.rating(class="form-control")}}
+                            {% for error in form.errors.rating %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.review %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="review">Review:</label>
+                        <div class="col-md-8">
+                            {{ form.review(class="form-control",maxlength=140)}}
+                            {% for error in form.errors.review %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <br />
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-thumbs-up"></span> Create Recommendation</button>
+                        </div>
+                    </div>
+
+                </form>
+           
+
+
+
+
+        </div>
+
+        <div class="col-md-4">
+            <h2>Advertisement</h2> 
+
+           
+        </div>
+    </div>
+{% endblock %}
+

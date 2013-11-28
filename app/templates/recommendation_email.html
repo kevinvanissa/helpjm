@@ -1,0 +1,13 @@
+<p>Dear {{user.firstname}} {{user.lastname}},</p> 
+<br />
+
+<p> {{friend.firstname}} {{friend.lastname}} responded to your ask for somewhere that provides good {{ask.service}} services.</p>
+
+<br />
+Click here to view: <a href="{{url_for('viewrecommendation',recommendationid=recid,_external=True)}}">View  Recommendation </a>
+
+<br />
+<br />
+<p>Regards,</p>
+<p>The <code>HelpJM</code> Team</p>
+<p>www.helpjm.com</p>

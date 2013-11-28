@@ -1,0 +1,45 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-12">
+    <h3>Privacy and Policy</h3>
+    <hr>
+    <br />
+<br />
+<p>
+HelpJM.com respects the privacy of our user community. We will take all reasonable steps to protect the personal information of our users.  
+</p>
+</p>
+<br />
+
+<h4>Summary of Privacy</h4> 
+<br />
+
+<ul>
+    <li>HelpJM has physical, electronic and procedural safeguards that comply with best practiced safety regulations to protect your personal information. </li>
+    <li>HelpJM will not sell, rent or give away any personally identifiable information, such as your name or e-mail addresses. </li>
+    <li>HelpJM may set and access HelpJM cookies on your computer. </li>
+</ul>
+<br />
+
+<h4>Privacy Policy Changes</h4>
+
+<p>
+If we should change or update our privacy policy at any time, the updated policy will be posted in this location along with an updated effective date. This is to ensure that you are always aware of our information collection and use practices.
+</p>
+<br />
+
+<h4>Contact us</h4> 
+
+<p> For questions regarding our privacy policy please <a href="{{url_for('contactus')}}">contact us</a>.  <br /> If we have missed anything of importance please let us know.  </p>
+<br />
+<h4>Policy Effective Date</h4>
+<p>
+Policy effective December 1, 2013.
+</p>
+</div>
+    </div>
+{% endblock %}

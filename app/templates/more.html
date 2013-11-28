@@ -1,0 +1,125 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+
+    <div class="col-md-4">
+    <h3>Responses</h3>
+    <hr>
+    {% if not recommendations %}
+        <span class="alert alert-info"> No one has responded as yet! </span>
+    {% endif %}
+
+    {% for recommendation in recommendations %}
+        <div>
+            <a href="{{url_for('viewrecommendation',recommendationid=recommendation.ReplyRecommendation.recommendationid)}}">See Recommendation</a> <span class="view_rec"><br />from {{recommendation.Friend.firstname}} {{recommendation.Friend.lastname}}</span><br />
+    </div>
+    <br />
+    {% endfor %}
+
+    </div>
+
+<div class="col-md-4">
+    <h3>Friends Sent</h3>
+    <hr>
+
+    {% if not friends %}
+        <span class="alert alert-info"> No friends Sent! </span>
+
+        {% endif %}
+
+    {% for friend in friends %}
+    {{ friend.Friend.firstname }} {{ friend.Friend.lastname }} <br />
+
+    {% endfor %}
+
+    <br />
+    </div>
+
+
+<div class="col-md-4">
+    <h3>Edit and Send a New Ask</h3>
+    <hr>
+        <span class="label label-danger col-md-offset-4">
+            NB: This Action will create a New Ask!! 
+        </span> <br /> <br />
+
+
+        <form class="form-horizontal" action="{{url_for('index')}}" method="post" name="askedit" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category:</label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.service %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="service">Service:</label>
+                        <div class="col-md-8">
+                            {{ form.service(class="form-control" )}}
+                            {% for error in form.errors.service %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.question %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="question">Question:</label>
+                        <div class="col-md-8">
+                            {{ form.question(class="form-control",maxlength=140)}}
+                            {% for error in form.errors.question %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="parish">Parish:</label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.area %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Area:</label>
+                        <div class="col-md-8">
+                            {{ form.area(class="form-control")}}
+                            {% for error in form.errors.area %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Ask to Friends </button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+
+
+    </div>
+
+
+
+</div>
+{% endblock %}

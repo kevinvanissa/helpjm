@@ -1,0 +1,113 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>My Friends({{friends|length}}) </h3> 
+            <hr>
+            <br />
+
+            {% if not friends %} 
+                <h3>You have not created any Friends as yet!</h3>
+                <br />
+                <h4>Begin by creating your friends <span class="glyphicon glyphicon-arrow-right"></span></h4>
+                {% endif %}
+            {% if friends %}
+                <form action="{{url_for('deletemultiplefriends')}}" method="post" onsubmit="return deleteMultipleItems()" name="deletemultiplefriends" id="deletemultiplefriends">
+                    {{form.hidden_tag()}}
+            <table class="table">
+                <thead><tr>
+                <th>Select</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Edit</th>
+
+                </tr>
+                </thead>
+                {% endif %}
+
+
+            {% for friend in friends: %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td><input type="checkbox"  name="friends" value="{{friend.id}}"></td>   
+                    <td>{{friend.firstname}}</td>   
+                    <td>{{friend.lastname}}</td>   
+                    <td>{{friend.email}}</td>   
+                    <td> 
+                        <a href="{{url_for('editfriend',id=friend.id)}}" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-edit"></span> Edit</a> 
+                    </td>   
+                </tr>
+            {% endfor %}
+
+            {% if friends %}
+            </table>
+            <button type="submit" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Delete Selected Friends</button>
+
+            </form>
+            {% endif %}
+
+
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="col-md-offset-2">Create New Friend</h3> 
+            <br />
+
+           
+            
+            <form class="form-horizontal" action="" method="post" name="friend" role="form">
+                    {{form.hidden_tag()}}
+
+                    
+                    <div class="form-group{% if form.errors.firstname %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="firstname">First Name:</label>
+                        <div class="col-md-8">
+                            {{ form.firstname(class="form-control" )}}
+                            {% for error in form.errors.firstname %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.lastname %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="lastname">Last Name:</label>
+                        <div class="col-md-8">
+                            {{ form.lastname(class="form-control" )}}
+                            {% for error in form.errors.lastname %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.email %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="email">Email:</label>
+                        <div class="col-md-8">
+                            {{ form.email(class="form-control")}}
+                            {% for error in form.errors.email %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Create a Friend</button>
+                        </div>
+                    </div>
+                </form>
+                <h3 class="col-md-offset-6"> OR </h3>
+
+                <a href="{{url_for('loging')}}" class="btn btn-success btn-md col-md-offset-4"><span class="glyphicon glyphicon-user"></span> Import Your Google Contacts</a>
+        
+        </div>
+    </div>
+{% endblock %}
+

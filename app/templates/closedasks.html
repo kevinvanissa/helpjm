@@ -1,0 +1,70 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>My Closed Asks({{asks|length}})</h3> 
+            [<a href="{{url_for('index')}}">View Opened Asks</a>]
+            <hr>
+            <br />
+            {% if not asks %} 
+
+                <h3>You do not have any Closed Asks as yet!</h3>
+
+            {% endif %}
+
+        
+            {% if asks %}           
+          <table class="table" >
+            <thead>
+                <tr>
+                    <th class="col-md-6">Question</th> <th class="col-md-6">Details</th>
+                </tr>
+            </thead>
+            {% endif %}
+
+
+
+                {% for ask in asks %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td class="col-md-6">
+                            {{ ask.question }} <br />
+                            <span class="decordate">Created: {{momentjs(ask.created).calendar()}}</span> <br />
+                            <a href="{{url_for('reopenask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return openItem();"><span class="glyphicon glyphicon-eye-open"></span> Re-Open</a> 
+
+                        </td>
+                        <td class="col-md-6">
+                            <span class="detailheading">Category:</span>  <span class="detail">{{ask.category}}</span>
+                            <span class="detailheading">Service:</span> <span class="detail">{{ask.service}}</span> 
+                            <span class="detailheading">Parish:</span> <span class="detail">{{ask.parish}} </span>
+                            <span class="detailheading">Area:</span> <span class="detail">{{ask.area}}</span> 
+                        </td>
+                    </tr>
+
+            {%endfor %}
+        
+        {% if asks %} 
+        </table>
+        {% endif %}
+
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="col-md-offset-2">HelpJM Ads</h3> 
+            
+        {% include 'ads.html' %}
+
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}
+
