@@ -15,8 +15,6 @@ import urllib
 import sys
 import getopt
 import getpass
-import gdata.contacts.data
-import gdata.contacts.client
 
 
 
@@ -233,7 +231,6 @@ def recommendations():
 
 @app.route('/servicelist', methods = ['GET', 'POST'])
 def servicelist():
-    #print("Look:")
     d = getServiceListJSON(request.form['category'])
     return jsonify(d)
 
@@ -337,7 +334,6 @@ def parse_contact(contact):
 @login_required
 def importcontacts():
     contacts = request.form.getlist('friends')
-    print contacts
     if not contacts:
         flash('You need to select at least one friend',category='info')
         return redirect(url_for('googlecontacts'))
@@ -385,8 +381,6 @@ def googlecontacts():
             return res.read()
         import json
         data = json.loads(res.read())
-        print "datata======="
-        print data
         if 'entry' in data['feed'] and len(data['feed']['entry']):
             for entry in data['feed']['entry']:
                 contact = parse_contact(entry)
