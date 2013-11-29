@@ -1,6 +1,4 @@
 $(document).ready(function(){
-    //$('#service').empty();
-    //$('#service').append('<option value="Blank">--- Select a Service --</option>')
     $("#category").change(function(){
         category_srvc = $("#category").val();
         $.post('/servicelist',

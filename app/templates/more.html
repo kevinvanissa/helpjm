@@ -9,7 +9,8 @@
     <h3>Responses</h3>
     <hr>
     {% if not recommendations %}
-        <span class="alert alert-info"> No one has responded as yet! </span>
+        <br />
+        <h4> <span class="help-inline myerror">[No one has responded as yet]</span></h4>
     {% endif %}
 
     {% for recommendation in recommendations %}
@@ -26,8 +27,8 @@
     <hr>
 
     {% if not friends %}
-        <span class="alert alert-info"> No friends Sent! </span>
-
+        <br />
+        <h4> <span class="help-inline myerror">[No Friends Sent]</span></h4>
         {% endif %}
 
     {% for friend in friends %}

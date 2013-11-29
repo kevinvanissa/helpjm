@@ -78,6 +78,7 @@ def closedasks():
 def more(id):
     form = AskForm()
     ask = Ask.query.filter_by(id=int(id)).first()
+    form.service.choices = getServiceList(ask.category)
     form.category.data = ask.category
     form.service.data = ask.service
     form.question.data = ask.question
@@ -600,18 +601,19 @@ def editrecommendation(id):
 
             flash('Your changes have been saved.',category='success')
             return redirect(url_for('recommendations'))
-        else:
-            form.category.data = recommendation.category
-            form.service.data = recommendation.service
-            form.name.data = recommendation.name
-            form.company.data = recommendation.company
-            form.phone.data = recommendation.phone
-            form.email.data = recommendation.email
-            form.website.data = recommendation.website
-            form.parish.data = recommendation.parish
-            form.area.data = recommendation.area
-            form.rating.data = recommendation.rating
-            form.review.data = recommendation.review
+
+    form.service.choices = getServiceList(recommendation.category)
+    form.category.data = recommendation.category
+    form.service.data = recommendation.service
+    form.name.data = recommendation.name
+    form.company.data = recommendation.company
+    form.phone.data = recommendation.phone
+    form.email.data = recommendation.email
+    form.website.data = recommendation.website
+    form.parish.data = recommendation.parish
+    form.area.data = recommendation.area
+    form.rating.data = recommendation.rating
+    form.review.data = recommendation.review
     return render_template('editrecommendation.html',form=form)
 
 @app.route('/deleterecommendation/<int:id>',methods=['GET','POST'])

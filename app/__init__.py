@@ -17,7 +17,6 @@ lm.login_view = 'login'
 # render phone number
 def create_phone(phoneNumber):
     g = phoneNumber[:3]
-    print g
     f = phoneNumber[3:]
     return g+'-'+f
 
