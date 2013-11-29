@@ -1,5 +1,7 @@
+import os
 def createServiceList(filename):
-    folderpath='/home/dundee/myFlaskApp/jahelp/app/services/'
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    folderpath=basedir+'/services/'
     filename = folderpath+filename
     l = []
     try:

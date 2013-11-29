@@ -3,7 +3,7 @@ from flask_oauth import OAuth
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-UPLOAD_FOLDER = '/home/dundee/myFlaskApp/jahelp/app/static/uploads'
+UPLOAD_FOLDER = basedir+'/app/static/uploads'
 ALLOWED_EXTENSIONS = set(['jpg','png','jpeg'])
 MAX_CONTENT_LENGTH = 1 * 1024 * 1024
 

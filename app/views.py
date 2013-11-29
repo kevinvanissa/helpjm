@@ -15,7 +15,6 @@ import urllib
 import sys
 import getopt
 import getpass
-import atom
 import gdata.contacts.data
 import gdata.contacts.client
 
