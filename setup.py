@@ -23,3 +23,4 @@ subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'guess-language']
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flup'])
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'coverage'])
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flask-oauth'])
+subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'Flask-SuperAdmin'])
