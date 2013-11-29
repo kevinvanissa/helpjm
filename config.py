@@ -61,9 +61,14 @@ OPENID_PROVIDERS = [
     { 'name': 'MyOpenID', 'url': 'https://www.myopenid.com' }]
 
 
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+#SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+if os.environ.get('DATABASE_URL') is None:
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db') + '?check_same_thread=False'
+else:
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
+SQLALCHEMY_RECORD_QUERIES = True
 
 # mail server settings
 MAIL_SERVER = 'smtp.googlemail.com'
