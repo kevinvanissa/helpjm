@@ -368,29 +368,32 @@ def googlecontacts():
     from urllib2 import Request, urlopen, URLError
 
     headers = {'Authorization': 'OAuth '+access_token}
-    req = Request('https://www.google.com/m8/feeds/contacts/default/full?alt=json',
-                  None, headers)
-    try:
-        res = urlopen(req)
-    except URLError, e:
-        if e.code == 401:
-            # Unauthorized - bad token
-            session.pop('access_token', None)
-            return redirect(url_for('loging'))
-        return res.read()
-    import json
-    data = json.loads(res.read())
-    if 'entry' in data['feed'] and len(data['feed']['entry']):
-        for entry in data['feed']['entry']:
-            contact = parse_contact(entry)
-            if contact:
-                #yield contact
-                contactlist.append(contact)
-                print contact
-                print '\n'
-            else:
-                raise Exception('Cannot retrieve a contact List')
 
+    start = 1
+    data = None
+    res = None
+
+    while start == 1 or 'entry' in data['feed']:
+        req = Request('https://www.google.com/m8/feeds/contacts/default/full?alt=json&max-results=50&start-index=%s' % start, None, headers)
+        try:
+            res = urlopen(req)
+        except URLError, e:
+            if e.code == 401:
+                # Unauthorized - bad token
+                session.pop('access_token', None)
+                return redirect(url_for('loging'))
+            return res.read()
+        import json
+        data = json.loads(res.read())
+        print "datata======="
+        print data
+        if 'entry' in data['feed'] and len(data['feed']['entry']):
+            for entry in data['feed']['entry']:
+                contact = parse_contact(entry)
+                if contact:
+                    contactlist.append(contact)
+        start += 50
+    res.close()
     return render_template('importcontacts.html',title='Import Contacts',contactlist=contactlist)
 
 

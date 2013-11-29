@@ -40,7 +40,9 @@ postText: ' chars remaining.'
 });
 
 
-
+$('.pleasewait').click(function(){
+    $('#myModal').modal()
+});
 
 });
 
@@ -86,5 +88,6 @@ function validateSearchForm(){
     
             return true;  
 }
+
 
 
