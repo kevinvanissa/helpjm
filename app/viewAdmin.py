@@ -11,19 +11,19 @@ class MyModelView(model.ModelAdmin):
         return self.render('admin/index.html')
 
     def is_accessible(self):
-        return current_user.is_authenticated()
+        return current_user.is_authenticated() and current_user.is_admin()
 
 
 
 # Create customized index view class
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_authenticated()
+        return current_user.is_authenticated() and current_user.is_admin()
 
 
 #admin
-#admin = Admin(app,'Auth',index_view=MyAdminIndexView())
-admin = Admin(app, 'Simple Models')
+admin = Admin(app,'Auth',index_view=MyAdminIndexView())
+#admin = Admin(app, 'Simple Models')
 
 # Add view
 admin.add_view(sqlamodel.ModelAdmin(User, session=db.session))
