@@ -483,7 +483,7 @@ def login():
             flash('You have successfully logged in',category='success')
             return redirect(request.args.get('next') or url_for('index'))
         else:
-            flash('Please check you username and password!',category='danger')
+            flash('Please check your username and password!',category='danger')
             return redirect(url_for('login'))
     return render_template('login.html',
         title = 'Sign In',

@@ -7,7 +7,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <h3>My Current Asks({{asks|length}})</h3> 
+            <h3>My Current Asks ({{asks|length}})</h3> 
             [<a href="{{url_for('closedasks')}}">View Closed Asks</a>]
             <hr>
             <br />
@@ -48,6 +48,12 @@
                 {% for ask in asks %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
                         <td class="col-md-6">
+                            {% if ask.count_replies() == 1 %}  
+                                <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Reply</span></a> 
+                            {% else %} 
+                                <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Replies</span></a> 
+                            {% endif %}
+                            <br />
                             {{ ask.question }} <br /><br />
                             <span class="decordate">Created: {{momentjs(ask.created).calendar()}}</span> <br />
                             <a href="{{url_for('closeask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return closeItem();"><span class="glyphicon glyphicon-off"></span> Close</a> 

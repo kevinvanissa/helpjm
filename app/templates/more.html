@@ -6,11 +6,11 @@
 <div class="row">
 
     <div class="col-md-4">
-    <h3>Responses</h3>
+        <h3>Replies ({{recommendations|length}})</h3>
     <hr>
     {% if not recommendations %}
         <br />
-        <h4> <span class="help-inline myerror">[No one has responded as yet]</span></h4>
+        <h4> <span class="help-inline myerror">[No one has replied to your Ask as yet]</span></h4>
     {% endif %}
 
     {% for recommendation in recommendations %}

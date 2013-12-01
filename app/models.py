@@ -110,6 +110,10 @@ class Ask(db.Model):
     created = db.Column(db.DateTime)
     status = db.Column(db.SmallInteger, default=ACTIVE_ASK)
 
+    def count_replies(self):
+        recommendation_count = db.session.query(ReplyRecommendation,Friend).filter(ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == self.id).count()
+        return recommendation_count
+
     def is_active(self):
         return self.status == ACTIVE_ASK
 
