@@ -51,7 +51,7 @@ google = oauth.remote_app('google',
 ITEMS_PER_PAGE = 2
 
 CRSF_ENABLED = True
-SECRET_KEY = 'you-will-never-guess'
+SECRET_KEY = 'tasfh333sdfdssN?*this'
 
 OPENID_PROVIDERS = [
     { 'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id' },
