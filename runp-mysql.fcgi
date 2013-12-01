@@ -1,4 +1,5 @@
 #!flask/bin/python
+import os
 
 # use mysql
 os.environ['DATABASE_URL'] = 'mysql://dundee:gamma.rad4N?@localhost/dundee'
