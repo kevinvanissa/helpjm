@@ -140,6 +140,12 @@ class ChangePasswordForm(Form):
 
 class ForgotPasswordForm(Form):
     password = PasswordField('password',[Required()])
+    confirm = PasswordField('confirm',[
+        Required(),
+        EqualTo('password',message='Passwords must match')
+    ])
+
+
 
 class ReviewForm(Form):
     content = TextAreaField('content', validators = [Required(),Length(min=0, max=140)])
