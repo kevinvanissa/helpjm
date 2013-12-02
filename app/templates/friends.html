@@ -14,7 +14,7 @@
             {% if not friends %} 
                 <h3>You have not created any Friends as yet!</h3>
                 <br />
-                <h4>Begin by creating your friends <span class="glyphicon glyphicon-arrow-right"></span></h4>
+                <h4>Begin by creating your friends. <span class="glyphicon glyphicon-arrow-right"></span></h4>
                 {% endif %}
             {% if friends %}
                 <form action="{{url_for('deletemultiplefriends')}}" method="post" onsubmit="return deleteMultipleItems()" name="deletemultiplefriends" id="deletemultiplefriends">
