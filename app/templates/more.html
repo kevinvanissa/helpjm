@@ -52,7 +52,7 @@
                     {{form.hidden_tag()}}
 
                     <div class="form-group{% if form.errors.category %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="category">Category:</label>
+                        <label class="col-md-4 control-label" for="category">Category: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.category(class="form-control" )}}
                             {% for error in form.errors.category %}
@@ -62,7 +62,7 @@
                     </div>
 
                     <div class="form-group{% if form.errors.service %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="service">Service:</label>
+                        <label class="col-md-4 control-label" for="service">Service: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.service(class="form-control" )}}
                             {% for error in form.errors.service %}
@@ -74,7 +74,7 @@
 
 
                    <div class="form-group{% if form.errors.question %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="question">Question:</label>
+                       <label class="col-md-4 control-label" for="question">Question: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.question(class="form-control",maxlength=140)}}
                             {% for error in form.errors.question %}
@@ -85,7 +85,7 @@
 
 
                        <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="parish">Parish:</label>
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.parish(class="form-control")}}
                             {% for error in form.errors.parish %}
@@ -95,7 +95,7 @@
                     </div>
 
                     <div class="form-group{% if form.errors.area %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="category">Area:</label>
+                        <label class="col-md-4 control-label" for="category">Area: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.area(class="form-control")}}
                             {% for error in form.errors.area %}

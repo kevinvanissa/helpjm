@@ -75,7 +75,7 @@
     <form class="form-horizontal" action="" method="get" name="search_form" id="search_form" onsubmit="return validateSearchForm();" role="form">
 
                     <div class="form-group{% if form.errors.post %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="category">Category:</label>
+                        <label class="col-md-4 control-label" for="category">Category: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.category(class="form-control" )}}
                             {% for error in form.errors.category %}
@@ -85,7 +85,7 @@
                     </div>
 
                     <div class="form-group{% if form.errors.post %}error{% endif %}">
-                        <label class="col-md-4 control-label" for="service">Service:</label>
+                        <label class="col-md-4 control-label" for="service">Service: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.service(class="form-control" )}}
                             {% for error in form.errors.service %}

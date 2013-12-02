@@ -23,7 +23,7 @@
         
 
                    <div class="form-group{% if form.errors.name %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="name">Name:</label>
+                       <label class="col-md-4 control-label" for="name">Name: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.name(class="form-control")}}
                             {% for error in form.errors.name %}
@@ -44,7 +44,7 @@
 
 
                     <div class="form-group{% if form.errors.phone %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="phone">Phone:</label>
+                        <label class="col-md-4 control-label" for="phone">Phone: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.phone(class="form-control",placeholder='7 digits only. No dashes.')}}
                             {% for error in form.errors.phone %}
@@ -79,7 +79,7 @@
 
 
                    <div class="form-group{% if form.errors.rating %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="rating">Rating:</label>
+                       <label class="col-md-4 control-label" for="rating">Rating: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.rating(class="form-control")}}
                             {% for error in form.errors.rating %}

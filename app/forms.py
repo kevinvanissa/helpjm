@@ -83,7 +83,7 @@ class RecommendationForm(Form):
     company = TextField('company')
     phone = TextField('phone',validators=[Required(),validate_phone])
     #phone = FormField(TelephoneForm)
-    email = TextField('email',[Required(),Email(message="Invalid Email Address")])
+    email = TextField('email',[Email(message="Invalid Email Address")])
     website = TextField('website')
     parish = SelectField('parish',choices=PARISHES,validators=[Required()])
     area = TextField('area',validators=[Required()])
