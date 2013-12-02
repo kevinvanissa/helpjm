@@ -25,7 +25,7 @@
                     <div class="col-md-8">
                             {{ form.email(class="form-control",placeholder="Email")}}
                             {% for error in form.errors.email %}
-                                <span class="help-inline">[{{error}}]</span><br>
+                                <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     <div class="col-md-8">
                             {{ form.password(class="form-control",placeholder="Password")}}
                             {% for error in form.errors.password %}
-                                <span class="help-inline">[{{error}}]</span><br>
+                                <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
                     </div>
                 </div>
