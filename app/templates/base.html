@@ -86,10 +86,10 @@
               {% endif %}
 
         {% if not g.user.is_authenticated() %}
-            <ul class="nav navbar-nav navbar-right">
-                <li><a><span style="color:yellow;font-weight:bold;">Don't have an account?</span></a></li>
-                <li {% if request.path == "/register" %}class="active" {% endif %}><a href="{{ url_for('register') }}">Create an Account</a></li>
-            </ul>
+                <a href="{{ url_for('register') }}" class="btn btn-success pull-right" style="margin-top:10px;">Sign Up</a>
+
+                <p class="navbar-text pull-right" style="color:yellow;font-weight:bold;">Don't have an account? &nbsp;</p>
+
               {% endif %}
 
 
