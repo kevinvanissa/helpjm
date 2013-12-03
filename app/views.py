@@ -685,6 +685,9 @@ def editad(id):
 def reset():
     form = ResetPasswordForm()
     if form.validate_on_submit():
+        if g.user.password == None or g.user.password == "" or g.user.password == 'NULL':
+            flash('You did not set an old password. If this is a facebook account, you should use the Forget your password link on the log in page!',category='danger')
+            return redirect(url_for('index'))
         if check_password_hash(g.user.password,form.oldpassword.data):
             g.user.password=generate_password_hash(form.password.data)
             db.session.add(g.user)
