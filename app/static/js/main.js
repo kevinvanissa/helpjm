@@ -1,4 +1,7 @@
 $(document).ready(function(){
+
+    //alert($('#main-navbar').css("height"));
+
     $("#category").change(function(){
         category_srvc = $("#category").val();
         $.post('/servicelist',
@@ -42,9 +45,16 @@ $('.pleasewait').click(function(){
     $('#myModal').modal()
 });
 
+
 });
 
+$(window).resize(function () { 
+   $('body').css('padding-top', parseInt($('#main-navbar').css("height"))+30);
+});
 
+$(window).load(function () { 
+   $('body').css('padding-top', parseInt($('#main-navbar').css("height"))+30);         
+}); 
 
 function deleteItem(){
     if(confirm("This action will delete the selected item. Are you sure you want to continue?")){

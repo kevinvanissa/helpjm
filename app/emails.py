@@ -15,7 +15,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
     send_async_email(msg)
 
 def ask_notification(friend, user, ask):
-    send_email("[HelpJM] %s %s needs a good %s?" % (user.firstname,user.lastname,ask.service),
+    send_email("[HelpJM] %s %s needs good %s services ?" % (user.firstname,user.lastname,ask.service),
         ADMINS[0],
         [friend.email],
         render_template("ask_email.txt",

@@ -62,7 +62,7 @@ class TestCase(unittest.TestCase):
         rv = self.logout()
         assert 'You have successfully logged out' in rv.data
         rv = self.login('kevinvanissa@gmail.com', 'defaultx', False)
-        assert 'Please check you username and password' in rv.data
+        assert 'Please check your username and password' in rv.data
 
     def add_friend(self,firstname,lastname,email):
         rv = self.app.post('/friends', data=dict(
