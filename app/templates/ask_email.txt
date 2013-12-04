@@ -4,6 +4,7 @@ Dear {{friend.firstname}} {{friend.lastname}} ,
 
 
     {{ user.firstname }} {{user.lastname}}'s question: 
+
     {{ask.question}}
 
 
