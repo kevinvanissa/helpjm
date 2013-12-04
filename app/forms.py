@@ -77,6 +77,19 @@ def validate_phone(form,field):
         raise ValidationError(message)
 
 
+import re
+def validate_email(form,field):
+    pattern = r'^.+@[^.].*\.[a-z]{2,10}$'
+    message = 'Invalid Email Address'
+    if re.match(pattern, str(field.data)):
+        return True
+    elif not field.data:
+        return True
+    else:
+        raise ValidationError(message)
+
+
+
 class RecommendationForm(Form):
     category = SelectField('category',choices=CATEGORIES,validators=[Required()])
     service = SelectField('service',choices=[('','-- Choose a Service --')],validators=[Required()] )
@@ -84,7 +97,7 @@ class RecommendationForm(Form):
     company = TextField('company',filters=[strip_filter])
     phone = TextField('phone',validators=[Required(),validate_phone])
     #phone = FormField(TelephoneForm)
-    email = TextField('email',[Email(message="Invalid Email Address")],filters=[strip_filter])
+    email = TextField('email',validators=[validate_email],filters=[strip_filter])
     website = TextField('website',filters=[strip_filter])
     parish = SelectField('parish',choices=PARISHES,validators=[Required()])
     area = TextField('area',validators=[Required()],filters=[strip_filter])

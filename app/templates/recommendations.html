@@ -94,7 +94,7 @@
                             <span class="detailheading"><span class="badge">Name:</span></span> <span class="detail">{{ recommendation.name }}</span> 
                             {% if recommendation.company %}<span class="detailheading"><span class="badge">Company:</span></span> <span class="detail">{{recommendation.company }}</span>{% endif %} 
                             <span class="detailheading"><span class="badge">Phone:</span></span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>
-                            <span class="detailheading"><span class="badge">Email:</span></span> <span class="detail">{{ recommendation.email }}</span>
+                            {% if recommendation.email %}<span class="detailheading"><span class="badge">Email:</span></span> <span class="detail">{{ recommendation.email }}</span>{% endif %}
                             {% if recommendation.website %}<span class="detailheading"><span class="badge">Website:</span></span> <span class="detail">{{ recommendation.website }}</span>{% endif %}
                             <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{recommendation.parish}}</span>
                             <span class="detailheading"><span class="badge">Area:</span></span> <span class="detail">{{recommendation.area}}</span> 
