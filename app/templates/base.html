@@ -47,7 +47,7 @@
         </div>
         <div class="navbar-collapse collapse">
        
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav nav-pills">
                 {% if not g.user.is_authenticated() %}
                 <li {% if request.path == "/" or request.path =="/index" %}class="active"{% endif %} ><a href="{{url_for('login')}}">Home</a></li>
                 <li {% if request.path == "/gettingstarted"%}class="active"{% endif %} ><a href="{{url_for('gettingstarted')}}">Getting Started</a></li>
@@ -78,7 +78,7 @@
 
       
               {% if g.user.is_authenticated() %}
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right nav-pills">
               <li {% if  request.path == "/edit" %}class="active"{% endif %}><a href="{{ url_for('edituser')}}">Your Profile</a></li>
               <li {% if  request.path == "/reset" %}class="active"{% endif %}><a href="{{ url_for('reset')}}">Reset Password</a></li>
               <li><a href="{{ url_for('logout') }}">Logout</a></li>
