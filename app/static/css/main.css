@@ -86,3 +86,10 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
     font-size:10px;
 }
 
+.friendwarning{
+    font-size:12px;
+    color:#800000;
+}
+
+
+

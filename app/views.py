@@ -560,6 +560,18 @@ def deletemultiplefriends():
     for f in friendlist:
         friend = Friend.query.filter_by(id=int(f)).first()
         if friend.owner.id == g.user.id:
+            replies = ReplyRecommendation.query.filter_by(friendid=friend.id).all()
+            for r in replies:
+                db.session.delete(r)
+                db.session.commit()
+            sends = SendAsk.query.filter_by(friendid=friend.id).all()
+            for s in sends:
+                db.session.delete(s)
+                db.session.commit()
+            sends2 = SendRecommendation.query.filter_by(friendid=friend.id).all()
+            for s2 in sends2:
+                db.session.delete(s2)
+                db.session.commit()
             db.session.delete(friend)
             db.session.commit()
     flash("You have deleted  the selected friends",category='success')
@@ -614,6 +626,10 @@ def editrecommendation(id):
 def deleterecommendation(id):
     recommendation = Recommendation.query.filter_by(id=int(id)).first()
     if recommendation.user_id == g.user.id:
+        sends2 = SendRecommendation.query.filter_by(recommendationid=recommendation.id).all()
+        for s2 in sends2:
+            db.session.delete(s2)
+            db.session.commit()
         db.session.delete(recommendation)
         db.session.commit()
         flash("Your Recommendation is now deleted",category='success')
@@ -861,7 +877,7 @@ def viewrecommendation(recommendationid):
     form = ReviewForm()
     recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
     if not recommendation:
-        flash('Sorry, but this recommendation was deleted by the user',category='danger')
+        flash('Sorry, but this recommendation was deleted by the Creator!',category='danger')
         return redirect(url_for('login'))
     if recommendation.user_id == 0:
         recommender = db.session.query(ReplyRecommendation, Friend).filter(ReplyRecommendation.recommendationid==recommendation.id,ReplyRecommendation.friendid == Friend.id).first()
@@ -878,6 +894,9 @@ def sendrecommendation2(askid,friendid):
     recList = []
     ask = Ask.query.filter_by(id=int(askid)).first()
     friend = Friend.query.filter_by(id=int(friendid)).first()
+    if not ask or not friend:
+        flash('Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',category='danger')
+        return redirect(url_for('login'))
     asker = User.query.filter_by(id=ask.user_id).first()
     recommendations = Recommendation.query.filter_by(user_id=g.user.id,service=ask.service,category=ask.category).all()
     recommendationlist = request.form.getlist('sendmyrecommendations')
@@ -905,9 +924,10 @@ def sendrecommendation2(askid,friendid):
 def sendrecommendation(askid,friendid):
     form = RecommendationReplyForm()
     ask = Ask.query.filter_by(id=int(askid)).first()
-    if not ask:
-        abort(404)
     friend = Friend.query.filter_by(id=int(friendid)).first()
+    if not ask or not friend:
+        flash('Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',category='danger')
+        return redirect(url_for('login'))
     asker = User.query.filter_by(id=ask.user_id).first()
     #FIXME:This will not work as I do not have the @login decorator(try using a hidden field in the form)
     rec_user = form.user_id.data
