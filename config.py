@@ -48,7 +48,7 @@ google = oauth.remote_app('google',
 
 
 # pagination
-ITEMS_PER_PAGE = 2
+ITEMS_PER_PAGE = 10
 
 CRSF_ENABLED = True
 SECRET_KEY = 'tasfh333sdfdssN?*this'
