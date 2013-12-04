@@ -143,7 +143,7 @@
                    <div class="form-group{% if form.errors.name %} has-error{% endif %}">
                        <label class="col-md-4 control-label" for="name">Name: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
-                            {{ form.name(class="form-control")}}
+                            {{ form.name(class="form-control",placeholder='If No Name, Use Company')}}
                             {% for error in form.errors.name %}
                                 <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
