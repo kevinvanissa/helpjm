@@ -133,7 +133,7 @@ class Recommendation(db.Model):
     website = db.Column(db.String(120))
     parish = db.Column(db.String(120),nullable=False)
     area = db.Column(db.String(120),nullable=False)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.String(120))
     review = db.Column(db.String(140))
     created = db.Column(db.DateTime)
     #allreviews = db.relationship('Review', backref = 'recommendation', cascade = "all,delete", lazy = 'dynamic')
