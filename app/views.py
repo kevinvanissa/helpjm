@@ -521,7 +521,7 @@ def friends():
     friends = user.friends.all()
     ads = getAds()
     if form.validate_on_submit():
-        f = Friend.query.filter_by(email=form.email.data.strip()).first()
+        f = Friend.query.filter_by(email=form.email.data).first()
         if f and f.owner.id:
             flash('You already have a friend with this email!',category='danger')
             return redirect(url_for('friends'))

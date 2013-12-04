@@ -9,6 +9,7 @@ FRIENDSLIST=[
 ('','-- Choose Friends  --')
 ]
 
+strip_filter = lambda x: x.strip() if x else None
 
 class LoginForm(Form):
     email = TextField('email',[Required(),Email()])
@@ -50,14 +51,14 @@ class AskForm(Form):
     service = SelectField('service',choices=[('','-- Choose a Service --')],validators=[Required()] )
     question = TextAreaField('question', validators = [Required(),Length(min=0, max=140)])
     parish = SelectField('parish',choices=PARISHES,validators=[Required()])
-    area = TextField('area',validators=[Required()])
+    area = TextField('area',validators=[Required()],filters=[strip_filter])
 
 
 
 class FriendForm(Form):
     firstname = TextField('firstname',validators=[Required()])
     lastname = TextField('lastname',validators=[Required()])
-    email = TextField('email',validators=[Required()])
+    email = TextField('email',validators=[Required()],filters=[strip_filter])
 
 
 class TelephoneForm(Form):
@@ -79,14 +80,14 @@ def validate_phone(form,field):
 class RecommendationForm(Form):
     category = SelectField('category',choices=CATEGORIES,validators=[Required()])
     service = SelectField('service',choices=[('','-- Choose a Service --')],validators=[Required()] )
-    name = TextField('name',validators=[Required()])
-    company = TextField('company')
+    name = TextField('name',validators=[Required()],filters=[strip_filter])
+    company = TextField('company',filters=[strip_filter])
     phone = TextField('phone',validators=[Required(),validate_phone])
     #phone = FormField(TelephoneForm)
-    email = TextField('email',[Email(message="Invalid Email Address")])
-    website = TextField('website')
+    email = TextField('email',[Email(message="Invalid Email Address")],filters=[strip_filter])
+    website = TextField('website',filters=[strip_filter])
     parish = SelectField('parish',choices=PARISHES,validators=[Required()])
-    area = TextField('area',validators=[Required()])
+    area = TextField('area',validators=[Required()],filters=[strip_filter])
     rating = SelectField('rating',choices=RATINGS,validators=[Required()])
     review = TextAreaField('review', validators = [Length(min=0, max=140)])
 
