@@ -125,7 +125,7 @@ class AdEditForm(Form):
 class RecommendationReplyForm(Form):
     name = TextField('name',validators=[Required()],filters=[strip_filter])
     company = TextField('company',filters=[strip_filter])
-    phone = TextField('phone',[Required()],validate_phone)
+    phone = TextField('phone',validators=[Required(),validate_phone])
     user_id = HiddenField('user_id')
     #phone = FormField(TelephoneForm)
     email = TextField('email',validators=[validate_email],filters=[strip_filter])
