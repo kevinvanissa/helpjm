@@ -11,8 +11,8 @@
     <b>{{recommender.firstname}} {{recommender.lastname}}'s</b> Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
     <h3>{{recommendation.name}} {% if recommendation.company %}- {{recommendation.company}} {% endif %}</h3>
     {% if recommendation.phone %}<span class="detailheading">Phone:</span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>, {% endif %}
-    {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail">{{recommendation.email}}</span>, {% endif %}
-    {% if recommendation.website %}<span class="detailheading">Website:</span> <span class="detail">{{recommendation.website}}</span>, {% endif %}
+    {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail"><a href="mailto:{{recommendation.email}}">{{recommendation.email}}</a></span>, {% endif %}
+    {% if recommendation.website %}<span class="detailheading">Website:</span> <span class="detail"><a href="http://{{recommendation.website}}">{{recommendation.website}}</a></span>, {% endif %}
     {% if recommendation.parish %}<span class="detailheading">Parish:</span> <span class="detail">{{recommendation.parish}}</span>, {% endif %}
     {% if recommendation.area %}<span class="detailheading">Area:</span> <span class="detail">{{recommendation.area}}</span> {% endif %}
 

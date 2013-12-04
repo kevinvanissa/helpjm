@@ -25,7 +25,7 @@
                    <div class="form-group{% if form.errors.name %} has-error{% endif %}">
                        <label class="col-md-4 control-label" for="name">Name: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
-                            {{ form.name(class="form-control")}}
+                            {{ form.name(class="form-control",placeholder='If No Name, Use Company')}}
                             {% for error in form.errors.name %}
                                 <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
@@ -68,7 +68,7 @@
                        <div class="form-group{% if form.errors.website %} has-error{% endif %}">
                         <label class="col-md-4 control-label" for="website">Website:</label>
                         <div class="col-md-8">
-                            {{ form.website(class="form-control")}}
+                            {{ form.website(class="form-control",placeholder='e.g. www.helpjm.com')}}
                             {% for error in form.errors.website %}
                                 <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}

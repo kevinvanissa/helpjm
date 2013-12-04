@@ -123,13 +123,13 @@ class AdEditForm(Form):
 
 
 class RecommendationReplyForm(Form):
-    name = TextField('name',validators=[Required()])
-    company = TextField('company')
-    phone = TextField('phone',[Required()])
+    name = TextField('name',validators=[Required()],filters=[strip_filter])
+    company = TextField('company',filters=[strip_filter])
+    phone = TextField('phone',[Required()],validate_phone)
     user_id = HiddenField('user_id')
     #phone = FormField(TelephoneForm)
-    email = TextField('email',[Email(message="Invalid Email Address")])
-    website = TextField('website')
+    email = TextField('email',validators=[validate_email],filters=[strip_filter])
+    website = TextField('website',filters=[strip_filter])
     rating = SelectField('rating',choices=RATINGS,validators=[Required()])
     review = TextAreaField('review', validators = [Length(min=0, max=140)])
 
