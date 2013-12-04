@@ -778,6 +778,7 @@ def forgot_password(p):
         abort(404)
     if form.validate_on_submit():
         user.password = generate_password_hash(form.password.data)
+        user.confirmationid = str(uuid.uuid4())
         db.session.add(user)
         db.session.commit()
         flash("Your password was successfully changed! You can now log in with your new password!",category='success')
