@@ -8,7 +8,7 @@
     <h3>Recommendation</h3>
     <hr>
     <br />
-    <b>{{recommender.firstname}} {{recommender.lastname}}'s</b> Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
+    <b>{% if recommender %}{{recommender.firstname}} {{recommender.lastname}}'s{% endif %} </b> Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
     <h3>{{recommendation.name}} {% if recommendation.company %}- {{recommendation.company}} {% endif %}</h3>
     {% if recommendation.phone %}<span class="detailheading">Phone:</span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>, {% endif %}
     {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail"><a href="mailto:{{recommendation.email}}">{{recommendation.email}}</a></span>, {% endif %}
@@ -26,10 +26,10 @@
 
 
 
-    <h2>{{recommender.firstname}}'s Review</h2>
+    <h2>{% if recommender %}{{recommender.firstname}}'s Review{% else %}User Review {% endif %}</h2>
     <br />
     <div class="alert alert-info">
-        {% if recommendation.review %}<span class="viewreview">{{recommendation.review}}</span>{% else %} <span class="help-inline myerror">[{{recommender.firstname}} did not write a review ]</span>{% endif %} <br />
+        {% if recommendation.review %}<span class="viewreview">{{recommendation.review}}</span>{% else %} <span class="help-inline myerror">[Recommender did not write a review ]</span>{% endif %} <br />
     <br /> 
     <b>Rating:</b> <span class='label label-{%if recommendation.rating=='Excellent' %}success{% elif recommendation.rating=='Very Good'%}primary{% elif recommendation.rating=='Average'%}default{% elif recommendation.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{recommendation.rating}}</span> &nbsp;
     

@@ -881,7 +881,8 @@ def viewrecommendation(recommendationid):
         return redirect(url_for('login'))
     if recommendation.user_id == 0:
         recommender = db.session.query(ReplyRecommendation, Friend).filter(ReplyRecommendation.recommendationid==recommendation.id,ReplyRecommendation.friendid == Friend.id).first()
-        recommender = recommender.Friend
+        if recommender:
+            recommender = recommender.Friend
     else:
         recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
         recommender = recommender.User
