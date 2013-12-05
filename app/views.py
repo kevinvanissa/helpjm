@@ -73,6 +73,7 @@ def closedasks():
 @app.route('/more/<int:id>',methods=['GET','POST'])
 @login_required
 def more(id):
+    frienddict = dict()
     form = AskForm()
     ask = Ask.query.filter_by(id=int(id)).first()
     form.service.choices = getServiceList(ask.category)
@@ -82,19 +83,25 @@ def more(id):
     form.parish.data = ask.parish
     form.area.data = ask.area
 
-    friends = db.session.query(SendAsk,Friend).filter(SendAsk.friendid == Friend.id,SendAsk.askid == int(id)).all()
+    friends = db.session.query(Friend, SendAsk).filter(SendAsk.friendid == Friend.id,SendAsk.askid == int(id)).all()
+    for f in friends:
+        if f.Friend in frienddict:
+            frienddict[f.Friend] = frienddict[f.Friend] + 1
+            continue
+        frienddict[f.Friend] = 1
+
     recommendations = db.session.query(ReplyRecommendation,Friend).filter(ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id)).all()
-    return render_template("more.html",title="More",friends=friends,recommendations=recommendations,form=form)
+    return render_template("more.html",title="More",recommendations=recommendations,form=form,frienddict=frienddict)
 
 
 
 @app.route('/sendtofriends',methods=['GET','POST'])
 @login_required
 def sendtofriends():
+    friendlist = request.form.getlist('emailfriends')
     ads = getAds()
     user = User.query.filter_by(id = g.user.id).first()
-    friends = user.friends.all()
-    friendlist = request.form.getlist('emailfriends')
+    friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
         flash("You need to select at least one friend",category='info')
         return redirect(url_for('sendtofriends'))
@@ -103,26 +110,27 @@ def sendtofriends():
                   question = session['question'],parish=session['parish'],area=session['area'],created=session['created'])
         db.session.add(ask)
         db.session.commit()
-        for f in friendlist:
-            friend = Friend.query.filter_by(id=int(f)).first()
+        for r in friendlist:
+            friend = Friend.query.filter_by(id=int(r)).first()
             ask_notification(friend,user,ask)
             sendask = SendAsk(askid=ask.id,friendid=friend.id,userid=user.id,datesent=datetime.utcnow())
             db.session.add(sendask)
             db.session.commit()
-            del session['category']
-            del session['service']
-            del session['question']
-            del session['parish']
-            del session['area']
-            del session['created']
-            flash('Your Ask was successfully sent! You will be notfied by email when there are responses',category='success')
-            return redirect(url_for('index'))
+        del session['category']
+        del session['service']
+        del session['question']
+        del session['parish']
+        del session['area']
+        del session['created']
+        flash('Your Ask was successfully sent! You will be notfied by email when there are responses',category='success')
+        return redirect(url_for('index'))
     return render_template("sendtofriends.html",friends=friends,title="Send to Friends",ads=ads)
 
 
 @app.route('/sendtofriendsagain/<int:id>',methods=['GET','POST'])
 @login_required
 def sendtofriendsagain(id):
+    friendlist = request.form.getlist('emailfriends')
     ads = getAds()
     sendasklist = list()
     user = User.query.filter_by(id = g.user.id).first()
@@ -130,14 +138,13 @@ def sendtofriendsagain(id):
     sendasks = SendAsk.query.filter_by(askid=ask.id).all()
     for s in sendasks:
         sendasklist.append(s.friendid)
-    friends = user.friends.all()
-    friendlist = request.form.getlist('emailfriends')
+    friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
         flash("You need to select at least one friend",category='info')
         return redirect(url_for('sendtofriendsagain',id=ask.id))
     if friendlist:
-        for f in friendlist:
-            friend = Friend.query.filter_by(id=int(f)).first()
+        for r in friendlist:
+            friend = Friend.query.filter_by(id=int(r)).first()
             ask_notification(friend,user,ask)
             sendask = SendAsk(askid=ask.id,friendid=friend.id,userid=user.id,datesent=datetime.utcnow())
             db.session.add(sendask)
@@ -151,17 +158,17 @@ def sendtofriendsagain(id):
 @app.route('/sendrectofriends/<int:id>',methods=['GET','POST'])
 @login_required
 def sendrectofriends(id):
+    friendlist = request.form.getlist('emailfriends')
     ads = getAds()
     user = User.query.filter_by(id = g.user.id).first()
     recommendation = Recommendation.query.filter_by(id=int(id)).first()
-    friends = user.friends.all()
-    friendlist = request.form.getlist('emailfriends')
+    friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
         flash("You need to select at least one friend",category='info')
         return redirect(url_for('sendrectofriends',id=recommendation.id))
     if friendlist:
-        for f in friendlist:
-            friend = Friend.query.filter_by(id=int(f)).first()
+        for r in friendlist:
+            friend = Friend.query.filter_by(id=int(r)).first()
             sendrec_notification(friend,user,recommendation)
             sendrec = SendRecommendation(recommendationid=recommendation.id,friendid=friend.id,datesent=datetime.utcnow())
             db.session.add(sendrec)
@@ -518,7 +525,7 @@ def user():
 def friends():
     form = FriendForm()
     user = User.query.filter_by(id = g.user.id).first()
-    friends = user.friends.all()
+    friends = user.friends.order_by(Friend.firstname).all()
     ads = getAds()
     if form.validate_on_submit():
         f = Friend.query.filter_by(email=form.email.data).first()

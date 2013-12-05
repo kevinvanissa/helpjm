@@ -26,14 +26,17 @@
     <h3>Friends Sent</h3>
     <hr>
 
-    {% if not friends %}
+    {% if not frienddict %}
         <br />
         <h4> <span class="help-inline myerror">[No Friends Sent]</span></h4>
         {% endif %}
 
-    {% for friend in friends %}
-    {{ friend.Friend.firstname }} {{ friend.Friend.lastname }} <br />
-
+    {% for f,x in frienddict.items() %}
+        <b>Name: </b> {{f.firstname}} {{f.lastname}} <br />
+        <b>Email: </b>{{f.email}} <br />
+        <b>How Many Times Sent: </b> {{x}}
+        <br />
+        <hr>
     {% endfor %}
 
     <br />
