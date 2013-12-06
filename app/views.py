@@ -98,6 +98,7 @@ def more(id):
 @app.route('/sendtofriends',methods=['GET','POST'])
 @login_required
 def sendtofriends():
+    #print request.form
     friendlist = request.form.getlist('emailfriends')
     ads = getAds()
     user = User.query.filter_by(id = g.user.id).first()
@@ -122,7 +123,7 @@ def sendtofriends():
         del session['parish']
         del session['area']
         del session['created']
-        flash('Your Ask was successfully sent! You will be notfied by email when there are responses',category='success')
+        flash('Your Ask was successfully sent! You will be notified by email when there are responses',category='success')
         return redirect(url_for('index'))
     return render_template("sendtofriends.html",friends=friends,title="Send to Friends",ads=ads)
 
@@ -149,7 +150,7 @@ def sendtofriendsagain(id):
             sendask = SendAsk(askid=ask.id,friendid=friend.id,userid=user.id,datesent=datetime.utcnow())
             db.session.add(sendask)
             db.session.commit()
-        flash('Your ask was successfully resent! You will be notified by email when there are responses',category='success')
+        flash('Your Ask was successfully resent! You will be notified by email when there are responses',category='success')
         return redirect(url_for('index'))
     return render_template('sendtofriendsagain.html',friends=friends,
                            title='Send to friends',sendasks=sendasklist,id=id,ads=ads)
@@ -581,7 +582,7 @@ def deletemultiplefriends():
                 db.session.commit()
             db.session.delete(friend)
             db.session.commit()
-    flash("You have deleted  the selected friends",category='success')
+    flash("You have deleted the selected friends",category='success')
     return redirect(url_for('friends'))
 
 

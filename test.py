@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from werkzeug import check_password_hash, generate_password_hash,secure_filename
 import os,uuid
 from app.models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation
+from werkzeug.datastructures import ImmutableMultiDict
+
 
 from coverage import coverage
 cov = coverage(branch = True, omit = ['flask/*','test.py'])
@@ -122,11 +124,8 @@ class TestCase(unittest.TestCase):
 
 
 
-    def send_ask(self,emailfriends,btn):
-        rv = self.app.post('/sendtofriends',data=dict(
-            emailfriends=emailfriends,
-            btn=btn
-        ), follow_redirects=True)
+    def send_ask(self,allvalues):
+        rv = self.app.post('/sendtofriends',data=allvalues,follow_redirects=True)
         return rv
 
 
@@ -212,15 +211,61 @@ class TestCase(unittest.TestCase):
         self.login('kevinvanissa@gmail.com', 'password123', False)
         v = self.add_friend('Kevin','Miller','kevinvanissa@gmail.com')
         assert 'Your friend is now Created' in v.data
+        assert 'Kevin Miller' in v.data
 
         # add friend with the same email address
         v1 = self.add_friend('Dundee','Mill','kevinvanissa@gmail.com')
         assert 'You already have a friend with this email!' in v1.data
 
-        #check if friend was added
-        rv = self.app.get('/friends')
-        assert 'kevinvanissa@gmail.com' in rv.data
+        # add another friend and see if two friends are there
+        v2 = self.add_friend('Vanissa','Miller','sassyvanjay@yahoo.com')
+        assert 'Your friend is now Created' in v2.data
 
+        #check if friend was added
+        rv = self.app.get('/friends',follow_redirects=True)
+        assert 'kevinvanissa@gmail.com' in rv.data
+        assert 'sassyvanjay@yahoo.com' in rv.data
+
+
+    def test_send_add_ask(self):
+        self.test_add_friend()
+        #check if we have access in another test
+        rv = self.app.get('/friends',follow_redirects=True)
+        assert 'kevinvanissa@gmail.com' in rv.data
+        rv1 = self.add_ask(category='Home',service='Plumbing',question='Need a cheap one',
+                           parish='Kingston',area='Half Way Tree')
+        assert 'Send To Friends' in rv1.data
+        assert 'Kevin' in rv1.data
+        assert 'Vanissa' in rv1.data
+
+        #Send Ask
+        allvalues=ImmutableMultiDict([('btn',u'send'),('emailfriends',u'1'),('emailfriends',u'2')])
+        #mybtn=('btn',u'send')
+        rv2 = self.send_ask(allvalues)
+        #print rv2.data
+        assert 'Your Ask was successfully sent! You will be notified by email when there are responses' in rv2.data
+        assert 'Need a cheap one' in rv2.data
+
+        rv3 = self.app.get('/more/1',follow_redirects=True)
+        assert 'Kevin' in rv3.data
+        assert 'Vanissa' in rv3.data
+        assert '[No one has replied to your Ask as yet]' in rv3.data
+        assert 'Home' in rv3.data
+        assert 'Plumbing' in rv3.data
+        assert 'Kingston' in rv3.data
+        assert 'Half Way Tree' in rv3.data
+        assert 'Need a cheap one' in rv3.data
+
+    def test_delete_friend_after_add_ask(self):
+        self.test_send_add_ask()
+
+        #delete friend, remember friends set from test_send_add_ask
+        allvalues1=ImmutableMultiDict([('friends',u'1')])
+        rv = self.app.post('/deletemultiplefriends',data=allvalues1,follow_redirects=True)
+        assert 'You have deleted the selected friends' in rv.data
+        rv1 = self.app.get('/more/1',follow_redirects=True)
+        assert 'Kevin' not in rv1.data
+        assert 'Vanissa' in rv1.data
 
         #with app.test_client() as c:
         #    with c.session_transaction() as sess:
@@ -236,10 +281,12 @@ if __name__ == '__main__':
         unittest.main()
     except:
         pass
-    cov.stop()
-    cov.save()
-    print "\n\nCoverage Report: \n"
-    cov.report()
-    print "HTML version: " + os.path.join(basedir, "tmp/coverage/index.html")
-    cov.html_report(directory = "tmp/coverage")
-    cov.erase()
+    coverage_bool=False
+    if coverage_bool:
+        cov.stop()
+        cov.save()
+        print "\n\nCoverage Report: \n"
+        cov.report()
+        print "HTML version: " + os.path.join(basedir, "tmp/coverage/index.html")
+        cov.html_report(directory = "tmp/coverage")
+        cov.erase()
