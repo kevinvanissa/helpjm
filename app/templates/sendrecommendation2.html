@@ -11,21 +11,24 @@
         You are responding to: {{ asker.firstname }} {{asker.lastname}} who needs somewhere that provides good <b>{{ask.service}}</b> services in the parish of {{ask.parish}}  {% if ask.area %}, {{ask.area}} {% endif %}
         <br />
         <br />
+
+        {%if recommendations %}
         <div class="alert alert-info">
-            Select the recommendations you want to send to {{asker.firstname}} and use the send button below to complete this action.
+            Select the recommendations that you want to send to {{asker.firstname}} and use the send button below to complete this action.
         </div>
+    {% endif %}
 
     </div>
 </div>
     <div class="row">
         <div class="col-md-10">
-            <h4>You have {{recommendations|length}} Recommendation(s) that matches a/an {{ask.service}}</h4> 
+            <h4>You have {{recommendations|length}} Recommendation(s) that matches  {{ask.service}} services</h4> 
             <br />
             {% if not recommendations %} 
                 <!--<br /><br /><span class="alert alert-info">You have not created any Recommendations as yet!</span> -->
-                <h3>You might want to go back to create a new recommendation:</h3>
+                <h3>You might want to go back to recommend a new Service Provider:</h3>
                 <br />
-                <a href="{{url_for('sendrecommendation',askid=ask.id,friendid=friend.id)}}" class="btn btn-warning"><span class="glyphicon glyphicon-chevron-right"></span> Create New Recommendation</a>
+                <a href="{{url_for('sendrecommendation',askid=ask.id,friendid=friend.id)}}" class="btn btn-warning"><span class="glyphicon glyphicon-chevron-left"></span> Go Back</a>
             {% endif %}
             
 

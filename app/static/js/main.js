@@ -64,7 +64,7 @@ function deleteItem(){
 }
 
 function closeItem(){
-    if(confirm("This action will close the selected Ask. Are you sure you want to continue ?")){
+    if(confirm("This action will close the selected Ask, delete replies and all other information connected to this Ask. \n\n Are you sure you want to continue ?")){
         return true;
 }
     return false;

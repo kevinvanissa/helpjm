@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-8">
             <h3>My Current Asks ({{asks|length}})</h3> 
-            [<a href="{{url_for('closedasks')}}">View Closed Asks</a>]
+            [<a href="{{url_for('closedasks')}}">Switch To Closed Asks</a>]
             <hr>
             <br />
             {% if not asks %} 
@@ -35,6 +35,13 @@
 <!--</div>-->
 
             {% if asks %}           
+
+                <p class="mywarning">
+                     <b>NB:</b> If you want to delete an Ask, you will need to close it first. If you close an ask, all associated information will be deleted.
+                </p> 
+
+
+
           <table class="table" >
             <thead>
                 <tr>

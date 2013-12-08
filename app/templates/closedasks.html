@@ -7,10 +7,9 @@
 
     <div class="row">
         <div class="col-md-8">
-            <h3>My Closed Asks({{asks|length}})</h3> 
-            [<a href="{{url_for('index')}}">View Opened Asks</a>]
+            <h3>My Closed Asks ({{asks|length}})</h3> 
+            [<a href="{{url_for('index')}}">Switch To Current Asks</a>]
             <hr>
-            <br />
             {% if not asks %} 
 
                 <h3>You do not have any Closed Asks as yet!</h3>
@@ -19,6 +18,13 @@
 
         
             {% if asks %}           
+
+                <p class="mywarning">
+                     <b>NB:</b> If you want to Re-Open an Ask, remember that you have to resend it to your friends.
+                </p> 
+
+
+            
           <table class="table" >
             <thead>
                 <tr>
@@ -35,7 +41,7 @@
                             {{ ask.question }} <br />
                             <span class="decordate">Created: {{momentjs(ask.created).calendar()}}</span> <br />
                             <a href="{{url_for('reopenask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return openItem();"><span class="glyphicon glyphicon-eye-open"></span> Re-Open</a> 
-
+                            <a href="{{url_for('deleteask',id=ask.id)}}" class="btn btn-xs btn-danger" onclick="javascript:return deleteItem();"><span class="glyphicon glyphicon-trash"></span> Delete</a> 
                         </td>
                         <td class="col-md-6">
                             <span class="detailheading"><span class="badge">Category:</span></span>  <span class="detail">{{ask.category}}</span>

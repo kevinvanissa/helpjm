@@ -188,6 +188,14 @@ def closeask(id):
         ask.status = INACTIVE_ASK
         db.session.add(ask)
         db.session.commit()
+        sAsk = SendAsk.query.filter_by(askid=ask.id).all()
+        for s1 in sAsk:
+            db.session.delete(s1)
+            db.session.commit()
+        rReply = ReplyRecommendation.query.filter_by(askid=ask.id).all()
+        for r1 in rReply:
+            db.session.delete(r1)
+            db.session.commit()
     return redirect(url_for('index'))
 
 @app.route('/reopenask/<int:id>',methods=['GET','POST'])
@@ -196,11 +204,22 @@ def reopenask(id):
     ask = Ask.query.filter_by(id=int(id)).first()
     if ask.user_id == g.user.id:
         ask.status = ACTIVE_ASK
+        ask.created = datetime.utcnow()
         db.session.add(ask)
         db.session.commit()
     return redirect(url_for('closedasks'))
 
-
+@app.route('/deleteask/<int:id>',methods=['GET','POST'])
+@login_required
+def deleteask(id):
+    ask = Ask.query.filter_by(id=int(id)).first()
+    if not ask:
+        abort(404)
+    if ask.user_id == g.user.id:
+        db.session.delete(ask)
+        db.session.commit()
+        flash("Your ask is now deleted", category='success')
+    return redirect(url_for('closedasks'))
 
 
 #FIXME: for ask and recommendation you should click more and information hide/show
@@ -634,9 +653,13 @@ def editrecommendation(id):
 def deleterecommendation(id):
     recommendation = Recommendation.query.filter_by(id=int(id)).first()
     if recommendation.user_id == g.user.id:
-        sends2 = SendRecommendation.query.filter_by(recommendationid=recommendation.id).all()
+        sends2 = ReplyRecommendation.query.filter_by(recommendationid=recommendation.id).all()
         for s2 in sends2:
             db.session.delete(s2)
+            db.session.commit()
+        sends3 = SendRecommendation.query.filter_by(recommendationid=recommendation.id).all()
+        for s3 in sends3:
+            db.session.delete(s3)
             db.session.commit()
         db.session.delete(recommendation)
         db.session.commit()
@@ -919,7 +942,7 @@ def sendrecommendation2(askid,friendid):
             db.session.add(replyrecommendation)
             db.session.commit()
         recommendation_notification2(friend,asker,ask,recList)
-        flash('Your recommendations were send successfully',category='success')
+        flash('Your Recommendations were sent successfully',category='success')
         return redirect(url_for('recommendations'))
     return render_template('sendrecommendation2.html',
                            title="Send Recommendations",
@@ -959,7 +982,7 @@ def sendrecommendation(askid,friendid):
         db.session.add(replyrecommendation)
         db.session.commit()
         recommendation_notification(friend,asker,ask,recommendation.id)
-        flash("Your Recommendation was sucessfully sent to  %s %s ! You can send another if you like." % (asker.firstname, asker.lastname ),category='success')
+        flash("Your Recommendation was successfully sent to  %s %s ! You can send another if you like. Or just close this page!" % (asker.firstname, asker.lastname ),category='success')
         return redirect(url_for('sendrecommendation',askid=ask.id,friendid=friend.id))
     return render_template("recommendationreply.html",
                            title="Send Recommendation",

@@ -105,6 +105,7 @@ class TestCase(unittest.TestCase):
         #check for the question etc in /main
         return rv
 
+
     def add_recommendation(self,category,service,name,company,phone,email,
                            website,parish,area,rating,review):
         rv = self.app.post('/recommendations',data=dict(
@@ -173,6 +174,13 @@ class TestCase(unittest.TestCase):
                                     "www.maddog.com","Kingston","Stand Pipe",
                                     "Excellent","He is quite Good")
         assert 'Your Recommendation is now created!' in v.data
+
+
+    def test_delete_recommendation(self):
+        self.test_add_recommendation()
+        rv = self.app.get('/deleterecommendation/1',follow_redirects=True)
+        assert 'Your Recommendation is now deleted' in rv.data
+        assert 'madagain@yahoo.com' not in rv.data
 
 
     def test_reset_password(self):
@@ -267,13 +275,58 @@ class TestCase(unittest.TestCase):
         assert 'Kevin' not in rv1.data
         assert 'Vanissa' in rv1.data
 
-        #with app.test_client() as c:
-        #    with c.session_transaction() as sess:
-        #        sess['user_id'] = u1.id
-        #        sess['_fresh'] = True
-        #        rv = self.addfriendform('Kevin','Miller','kevinvanissa@gmail.com')
-        #        print rv.data
-        #        assert 'Your friend is now Created' in rv.data
+
+    def test_delete_ask(self):
+        self.test_send_add_ask()
+        rv = self.app.get('/deleteask/1',follow_redirects=True)
+        assert 'Your ask is now deleted' in rv.data
+
+    def test_respond_ask(self):
+        self.test_delete_friend_after_add_ask()
+        allvalues=ImmutableMultiDict(
+       [
+           ('name',u'Mr. Reply'),
+           ('user_id',u'1'),
+           ('company',u'My Company'),
+           ('phone',u'1234567'),
+           ('email',u'company@gmail.com'),
+           ('website',u'www.company.com'),
+           ('rating',u'Excellent'),
+           ('review',u'They are quite Good man.')
+       ])
+        rv = self.app.post('/recommendation/1/2',data=allvalues,follow_redirects=True)
+        assert 'Your Recommendation was successfully sent to' in rv.data
+        rv1 = self.app.get('/main',follow_redirects=True)
+        assert '1 Reply' in rv1.data
+        rv2 = self.app.get('/more/1',follow_redirects=True)
+        assert 'from Vanissa Miller' in rv2.data
+
+    def test_send_recommendation_then_delete(self):
+        self.test_respond_ask()
+        v = self.add_recommendation("Home","Plumbing","Mr. Bogle","Old Navy",
+                                    "8787876","madagain@yahoo.com",
+                                    "www.maddog.com","Kingston","Stand Pipe",
+                                    "Excellent","He is quite Good")
+        #You should have 1 Recommendation and 1 Reply Now.
+        assert 'Your Recommendation is now created!' in v.data
+        #send this recommendation
+        allvalues = ImmutableMultiDict([('btn',u'send'),
+                                        ('sendmyrecommendations',u'2')
+                                        ])
+        rv = self.app.post('/sendrecommendation2/1/2',data=allvalues,follow_redirects=True)
+        assert 'Your Recommendations were sent successfully' in rv.data
+
+        rv1 = self.app.get('/main',follow_redirects=True)
+        assert '2 Replies' in rv1.data
+        #delete Recommendation 1
+        rv2 = self.app.get('deleterecommendation/2',follow_redirects=True)
+        assert 'Your Recommendation is now deleted' in rv2.data
+        assert 'madagain@yahoo.com' not in rv2.data
+        #check replies again
+        rv3 = self.app.get('/main',follow_redirects=True)
+        assert '1 Reply' in rv3.data
+
+
 
 
 if __name__ == '__main__':
