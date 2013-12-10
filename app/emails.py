@@ -23,6 +23,16 @@ def ask_notification(friend, user, ask):
         render_template("ask_email.html",
             friend = friend, user = user, ask=ask))
 
+def thankyou_notification(friend,user,recommendation,message):
+    send_email("[HelpJM] %s %s is thanking you for the Recommendation that you sent." % (user.firstname,user.lastname),
+        ADMINS[0],
+        [friend.email],
+        render_template("thankyou_email.txt",
+            friend = friend, user = user,recommendation=recommendation,message=message),
+        render_template("thankyou_email.html",
+            friend = friend, user = user, recommendation=recommendation,message=message))
+
+
 
 def recommendation_notification(friend,user,ask,recommendationid):
     send_email("[HelpJM] %s %s has a recommendation for you" % (friend.firstname,friend.lastname),

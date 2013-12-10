@@ -73,7 +73,7 @@ class User(db.Model):
     role = db.Column(db.SmallInteger, default = ROLE_USER)
     asks = db.relationship('Ask', backref = 'author', lazy = 'dynamic')
     friends = db.relationship('Friend', backref = 'owner', lazy = 'dynamic')
-    #reviews = db.relationship('Review', backref = 'reviewowner', lazy = 'dynamic')
+    reviews = db.relationship('Review', backref = 'reviewowner', lazy = 'dynamic')
     last_seen = db.Column(db.DateTime)
 
     def is_authenticated(self):
@@ -136,17 +136,19 @@ class Recommendation(db.Model):
     rating = db.Column(db.String(120))
     review = db.Column(db.String(140))
     created = db.Column(db.DateTime)
-    #allreviews = db.relationship('Review', backref = 'recommendation', cascade = "all,delete", lazy = 'dynamic')
+    allreviews = db.relationship('Review', backref = 'reviewrecommendation', cascade = "all,delete", lazy = 'dynamic')
+    friend_id = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<Recommend %r>' % (self.review)
 
-#class Review(db.Model):
-#    id = db.Column(db.Integer, primary_key = True)
-#    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
-#    rec_id = db.Column(db.Integer,db.ForeignKey('recommendation.id'))
-#    content = db.Column(db.String(140))
-#    created = db.Column(db.DateTime)
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    rec_id = db.Column(db.Integer,db.ForeignKey('recommendation.id'))
+    review = db.Column(db.String(140))
+    rating = db.Column(db.String(120))
+    created = db.Column(db.DateTime)
 
 
 class Friend(db.Model):

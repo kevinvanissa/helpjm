@@ -27,7 +27,6 @@
 
 
     <h2>{% if recommender %}{{recommender.firstname}}'s Review{% else %}User Review {% endif %}</h2>
-    <br />
     <div class="alert alert-info">
         {% if recommendation.review %}<span class="viewreview">{{recommendation.review}}</span>{% else %} <span class="help-inline myerror">[Recommender did not write a review ]</span>{% endif %} <br />
     <br /> 
@@ -73,7 +72,65 @@
 
     <hr>
 
+        <h3>Other Reviews ({{reviews|length}})</h3>
+        <i><b>NB:</b> These Reviews are from persons who were sent this recommendation by their friends.</i>
+        <br />
+        <br />
+        {% if reviews %}
 
+            {% for review in reviews %}
+
+<div class="alert alert-warning">
+        <span class="viewreview">{{review.review}}</span>
+    <br /> 
+    <br /> 
+    <b>Rating:</b> <span class='label label-{%if review.rating=='Excellent' %}success{% elif review.rating=='Very Good'%}primary{% elif review.rating=='Average'%}default{% elif review.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{review.rating}}</span> &nbsp;
+    
+    {% if review.rating == 'Excellent' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+    {% elif review.rating == 'Very Good' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif review.rating == 'Average' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif review.rating == 'Poor' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% else %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% endif %} 
+
+    <br /> 
+    <b>Created:</b> <i>{{ momentjs(review.created).calendar() }} by {{review.reviewowner.firstname}} {{review.reviewowner.lastname}}</i>
+    </div>
+    <br />
+    {% endfor %}
+
+        {% else %}
+            <br />
+            <h4 style="color:red;"> [There are no other reviews for this recommendation] </h4>
+        
+        {% endif %}
 
 
 

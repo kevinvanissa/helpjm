@@ -2,11 +2,11 @@ from datetime import datetime
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory,abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from forms import LoginForm, AskForm, FriendForm, RecommendationForm,UserForm,ContactUsForm, SearchForm,RecommendationReplyForm,RegistrationForm,ResetPasswordForm,ChangePasswordForm,AdForm,AdEditForm,ForgotPasswordForm,ReviewForm
-from models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation
+from forms import LoginForm, AskForm, FriendForm, RecommendationForm,UserForm,ContactUsForm, SearchForm,RecommendationReplyForm,RegistrationForm,ResetPasswordForm,ChangePasswordForm,AdForm,AdEditForm,ForgotPasswordForm,ReviewForm,MessageForm
+from models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation,Review
 from config import ITEMS_PER_PAGE,ALLOWED_EXTENSIONS,facebook,google,REDIRECT_URI
 from helperlist import PARISHES, SERVICES, CATEGORIES, getServiceList,getServiceListJSON
-from emails import ask_notification, recommendation_notification,recommendation_notification2,user_confirmation_notification,forgot_password_notification,sendrec_notification
+from emails import ask_notification, recommendation_notification,recommendation_notification2,user_confirmation_notification,forgot_password_notification,sendrec_notification,thankyou_notification
 from werkzeug import check_password_hash, generate_password_hash,secure_filename
 import os,uuid
 from decorators import admin_required
@@ -73,6 +73,8 @@ def closedasks():
 @app.route('/more/<int:id>',methods=['GET','POST'])
 @login_required
 def more(id):
+    reviewForm = ReviewForm()
+    messageForm = MessageForm()
     frienddict = dict()
     form = AskForm()
     ask = Ask.query.filter_by(id=int(id)).first()
@@ -90,9 +92,41 @@ def more(id):
             continue
         frienddict[f.Friend] = 1
 
-    recommendations = db.session.query(ReplyRecommendation,Friend).filter(ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id)).all()
-    return render_template("more.html",title="More",recommendations=recommendations,form=form,frienddict=frienddict)
+    #recommendations = db.session.query(ReplyRecommendation,Friend).filter(ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id)).all()
+    recommendations = db.session.query(ReplyRecommendation,Friend,Recommendation).filter(
+        ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id),
+        Recommendation.id == ReplyRecommendation.recommendationid).all()
+    return render_template("more.html",title="More",recommendations=recommendations,form=form,frienddict=frienddict,messageForm=messageForm,reviewForm=reviewForm,id=id)
 
+
+
+@app.route('/createreview/<int:recommendationid>/<int:askid>',methods=['GET','POST'])
+@login_required
+def createreview(recommendationid,askid):
+    reviewForm = ReviewForm()
+    if reviewForm.validate_on_submit():
+        review = Review(user_id=g.user.id,rec_id=recommendationid,review=reviewForm.review.data,created=datetime.utcnow(),rating=reviewForm.rating.data)
+        db.session.add(review)
+        db.session.commit()
+        flash('Your Review was successfully created! You should now be able to view it when you click the view link below!',category='success')
+        return redirect(url_for('more',id=askid))
+    flash('You need to fill in all the fields before we can send this Review',category='danger')
+    return redirect(url_for('more',id=askid))
+
+
+@app.route('/sendthankyou/<int:friendid>/<int:recommendationid>/<int:askid>',methods=['GET','POST'])
+@login_required
+def sendthankyou(friendid,recommendationid,askid):
+    user = User.query.filter_by(id=g.user.id).first()
+    friend = Friend.query.filter_by(id=int(friendid)).first()
+    recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
+    messageForm = MessageForm()
+    if messageForm.validate_on_submit():
+        thankyou_notification(friend,user,recommendation,messageForm.message.data)
+        flash('Your thank you message was successfully sent to %s!' % friend.firstname,category='success')
+        return redirect(url_for('more',id=askid))
+    flash('You need to write a message before we can send this message to %s!' % friend.firstname,category='danger')
+    return redirect(url_for('more',id=askid))
 
 
 @app.route('/sendtofriends',methods=['GET','POST'])
@@ -907,17 +941,20 @@ def search():
 def viewrecommendation(recommendationid):
     form = ReviewForm()
     recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
+    reviews = Review.query.filter_by(rec_id=int(recommendationid)).order_by(Review.created).all()
+
+
     if not recommendation:
         flash('Sorry, but this recommendation was deleted by the Creator!',category='danger')
         return redirect(url_for('login'))
     if recommendation.user_id == 0:
-        recommender = db.session.query(ReplyRecommendation, Friend).filter(ReplyRecommendation.recommendationid==recommendation.id,ReplyRecommendation.friendid == Friend.id).first()
+        recommender = db.session.query(Recommendation,Friend).filter(Recommendation.id==recommendation.id,Recommendation.friend_id == Friend.id).first()
         if recommender:
             recommender = recommender.Friend
     else:
         recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
         recommender = recommender.User
-    return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form)
+    return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form,reviews=reviews)
 
 
 @app.route('/sendrecommendation2/<int:askid>/<int:friendid>',methods=['GET','POST'])
@@ -973,7 +1010,8 @@ def sendrecommendation(askid,friendid):
                                        company=form.company.data,phone=form.phone.data,
                                        email=form.email.data,website=form.website.data,
                                        parish=ask.parish,area=ask.area,rating=form.rating.data,review=form.review.data,
-                                       created=datetime.utcnow()
+                                       created=datetime.utcnow(),
+                                       friend_id = int(friendid)
                                         )
         db.session.add(recommendation)
         db.session.commit()

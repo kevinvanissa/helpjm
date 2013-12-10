@@ -162,7 +162,10 @@ class ForgotPasswordForm(Form):
 
 
 class ReviewForm(Form):
-    content = TextAreaField('content', validators = [Required(),Length(min=0, max=140)])
-    rating = SelectField('rating',choices=RATINGS)
+    review = TextAreaField('review', validators = [Required(),Length(min=0, max=140)])
+    rating = SelectField('rating',choices=RATINGS,validators = [Required()])
+
+class MessageForm(Form):
+    message = TextAreaField('message', validators = [Required(),Length(min=0, max=140)])
 
 
