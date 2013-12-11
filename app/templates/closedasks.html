@@ -7,8 +7,8 @@
 
     <div class="row">
         <div class="col-md-8">
-            <h3>My Closed Asks ({{asks|length}})</h3> 
-            [<a href="{{url_for('index')}}">Switch To Current Asks</a>]
+            <h3><span class="glyphicon glyphicon-eye-close"></span> My <span class="help-inline myerror">Closed</span> Asks ({{asks|length}})</h3> 
+            [<a href="{{url_for('index')}}"><span class="glyphicon glyphicon-backward"></span> Switch Back To Open Asks</a>]
             <hr>
             {% if not asks %} 
 
@@ -38,7 +38,7 @@
                 {% for ask in asks %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
                         <td class="col-md-6">
-                            {{ ask.question }} <br />
+                            {{ ask.question }} <br /><br />
                             <span class="decordate">Created: {{momentjs(ask.created).calendar()}}</span> <br />
                             <a href="{{url_for('reopenask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return openItem();"><span class="glyphicon glyphicon-eye-open"></span> Re-Open</a> 
                             <a href="{{url_for('deleteask',id=ask.id)}}" class="btn btn-xs btn-danger" onclick="javascript:return deleteItem();"><span class="glyphicon glyphicon-trash"></span> Delete</a> 
@@ -60,8 +60,87 @@
         </div>
 
         <div class="col-md-4">
+        <h3 class="col-md-offset-2">Create New Ask</h3> 
+         <br />
+
+         <form class="form-horizontal" action="{{url_for('index')}}" method="post" name="ask" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.service %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="service">Service: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.service(class="form-control" )}}
+                            {% for error in form.errors.service %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.question %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="question">Question: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.question(class="form-control",maxlength=140)}}
+                            {% for error in form.errors.question %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.area %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Area: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.area(class="form-control")}}
+                            {% for error in form.errors.area %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Ask to Friends </button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+
+
+
+
+
+
+            {% if False %}
             <h3 class="col-md-offset-2">HelpJM Ads</h3> 
-            
+            {% endif %}
+
         {% include 'ads.html' %}
 
 

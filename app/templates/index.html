@@ -7,10 +7,9 @@
 
     <div class="row">
         <div class="col-md-8">
-            <h3>My Current Asks ({{asks|length}})</h3> 
-            [<a href="{{url_for('closedasks')}}">Switch To Closed Asks</a>]
+            <h3><span class="glyphicon glyphicon-eye-open"></span> My Open Asks ({{asks|length}})</h3> 
+            [<a href="{{url_for('closedasks')}}">Switch To Closed Asks <span class="glyphicon glyphicon-forward"></span></a>]
             <hr>
-            <br />
             {% if not asks %} 
                 <!--<br /><br /><span class="alert alert-info">You have not created any Asks as yet!</span> -->
                 <h3 >You have not created any Asks as yet!</h3>

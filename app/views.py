@@ -63,9 +63,10 @@ def index():
 @app.route('/closedasks', methods=['GET','POST'])
 @login_required
 def closedasks():
+    form = AskForm()
     asks = Ask.query.filter_by(user_id=g.user.id, status=INACTIVE_ASK).order_by("created desc").all()
     ads = getAds()
-    return render_template("closedasks.html",title="Closed Asks",asks=asks,ads=ads)
+    return render_template("closedasks.html",title="Closed Asks",asks=asks,ads=ads,form=form)
 
 
 

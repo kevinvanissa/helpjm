@@ -53,8 +53,12 @@
                 <li {% if request.path == "/gettingstarted"%}class="active"{% endif %} ><a href="{{url_for('gettingstarted')}}">Getting Started</a></li>
                 <li {% if request.path == "/about"%}class="active"{% endif %} ><a href="{{url_for('about')}}">About Us</a></li>
                 <li {% if request.path == "/contactus"%}class="active"{% endif %} ><a href="{{url_for('contactus')}}">Contact Us</a></li>
+
+                {% if False %}
                 <li {% if request.path == "/advertise"%}class="active"{% endif %} ><a href="{{url_for('advertise')}}">Advertise With Us</a></li>
-                
+                {% endif %}               
+
+
                 {% endif %}
 
               {% if g.user.is_authenticated() %}
@@ -123,8 +127,12 @@
             <a href="{{url_for('privacy')}}" class="mainlink">Privacy Policy</a> <span class="divider">| </span>
  
                 <a href="{{url_for('about')}}" class="mainlink">About Us</a>  <span class="divider">| </span>
-                <a href="{{url_for('contactus')}}" class="mainlink">Contact Us</a> <span class="divider">| </span>
+                <a href="{{url_for('contactus')}}" class="mainlink">Contact Us</a> 
+
+                {%if False %}
                 <a href="{{url_for('advertise')}}" class="mainlink">Advertise With Us</a>
+                {% endif %}
+
             </p>
                 </div>
             </div>
