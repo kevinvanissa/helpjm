@@ -79,6 +79,6 @@ MAIL_USERNAME = 'services@helpjm.com'
 MAIL_PASSWORD = 'gamma.rad4N?'
 
 # administrator list
-ADMINS = ['services@helpjm.com']
+ADMINS = ['HelpJM Team <services@helpjm.com>']
 
 

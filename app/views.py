@@ -534,7 +534,7 @@ def login():
             flash('You need to confirm your registration before you log in!',category='info')
             return redirect(url_for('login'))
         if user.password is None  or user.password == "":
-            flash('Blank Passwords are not permitted!',category='danger')
+            flash('You did not register for an account! If you do not want to register, sign in with the facebook link below!',category='danger')
             return redirect(url_for('login'))
         if user and check_password_hash(user.password, form.password.data):
             session['remember_me'] = form.remember_me.data
