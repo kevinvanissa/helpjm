@@ -47,7 +47,7 @@ class TestCase(unittest.TestCase):
 
     def test_login_logout(self):
         rv = self.login('kevinvanissa@gmail.com', 'password123', False)
-        assert 'This email is not recognized' in rv.data
+        assert 'The username or password you entered is incorrect!' in rv.data
         u1 = User(firstname="Kevin",
                     lastname="Miller",
                     email="kevinvanissa@gmail.com",

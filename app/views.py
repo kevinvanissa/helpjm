@@ -528,13 +528,13 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if not user:
-            flash('This email is not recognized',category='danger')
+            flash('The username or password you entered is incorrect!', category='danger')
             return redirect(url_for('login'))
         if user.status == INACTIVE_USER:
             flash('You need to confirm your registration before you log in!',category='info')
             return redirect(url_for('login'))
         if user.password is None  or user.password == "":
-            flash('You did not register for an account! If you do not want to register, sign in with the facebook link below!',category='danger')
+            flash('The username or password you entered is incorrect!',category='danger')
             return redirect(url_for('login'))
         if user and check_password_hash(user.password, form.password.data):
             session['remember_me'] = form.remember_me.data
