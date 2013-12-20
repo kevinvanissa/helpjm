@@ -18,7 +18,16 @@
     <br />
     <br />
     {% if not recommendations.items %} 
-                <h3> No Search Results!</h3>
+        {% if btnclicked %}
+        Sorry, but your search did not return any results. <br /> <br />
+        <b>Suggestions: </b> <br /> <br />
+        Try selecting a different parish. <br />
+        Make sure that your spellings are correct. <br />
+        Be more general in your search. <br /> <br />
+
+        {% else %}
+            <h2 class="col-md-offset-4"> GO <span class="glyphicon glyphicon-hand-right"></span></h2>
+        {% endif %}
 
     {% endif %}
 
@@ -52,6 +61,8 @@
 <br />
 <br />
 
+{% if recommendations.items %}
+
 <ul class="pager">
     {% if recommendations.has_prev %}
         <li class="previous"><a href="?page={{recommendations.prev_num}}&amp;{{queries}}"><span class="glyphicon glyphicon-backward"></span> Prev</a></li>
@@ -59,12 +70,12 @@
     <li class="previous disabled"><a href="#">Prev</a></li>
     {% endif %}
     {% if recommendations.has_next %}
-        <li class="next"><a href="?page={{recommendations.next_num}}&amp;{{queries}}">Next<span class="glyphicon glyphicon-forward"></span></a></li>
+        <li class="next"><a href="?page={{recommendations.next_num}}&amp;{{queries}}">Next <span class="glyphicon glyphicon-forward"></span></a></li>
     {% else %}
     <li class="next disabled"><a href="#">Next</a></li>
     {% endif %}
 </ul>
-
+{% endif %}
 
 
             </div>

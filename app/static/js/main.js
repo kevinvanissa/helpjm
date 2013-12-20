@@ -98,4 +98,14 @@ function validateSearchForm(){
 }
 
 
+function validateMainSearch(){
+    var mainsearch =  document.forms["main_search_form"]["mainsearch"].value
+    if (mainsearch == null || mainsearch == ""){
+                alert("Please Enter Something to Search For!");
+                return false;
+    }
+    return true;
+}
+
+
 

@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory,abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from forms import LoginForm, AskForm, FriendForm, RecommendationForm,UserForm,ContactUsForm, SearchForm,RecommendationReplyForm,RegistrationForm,ResetPasswordForm,ChangePasswordForm,AdForm,AdEditForm,ForgotPasswordForm,ReviewForm,MessageForm
+from forms import LoginForm, AskForm, FriendForm, RecommendationForm,UserForm,ContactUsForm, SearchForm,RecommendationReplyForm,RegistrationForm,ResetPasswordForm,ChangePasswordForm,AdForm,AdEditForm,ForgotPasswordForm,ReviewForm,MessageForm,MainSearchForm,SearchForm2
 from models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation,Review
 from config import ITEMS_PER_PAGE,ALLOWED_EXTENSIONS,facebook,google,REDIRECT_URI
 from helperlist import PARISHES, SERVICES, CATEGORIES, getServiceList,getServiceListJSON
@@ -15,6 +15,7 @@ import urllib
 import sys
 import getopt
 import getpass
+from sqlalchemy import or_
 
 
 
@@ -23,7 +24,6 @@ import getpass
 def getAds1():
     return [1,2,3]
 
-@login_required
 def getAds():
     all_ads = list(Ads.query.all())
     random.shuffle(all_ads)
@@ -322,6 +322,7 @@ def before_request():
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     form  = RegistrationForm()
+    mform = MainSearchForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
@@ -337,7 +338,7 @@ def register():
         user_confirmation_notification(user)
         flash('Thanks for registering. Please check your email to confirm',category='info')
         return redirect(url_for('login'))
-    return render_template('register.html',title = 'Register',form = form)
+    return render_template('register.html',title = 'Register',form = form,mform=mform)
 
 
 @app.route('/activate_user/<confirmationid>',methods=['GET','POST'])
@@ -524,6 +525,7 @@ def login():
     if g.user is not None and g.user.is_authenticated():
         return redirect(url_for('index'))
     form = LoginForm()
+    mform = MainSearchForm()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -549,7 +551,104 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html',
         title = 'Sign In',
-        form = form)
+        form = form,
+        mform = mform)
+
+
+@app.route('/mainsearch',methods=['GET','POST'])
+def mainsearch():
+    ads = getAds()
+    form = SearchForm2()
+    mform = MainSearchForm()
+
+    mainsearch = request.args.get("mainsearch")
+    parish = request.args.get("parish")
+
+
+    queries_without_page = request.args.copy()
+    if 'page' in queries_without_page:
+        del queries_without_page['page']
+
+    recommendations = Recommendation.query
+    query_list = []
+
+    if parish:
+        recommendations = recommendations.filter_by(parish=parish)
+
+    if mainsearch:
+        main_search_list = mainsearch.split()
+        for t in main_search_list:
+            query_list.append(Recommendation.category.ilike("%"+t+"%"))
+            query_list.append(Recommendation.service.ilike("%"+t+"%"))
+            #recommendations = recommendations.filter(Recommendation.category.ilike("%"+t+"%"))
+            #recommendations = recommendations.filter(Recommendation.service.ilike("%"+t+"%"))
+    #FIXME: This worked below
+    #recommendations = Recommendation.query.filter(Recommendation.category.contains("Pet"))
+    #recommendations = recommendations.filter(Recommendation.category.ilike("%Pet%"))
+    recommendations = recommendations.filter(reduce(lambda a,b:(a|b),query_list))
+
+
+    try:
+        page = int(request.args.get("page",'1'))
+    except ValueError:
+        page = 1
+
+    recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+
+    return render_template('mainsearch.html',title='Search Results',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),mform=mform)
+
+@app.route('/mainsearch2')
+def mainsearch2():
+    ads = getAds()
+    form = SearchForm2()
+    mform = MainSearchForm()
+    #category = form.category.data
+    category = request.args.get("category")
+    #service = form.service.data
+    service = request.args.get("service")
+    parish = request.args.get("parish")
+    area = request.args.get("area")
+    rating = request.args.get("rating")
+    buttonclicked = request.args.get("mybtn")
+    query_dict=dict()
+
+    if not buttonclicked:
+        return render_template('mainsearch.html',title='Search',form=form,recommendations=[],ads=ads,queries=[],btnclicked=False,mform=mform)
+
+    queries_without_page = request.args.copy()
+    if 'page' in queries_without_page:
+        del queries_without_page['page']
+
+
+    #if not category or not service and request.args.get("btn") == "sendsearch":
+    #    flash("Please enter at least the Category and Service!",category='danger')
+    #    return redirect(url_for('search'))
+
+    if category:
+        query_dict['category'] = category
+
+    if service:
+        query_dict['service'] = service
+
+    if parish:
+        query_dict['parish'] = parish
+
+    if area:
+        query_dict['area'] = area
+
+    if rating:
+        query_dict['rating'] = rating
+
+    recommendations = Recommendation.query.filter_by(**query_dict)
+
+    try:
+        page = int(request.args.get("page",'1'))
+    except ValueError:
+        page = 1
+
+    recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+
+    return render_template('mainsearch.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True,mform=mform)
 
 
 @app.route('/logout')
@@ -807,27 +906,33 @@ def edituser():
                           form=form)
 @app.route('/advertise')
 def advertise():
-    return render_template('advertise.html',title='Advertise With Us')
+    mform = MainSearchForm()
+    return render_template('advertise.html',title='Advertise With Us',mform=mform)
 
 @app.route('/about')
 def about():
-    return render_template('about.html',title='About Us')
+    mform = MainSearchForm()
+    return render_template('about.html',title='About Us',mform=mform)
 
 @app.route('/terms')
 def terms():
-    return render_template('terms.html',title='Terms and Conditions')
+    mform = MainSearchForm()
+    return render_template('terms.html',title='Terms and Conditions',mform=mform)
 
 @app.route('/privacy')
 def privacy():
-    return render_template('privacy.html',title='Privacy and Policy')
+    mform = MainSearchForm()
+    return render_template('privacy.html',title='Privacy and Policy',mform=mform)
 
 @app.route('/gettingstarted')
 def gettingstarted():
-    return render_template('gettingstarted.html',title='Getting Started')
+    mform = MainSearchForm()
+    return render_template('gettingstarted.html',title='Getting Started',mform=mform)
 
 
 @app.route('/contactus',methods=['GET','POST'])
 def contactus():
+    mform = MainSearchForm()
     form = ContactUsForm()
     if form.validate_on_submit():
         contact = ContactUs(name=form.name.data,email=form.email.data,topic=form.topic.data, message=form.message.data)
@@ -835,10 +940,11 @@ def contactus():
         db.session.commit()
         flash("Your message was sent successfully",category='success')
         return redirect(url_for('contactus'))
-    return render_template('contactus.html',title='Contact Us',form=form)
+    return render_template('contactus.html',title='Contact Us',form=form,mform=mform)
 
 @app.route('/changepassword',methods=['GET','POST'])
 def changepassword():
+    mform = MainSearchForm()
     form = ChangePasswordForm()
     if form.validate_on_submit():
         email = form.email.data
@@ -850,10 +956,11 @@ def changepassword():
             forgot_password_notification(user)
             flash('Instructions were sent to your email',category='info')
             return redirect(url_for('changepassword'))
-    return render_template('changepassword.html',title='Change Password',form=form)
+    return render_template('changepassword.html',title='Change Password',form=form,mform=mform)
 
 @app.route('/forgot_password/<p>',methods=['GET','POST'])
 def forgot_password(p):
+    mform = MainSearchForm()
     form = ForgotPasswordForm()
     user = User.query.filter_by(confirmationid=p).first()
     if not user:
@@ -865,7 +972,7 @@ def forgot_password(p):
         db.session.commit()
         flash("Your password was successfully changed! You can now log in with your new password!",category='success')
         return redirect(url_for('login'))
-    return render_template('forgotpassword.html',title="Forgot My Password",form=form,user=user)
+    return render_template('forgotpassword.html',title="Forgot My Password",form=form,user=user,mform=mform)
 
 
 @app.route('/search', methods=['GET','POST'])
@@ -886,7 +993,7 @@ def search():
     query_dict=dict()
 
     if not buttonclicked:
-        return render_template('search.html',title='Search',form=form,recommendations=[],ads=ads,queries=[])
+        return render_template('search.html',title='Search',form=form,recommendations=[],ads=ads,queries=[],btnclicked=False)
 
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
@@ -936,10 +1043,11 @@ def search():
 
     recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
 
-    return render_template('search.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page))
+    return render_template('search.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True)
 
 @app.route('/viewrecommendation/<int:recommendationid>',methods=['GET','POST'])
 def viewrecommendation(recommendationid):
+    mform = MainSearchForm()
     form = ReviewForm()
     recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
     reviews = Review.query.filter_by(rec_id=int(recommendationid)).order_by(Review.created).all()
@@ -955,7 +1063,7 @@ def viewrecommendation(recommendationid):
     else:
         recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
         recommender = recommender.User
-    return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form,reviews=reviews)
+    return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form,reviews=reviews,mform=mform)
 
 
 @app.route('/sendrecommendation2/<int:askid>/<int:friendid>',methods=['GET','POST'])

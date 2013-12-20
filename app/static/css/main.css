@@ -72,8 +72,8 @@ a.mainlink:hover {text-decoration:none;color:#FFFFFF;}   /* mouse over link */
 a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
 
 .copyright{
-    /*color:#B0B0B0;*/
-    color:#339900;
+    color:#EAC117;
+    /*color:#339900;*/
 }
 .divider{
     color:#FFFFFF;
@@ -91,5 +91,7 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
     color:#800000;
 }
 
-
+.mywell{
+    background-color:#FFFFE0 !important;
+}
 

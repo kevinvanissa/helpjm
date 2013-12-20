@@ -147,7 +147,19 @@ class SearchForm(Form):
     parish = SelectField('parish',choices=PARISHES)
     area = TextField('area')
     rating = SelectField('rating',choices=RATINGS)
-    recommendedby = SelectField('rating',choices=SCOPE,validators=[Required()])
+    recommendedby = SelectField('recommendedby',choices=SCOPE,validators=[Required()])
+
+class SearchForm2(Form):
+    category = SelectField('category',choices=CATEGORIES,validators=[Required()])
+    service = SelectField('service',choices=[('','-- Choose a Service --')],validators=[Required()] )
+    parish = SelectField('parish',choices=PARISHES)
+    area = TextField('area')
+    rating = SelectField('rating',choices=RATINGS)
+
+
+class MainSearchForm(Form):
+    mainsearch = TextField('mainsearch',validators=[Required()])
+    parish = SelectField('parish',choices=PARISHES)
 
 class ChangePasswordForm(Form):
     email =  TextField('email',[Required(),Email(message="Invalid Email Address")])
