@@ -16,7 +16,7 @@ import sys
 import getopt
 import getpass
 from sqlalchemy import or_
-
+import sqlalchemy
 
 
 
@@ -593,7 +593,12 @@ def mainsearch():
     except ValueError:
         page = 1
 
-    recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+    #recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
+                                                                               (Recommendation.rating == "Very Good",2),
+                                                                               (Recommendation.rating == "Average",3),
+                                                                               (Recommendation.rating == "Poor",4),
+                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
 
     return render_template('mainsearch.html',title='Search Results',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),mform=mform)
 
@@ -646,7 +651,12 @@ def mainsearch2():
     except ValueError:
         page = 1
 
-    recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+    #recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
+                                                                               (Recommendation.rating == "Very Good",2),
+                                                                               (Recommendation.rating == "Average",3),
+                                                                               (Recommendation.rating == "Poor",4),
+                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
 
     return render_template('mainsearch.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True,mform=mform)
 
@@ -1041,7 +1051,11 @@ def search():
     except ValueError:
         page = 1
 
-    recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
+                                                                               (Recommendation.rating == "Very Good",2),
+                                                                               (Recommendation.rating == "Average",3),
+                                                                               (Recommendation.rating == "Poor",4),
+                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
 
     return render_template('search.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True)
 
@@ -1056,12 +1070,15 @@ def viewrecommendation(recommendationid):
     if not recommendation:
         flash('Sorry, but this recommendation was deleted by the Creator!',category='danger')
         return redirect(url_for('login'))
-    if recommendation.user_id == 0:
-        recommender = db.session.query(Recommendation,Friend).filter(Recommendation.id==recommendation.id,Recommendation.friend_id == Friend.id).first()
-        if recommender:
-            recommender = recommender.Friend
-    else:
-        recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
+    #if recommendation.user_id == 0:
+    #    recommender = db.session.query(Recommendation,Friend).filter(Recommendation.id==recommendation.id,Recommendation.friend_id == Friend.id).first()
+    #    if recommender:
+    #        recommender = recommender.Friend
+    #else:
+    #    recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
+    #    recommender = recommender.User
+    recommender = db.session.query(User,Recommendation).filter(Recommendation.id==recommendation.id, User.id == Recommendation.user_id).first()
+    if recommender:
         recommender = recommender.User
     return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form,reviews=reviews,mform=mform)
 

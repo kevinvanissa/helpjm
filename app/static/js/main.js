@@ -101,7 +101,7 @@ function validateSearchForm(){
 function validateMainSearch(){
     var mainsearch =  document.forms["main_search_form"]["mainsearch"].value
     if (mainsearch == null || mainsearch == ""){
-                alert("Please Enter Something to Search For!");
+                alert("Enter a Service to Search For! eg., Auto");
                 return false;
     }
     return true;

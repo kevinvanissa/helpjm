@@ -8,7 +8,7 @@
     <h3>Recommendation</h3>
     <hr>
     <br />
-    <b>{% if recommender %}{{recommender.firstname}} {{recommender.lastname}}'s{% endif %} </b> Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
+    {% if recommender %}{{recommender.firstname}} {{recommender.lastname}}'s {% endif %}Recommendation for somewhere that provides good {{recommendation.service}} services: <br />
     <h3>{{recommendation.name}} {% if recommendation.company %}- {{recommendation.company}} {% endif %}</h3>
     {% if recommendation.phone %}<span class="detailheading">Phone:</span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>, {% endif %}
     {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail"><a href="mailto:{{recommendation.email}}">{{recommendation.email}}</a></span>, {% endif %}
@@ -26,7 +26,7 @@
 
 
 
-    <h2>{% if recommender %}{{recommender.firstname}}'s Review{% else %}User Review {% endif %}</h2>
+    <h2>{% if recommender %}{{recommender.firstname}}'s{% else %}Creator's{% endif %} Review</h2>
     <div class="alert alert-info">
         {% if recommendation.review %}<span class="viewreview">{{recommendation.review}}</span>{% else %} <span class="help-inline myerror">[Recommender did not write a review ]</span>{% endif %} <br />
     <br /> 
@@ -121,7 +121,7 @@
     {% endif %} 
 
     <br /> 
-    <b>Created:</b> <i>{{ momentjs(review.created).calendar() }} by {{review.reviewowner.firstname}} {{review.reviewowner.lastname}}</i>
+    <b>Created:</b> <i>{{ momentjs(review.created).calendar() }} by Recommender's Friend</i>
     </div>
     <br />
     {% endfor %}
