@@ -150,6 +150,8 @@ class Review(db.Model):
     rating = db.Column(db.String(120))
     created = db.Column(db.DateTime)
 
+    def __repr__(self):
+        return '<Review user= %r, Recommendation=%r>' % (self.user_id,self.rec_id)
 
 class Friend(db.Model):
     id = db.Column(db.Integer, primary_key = True)
