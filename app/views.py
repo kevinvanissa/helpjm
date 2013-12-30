@@ -693,7 +693,7 @@ def friends():
     ads = getAds()
     if form.validate_on_submit():
         f = Friend.query.filter_by(email=form.email.data).first()
-        if f and f.owner.id:
+        if f and f.owner.id == g.user.id:
             flash('You already have a friend with this email!',category='danger')
             return redirect(url_for('friends'))
         friend = Friend(user_id=g.user.id,firstname=form.firstname.data,lastname=form.lastname.data,email=form.email.data)
