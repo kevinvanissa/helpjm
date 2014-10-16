@@ -1,14 +1,16 @@
-from datetime import datetime
-from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory,abort
+from datetime import datetime, timedelta
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from forms import LoginForm, AskForm, FriendForm, RecommendationForm,UserForm,ContactUsForm, SearchForm,RecommendationReplyForm,RegistrationForm,ResetPasswordForm,ChangePasswordForm,AdForm,AdEditForm,ForgotPasswordForm,ReviewForm,MessageForm,MainSearchForm,SearchForm2
-from models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation,Review
-from config import ITEMS_PER_PAGE,ALLOWED_EXTENSIONS,facebook,google,REDIRECT_URI
-from helperlist import PARISHES, SERVICES, CATEGORIES, getServiceList,getServiceListJSON
-from emails import ask_notification, recommendation_notification,recommendation_notification2,user_confirmation_notification,forgot_password_notification,sendrec_notification,thankyou_notification
-from werkzeug import check_password_hash, generate_password_hash,secure_filename
-import os,uuid
+from forms import LoginForm, EventSearchForm, CommentForm, AskForm, FriendForm, RecommendationForm, UserForm, ContactUsForm, SearchForm, RecommendationReplyForm, RegistrationForm, ResetPasswordForm, ChangePasswordForm, AdForm, AdEditForm, ForgotPasswordForm, ReviewForm, MessageForm, MainSearchForm, SearchForm2, EventForm, EventEditForm
+from models import User, Comment, ROLE_USER, FEATURED_EVENT, NOFEATURED_EVENT, ROLE_ADMIN, ACTIVE_ASK, INACTIVE_ASK, INACTIVE_USER, ACTIVE_USER, Ask, Friend, Recommendation, ContactUs, SendAsk, ReplyRecommendation, Ads, SendRecommendation, Review, Event, ACTIVE_EVENT, INACTIVE_EVENT
+from config import ITEMS_PER_PAGE, ALLOWED_EXTENSIONS, facebook, google, REDIRECT_URI
+from helperlist import EVENT_TYPES, PARISHES, SERVICES, CATEGORIES, getServiceList, getServiceListJSON, THUMBER
+from emails import ask_notification, recommendation_notification, recommendation_notification2, user_confirmation_notification, forgot_password_notification, sendrec_notification, thankyou_notification
+from werkzeug import check_password_hash, generate_password_hash, secure_filename
+import os
+import time
+import uuid
 from decorators import admin_required
 import random
 import urllib
@@ -16,13 +18,24 @@ import sys
 import getopt
 import getpass
 from sqlalchemy import or_
+from sqlalchemy.sql import extract
 import sqlalchemy
+from functools import reduce
 
+
+# Render Json
+def request_wants_json():
+    best = request.accept_mimetypes \
+        .best_match(['application/json', 'text/html'])
+    return best == 'application/json' and \
+        request.accept_mimetypes[best] > \
+        request.accept_mimetypes['text/html']
 
 
 @login_required
 def getAds1():
-    return [1,2,3]
+    return [1, 2, 3]
+
 
 def getAds():
     all_ads = list(Ads.query.all())
@@ -30,12 +43,13 @@ def getAds():
     return all_ads[:3]
 
 
-@app.route('/main', methods = ['GET', 'POST'])
+@app.route('/main', methods=['GET', 'POST'])
 @login_required
 def index():
-    #FIXME: Why do I need to query the user here?
-    user = User.query.filter_by(id = g.user.id).first()
-    asks = Ask.query.filter_by(user_id=user.id, status=ACTIVE_ASK).order_by("created desc").all()
+    user = User.query.filter_by(id=g.user.id).first()
+    asks = Ask.query.filter_by(
+        user_id=user.id,
+        status=ACTIVE_ASK).order_by("created desc").all()
     #asks = user.asks.all()
     #asks = asks.query.filter_by(status=ACTIVE_ASK).all()
     ads = getAds()
@@ -52,26 +66,31 @@ def index():
             session['created'] = datetime.utcnow()
             return redirect(url_for('sendtofriends'))
 
-    return render_template("index.html",
-                          title = 'Home',
-                           form = form,
+    return render_template("asks/asks.html",
+                           title='Home',
+                           form=form,
                            asks=asks,
                            ads=ads
                            )
 
 
-@app.route('/closedasks', methods=['GET','POST'])
+@app.route('/closedasks', methods=['GET', 'POST'])
 @login_required
 def closedasks():
     form = AskForm()
-    asks = Ask.query.filter_by(user_id=g.user.id, status=INACTIVE_ASK).order_by("created desc").all()
+    asks = Ask.query.filter_by(
+        user_id=g.user.id,
+        status=INACTIVE_ASK).order_by("created desc").all()
     ads = getAds()
-    return render_template("closedasks.html",title="Closed Asks",asks=asks,ads=ads,form=form)
+    return render_template(
+        "asks/closedasks.html",
+        title="Closed Asks",
+        asks=asks,
+        ads=ads,
+        form=form)
 
 
-
-
-@app.route('/more/<int:id>',methods=['GET','POST'])
+@app.route('/more/<int:id>', methods=['GET', 'POST'])
 @login_required
 def more(id):
     reviewForm = ReviewForm()
@@ -86,7 +105,11 @@ def more(id):
     form.parish.data = ask.parish
     form.area.data = ask.area
 
-    friends = db.session.query(Friend, SendAsk).filter(SendAsk.friendid == Friend.id,SendAsk.askid == int(id)).all()
+    friends = db.session.query(
+        Friend,
+        SendAsk).filter(
+        SendAsk.friendid == Friend.id,
+        SendAsk.askid == int(id)).all()
     for f in friends:
         if f.Friend in frienddict:
             frienddict[f.Friend] = frienddict[f.Friend] + 1
@@ -94,62 +117,111 @@ def more(id):
         frienddict[f.Friend] = 1
 
     #recommendations = db.session.query(ReplyRecommendation,Friend).filter(ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id)).all()
-    recommendations = db.session.query(ReplyRecommendation,Friend,Recommendation).filter(
-        ReplyRecommendation.friendid == Friend.id,ReplyRecommendation.askid == int(id),
+    recommendations = db.session.query(
+        ReplyRecommendation,
+        Friend,
+        Recommendation).filter(
+        ReplyRecommendation.friendid == Friend.id,
+        ReplyRecommendation.askid == int(id),
         Recommendation.id == ReplyRecommendation.recommendationid).all()
-    return render_template("more.html",title="More",recommendations=recommendations,form=form,frienddict=frienddict,messageForm=messageForm,reviewForm=reviewForm,id=id)
+    return render_template(
+        "asks/more.html",
+        title="More",
+        recommendations=recommendations,
+        form=form,
+        frienddict=frienddict,
+        messageForm=messageForm,
+        reviewForm=reviewForm,
+        id=id)
 
 
-
-@app.route('/createreview/<int:recommendationid>/<int:askid>',methods=['GET','POST'])
+@app.route(
+    '/createreview/<int:recommendationid>/<int:askid>',
+    methods=[
+        'GET',
+        'POST'])
 @login_required
-def createreview(recommendationid,askid):
+def createreview(recommendationid, askid):
     reviewForm = ReviewForm()
     if reviewForm.validate_on_submit():
-        review = Review(user_id=g.user.id,rec_id=recommendationid,review=reviewForm.review.data,created=datetime.utcnow(),rating=reviewForm.rating.data)
+        review = Review(
+            user_id=g.user.id,
+            rec_id=recommendationid,
+            review=reviewForm.review.data,
+            created=datetime.utcnow(),
+            rating=reviewForm.rating.data)
         db.session.add(review)
         db.session.commit()
-        flash('Your Review was successfully created! You should now be able to view it when you click the view link below!',category='success')
-        return redirect(url_for('more',id=askid))
-    flash('You need to fill in all the fields before we can send this Review',category='danger')
-    return redirect(url_for('more',id=askid))
+        flash(
+            'Your Review was successfully created! You should now be able to view it when you click the view link below!',
+            category='success')
+        return redirect(url_for('more', id=askid))
+    flash(
+        'You need to fill in all the fields before we can send this Review',
+        category='danger')
+    return redirect(url_for('more', id=askid))
 
 
-@app.route('/sendthankyou/<int:friendid>/<int:recommendationid>/<int:askid>',methods=['GET','POST'])
+@app.route(
+    '/sendthankyou/<int:friendid>/<int:recommendationid>/<int:askid>',
+    methods=[
+        'GET',
+        'POST'])
 @login_required
-def sendthankyou(friendid,recommendationid,askid):
+def sendthankyou(friendid, recommendationid, askid):
     user = User.query.filter_by(id=g.user.id).first()
     friend = Friend.query.filter_by(id=int(friendid)).first()
-    recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
+    recommendation = Recommendation.query.filter_by(
+        id=int(recommendationid)).first()
     messageForm = MessageForm()
     if messageForm.validate_on_submit():
-        thankyou_notification(friend,user,recommendation,messageForm.message.data)
-        flash('Your thank you message was successfully sent to %s!' % friend.firstname,category='success')
-        return redirect(url_for('more',id=askid))
-    flash('You need to write a message before we can send this message to %s!' % friend.firstname,category='danger')
-    return redirect(url_for('more',id=askid))
+        thankyou_notification(
+            friend,
+            user,
+            recommendation,
+            messageForm.message.data)
+        flash(
+            'Your thank you message was successfully sent to %s!' %
+            friend.firstname,
+            category='success')
+        return redirect(url_for('more', id=askid))
+    flash(
+        'You need to write a message before we can send this message to %s!' %
+        friend.firstname,
+        category='danger')
+    return redirect(url_for('more', id=askid))
 
 
-@app.route('/sendtofriends',methods=['GET','POST'])
+@app.route('/sendtofriends', methods=['GET', 'POST'])
 @login_required
 def sendtofriends():
-    #print request.form
+    # print request.form
     friendlist = request.form.getlist('emailfriends')
     ads = getAds()
-    user = User.query.filter_by(id = g.user.id).first()
+    user = User.query.filter_by(id=g.user.id).first()
     friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
-        flash("You need to select at least one friend",category='info')
+        flash("You need to select at least one friend", category='info')
         return redirect(url_for('sendtofriends'))
     if friendlist and request.form.get('btn') == 'send':
-        ask = Ask(user_id = g.user.id, category=session['category'], service=session['service'],
-                  question = session['question'],parish=session['parish'],area=session['area'],created=session['created'])
+        ask = Ask(
+            user_id=g.user.id,
+            category=session['category'],
+            service=session['service'],
+            question=session['question'],
+            parish=session['parish'],
+            area=session['area'],
+            created=session['created'])
         db.session.add(ask)
         db.session.commit()
         for r in friendlist:
             friend = Friend.query.filter_by(id=int(r)).first()
-            ask_notification(friend,user,ask)
-            sendask = SendAsk(askid=ask.id,friendid=friend.id,userid=user.id,datesent=datetime.utcnow())
+            ask_notification(friend, user, ask)
+            sendask = SendAsk(
+                askid=ask.id,
+                friendid=friend.id,
+                userid=user.id,
+                datesent=datetime.utcnow())
             db.session.add(sendask)
             db.session.commit()
         del session['category']
@@ -158,64 +230,88 @@ def sendtofriends():
         del session['parish']
         del session['area']
         del session['created']
-        flash('Your Ask was successfully sent! You will be notified by email when there are responses',category='success')
+        flash(
+            'Your Ask was successfully sent! You will be notified by email when there are responses',
+            category='success')
         return redirect(url_for('index'))
-    return render_template("sendtofriends.html",friends=friends,title="Send to Friends",ads=ads)
+    return render_template(
+        "friends/sendtofriends.html",
+        friends=friends,
+        title="Send to Friends",
+        ads=ads)
 
 
-@app.route('/sendtofriendsagain/<int:id>',methods=['GET','POST'])
+@app.route('/sendtofriendsagain/<int:id>', methods=['GET', 'POST'])
 @login_required
 def sendtofriendsagain(id):
     friendlist = request.form.getlist('emailfriends')
     ads = getAds()
     sendasklist = list()
-    user = User.query.filter_by(id = g.user.id).first()
+    user = User.query.filter_by(id=g.user.id).first()
     ask = Ask.query.filter_by(id=int(id)).first()
     sendasks = SendAsk.query.filter_by(askid=ask.id).all()
     for s in sendasks:
         sendasklist.append(s.friendid)
     friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
-        flash("You need to select at least one friend",category='info')
-        return redirect(url_for('sendtofriendsagain',id=ask.id))
+        flash("You need to select at least one friend", category='info')
+        return redirect(url_for('sendtofriendsagain', id=ask.id))
     if friendlist:
         for r in friendlist:
             friend = Friend.query.filter_by(id=int(r)).first()
-            ask_notification(friend,user,ask)
-            sendask = SendAsk(askid=ask.id,friendid=friend.id,userid=user.id,datesent=datetime.utcnow())
+            ask_notification(friend, user, ask)
+            sendask = SendAsk(
+                askid=ask.id,
+                friendid=friend.id,
+                userid=user.id,
+                datesent=datetime.utcnow())
             db.session.add(sendask)
             db.session.commit()
-        flash('Your Ask was successfully resent! You will be notified by email when there are responses',category='success')
+        flash(
+            'Your Ask was successfully resent! You will be notified by email when there are responses',
+            category='success')
         return redirect(url_for('index'))
-    return render_template('sendtofriendsagain.html',friends=friends,
-                           title='Send to friends',sendasks=sendasklist,id=id,ads=ads)
+    return render_template(
+        'friends/sendtofriendsagain.html',
+        friends=friends,
+        title='Send to friends',
+        sendasks=sendasklist,
+        id=id,
+        ads=ads)
 
 
-@app.route('/sendrectofriends/<int:id>',methods=['GET','POST'])
+@app.route('/sendrectofriends/<int:id>', methods=['GET', 'POST'])
 @login_required
 def sendrectofriends(id):
     friendlist = request.form.getlist('emailfriends')
     ads = getAds()
-    user = User.query.filter_by(id = g.user.id).first()
+    user = User.query.filter_by(id=g.user.id).first()
     recommendation = Recommendation.query.filter_by(id=int(id)).first()
     friends = user.friends.order_by(Friend.firstname).all()
     if not friendlist and request.form.get('btn') == 'send':
-        flash("You need to select at least one friend",category='info')
-        return redirect(url_for('sendrectofriends',id=recommendation.id))
+        flash("You need to select at least one friend", category='info')
+        return redirect(url_for('sendrectofriends', id=recommendation.id))
     if friendlist:
         for r in friendlist:
             friend = Friend.query.filter_by(id=int(r)).first()
-            sendrec_notification(friend,user,recommendation)
-            sendrec = SendRecommendation(recommendationid=recommendation.id,friendid=friend.id,datesent=datetime.utcnow())
+            sendrec_notification(friend, user, recommendation)
+            sendrec = SendRecommendation(
+                recommendationid=recommendation.id,
+                friendid=friend.id,
+                datesent=datetime.utcnow())
             db.session.add(sendrec)
             db.session.commit()
-        flash('Your Recommendation was successfully sent!',category='success')
+        flash('Your Recommendation was successfully sent!', category='success')
         return redirect(url_for('recommendations'))
-    return render_template('sendrectofriend.html',friends=friends,
-                           title='Send Recommendation to friends',id=id,ads=ads)
+    return render_template(
+        'friends/sendrectofriend.html',
+        friends=friends,
+        title='Send Recommendation to friends',
+        id=id,
+        ads=ads)
 
 
-@app.route('/closeask/<int:id>',methods=['GET','POST'])
+@app.route('/closeask/<int:id>', methods=['GET', 'POST'])
 @login_required
 def closeask(id):
     ask = Ask.query.filter_by(id=int(id)).first()
@@ -233,7 +329,8 @@ def closeask(id):
             db.session.commit()
     return redirect(url_for('index'))
 
-@app.route('/reopenask/<int:id>',methods=['GET','POST'])
+
+@app.route('/reopenask/<int:id>', methods=['GET', 'POST'])
 @login_required
 def reopenask(id):
     ask = Ask.query.filter_by(id=int(id)).first()
@@ -244,7 +341,8 @@ def reopenask(id):
         db.session.commit()
     return redirect(url_for('closedasks'))
 
-@app.route('/deleteask/<int:id>',methods=['GET','POST'])
+
+@app.route('/deleteask/<int:id>', methods=['GET', 'POST'])
 @login_required
 def deleteask(id):
     ask = Ask.query.filter_by(id=int(id)).first()
@@ -257,41 +355,47 @@ def deleteask(id):
     return redirect(url_for('closedasks'))
 
 
-#FIXME: for ask and recommendation you should click more and information hide/show
-@app.route('/recommendations', methods=['GET','POST'])
+# FIXME: for ask and recommendation you should click more and information
+# hide/show
+@app.route('/recommendations', methods=['GET', 'POST'])
 @login_required
 def recommendations():
     #user = User.query.filter_by(id = g.user.id).first()
     #recommendations = user.recommendations.all()
     ads = getAds()
-    recommendations  = Recommendation.query.filter_by(user_id=g.user.id).order_by("created desc").all()
+    recommendations = Recommendation.query.filter_by(
+        user_id=g.user.id).order_by("created desc").all()
     form = RecommendationForm()
     if request.method == 'POST':
         if form.category.data:
             form.service.choices = getServiceList(form.category.data)
         if form.validate_on_submit():
-            recommendation = Recommendation(user_id = g.user.id, category=form.category.data,
-                                        service=form.service.data,name=form.name.data,
-                                        company=form.company.data,phone=form.phone.data,
-                                        email=form.email.data,website=form.website.data,
-                                        parish=form.parish.data,area=form.area.data,
-                                        rating=form.rating.data,review=form.review.data,
-                                        created=datetime.utcnow()
-                                            )
+            recommendation = Recommendation(
+                user_id=g.user.id,
+                category=form.category.data,
+                service=form.service.data,
+                name=form.name.data,
+                company=form.company.data,
+                phone=form.phone.data,
+                email=form.email.data,
+                website=form.website.data,
+                parish=form.parish.data,
+                area=form.area.data,
+                rating=form.rating.data,
+                review=form.review.data,
+                created=datetime.utcnow())
             db.session.add(recommendation)
             db.session.commit()
-            flash("Your Recommendation is now created!",category='success')
+            flash("Your Recommendation is now created!", category='success')
             return redirect(url_for('recommendations'))
-    return render_template("recommendations.html",
+    return render_template("recommendations/recommendations.html",
                            title='Recommendations',
                            form=form,
                            recommendations=recommendations,
                            ads=ads)
 
 
-
-
-@app.route('/servicelist', methods = ['GET', 'POST'])
+@app.route('/servicelist', methods=['GET', 'POST'])
 def servicelist():
     d = getServiceListJSON(request.form['category'])
     return jsonify(d)
@@ -299,49 +403,68 @@ def servicelist():
 
 @app.errorhandler(404)
 def internal_error(error):
-    return render_template('404.html'), 404
+    return render_template('errors/404.html'), 404
+
 
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return render_template('500.html'), 500
+    return render_template('errors/500.html'), 500
+
+@app.errorhandler(413)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('errors/413.html'), 413
+
+
 
 @lm.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
+
 @app.before_request
 def before_request():
     g.user = current_user
-    #if g.user.is_authenticated():
+    # if g.user.is_authenticated():
     #    g.user.last_seen = datetime.utcnow()
     #    db.session.add(g.user)
     #    db.session.commit()
 
 
-@app.route('/register', methods = ['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    form  = RegistrationForm()
+    form = RegistrationForm()
     mform = MainSearchForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            flash('There is already a user with this email!',category='danger')
+            flash('There is already a user with this email!', category='danger')
             return redirect(url_for('register'))
-        user = User(firstname=form.firstname.data,
-                    lastname=form.lastname.data,
-                    email=form.email.data,
-                    password=generate_password_hash(form.password.data),confirmationid=str(uuid.uuid4()))
+        user = User(
+            firstname=form.firstname.data,
+            lastname=form.lastname.data,
+            email=form.email.data,
+            password=generate_password_hash(
+                form.password.data),
+            confirmationid=str(
+                uuid.uuid4()))
         db.session.add(user)
         db.session.commit()
-        #Send email for confirmation
+        # Send email for confirmation
         user_confirmation_notification(user)
-        flash('Thanks for registering. Please check your email to confirm',category='info')
+        flash(
+            'Thanks for registering. Please check your email to confirm',
+            category='info')
         return redirect(url_for('login'))
-    return render_template('register.html',title = 'Register',form = form,mform=mform)
+    return render_template(
+        'users/register.html',
+        title='Register',
+        form=form,
+        mform=mform)
 
 
-@app.route('/activate_user/<confirmationid>',methods=['GET','POST'])
+@app.route('/activate_user/<confirmationid>', methods=['GET', 'POST'])
 def activate_user(confirmationid):
     found_user = User.query.filter_by(confirmationid=confirmationid).first()
     if not found_user:
@@ -351,54 +474,55 @@ def activate_user(confirmationid):
             found_user.status = ACTIVE_USER
             db.session.add(found_user)
             db.session.commit()
-            flash('User has been activated. You can now log in your account!',category='success')
+            flash(
+                'User has been activated. You can now log in your account!',
+                category='success')
             return redirect(url_for('login'))
         elif found_user.status == ACTIVE_USER:
-            flash('User already activated!',category='info')
+            flash('User already activated!', category='info')
         return redirect(url_for('login'))
-
 
 
 def splitfacebookname(fullname):
     name = fullname.split()
     firstname = name[0]
     lastname = " ".join(name[1:])
-    return (firstname,lastname)
+    return (firstname, lastname)
 
 
 def splitgooglecontacts(contact):
-    firstname =""
-    lastname=""
+    firstname = ""
+    lastname = ""
     info = contact.split('-')
     email = info[1]
     name = info[0].split()
     if name:
         firstname = name[0]
         lastname = " ".join(name[1:])
-    return (email,firstname,lastname)
+    return (email, firstname, lastname)
 
 
 def parse_contact(contact):
-        if u'gd$email' in contact:
-            emails = []
-            for e in contact[u'gd$email']:
-                emails.append(e.get(u'address'))
-            return {
-                'name': contact.get('title', {}).get('$t', ''),
-                'emails': emails
-            }
-        else:
-            return None
+    if u'gd$email' in contact:
+        emails = []
+        for e in contact[u'gd$email']:
+            emails.append(e.get(u'address'))
+        return {
+            'name': contact.get('title', {}).get('$t', ''),
+            'emails': emails
+        }
+    else:
+        return None
 
 
 #---------------google-----------------
 
-@app.route('/importcontacts',methods=['GET','POST'])
+@app.route('/importcontacts', methods=['GET', 'POST'])
 @login_required
 def importcontacts():
     contacts = request.form.getlist('friends')
     if not contacts:
-        flash('You need to select at least one friend',category='info')
+        flash('You need to select at least one friend', category='info')
         return redirect(url_for('googlecontacts'))
     for c in contacts:
         email, firstname, lastname = splitgooglecontacts(c)
@@ -406,13 +530,17 @@ def importcontacts():
         if friend and friend.owner.id == g.user.id:
             pass
         else:
-            if firstname == "" and lastname =="":
+            if firstname == "" and lastname == "":
                 pass
             else:
-                f = Friend(user_id=g.user.id,firstname=firstname,lastname=lastname,email=email)
+                f = Friend(
+                    user_id=g.user.id,
+                    firstname=firstname,
+                    lastname=lastname,
+                    email=email)
                 db.session.add(f)
                 db.session.commit()
-    flash('Your google contacts were successfully imported',category='info')
+    flash('Your google contacts were successfully imported', category='info')
     return redirect(url_for('friends'))
 
 
@@ -433,10 +561,14 @@ def googlecontacts():
     res = None
 
     while start == 1 or 'entry' in data['feed']:
-        req = Request('https://www.google.com/m8/feeds/contacts/default/full?alt=json&max-results=50&start-index=%s' % start, None, headers)
+        req = Request(
+            'https://www.google.com/m8/feeds/contacts/default/full?alt=json&max-results=50&start-index=%s' %
+            start,
+            None,
+            headers)
         try:
             res = urlopen(req)
-        except URLError, e:
+        except URLError as e:
             if e.code == 401:
                 # Unauthorized - bad token
                 session.pop('access_token', None)
@@ -451,13 +583,17 @@ def googlecontacts():
                     contactlist.append(contact)
         start += 50
     res.close()
-    return render_template('importcontacts.html',title='Import Contacts',contactlist=contactlist)
+    return render_template(
+        'googlecontacts/importcontacts.html',
+        title='Import Contacts',
+        contactlist=contactlist)
 
 
 @app.route('/logingoogle')
 def loging():
-    callback=url_for('authorized', _external=True)
+    callback = url_for('authorized', _external=True)
     return google.authorize(callback=callback)
+
 
 @app.route(REDIRECT_URI)
 @google.authorized_handler
@@ -466,27 +602,33 @@ def authorized(resp):
     session['access_token'] = access_token, ''
     return redirect(url_for('googlecontacts'))
 
+
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
 
 
-
-
 #-----------facebook-----------------------
-@app.route('/loginfacebook',methods=['GET','POST'])
+@app.route('/loginfacebook', methods=['GET', 'POST'])
 def loginf():
-    return facebook.authorize(callback=url_for('facebook_authorized',
-        next=request.args.get('next') or request.referrer or None,
-        _external=True))
+    return facebook.authorize(
+        callback=url_for(
+            'facebook_authorized',
+            next=request.args.get('next') or request.referrer or None,
+            _external=True))
+
 
 @app.route('/loginfacebook/authorized')
 @facebook.authorized_handler
 def facebook_authorized(resp):
     if resp is None:
-        flash('Access denied: reason=%s error=%s' % (request.args['error_reason'],request.args['error_description']), category='danger')
+        flash(
+            'Access denied: reason=%s error=%s' %
+            (request.args['error_reason'],
+             request.args['error_description']),
+            category='danger')
         return redirect(url_for('login'))
-        #return 'Access denied: reason=%s error=%s' % (
+        # return 'Access denied: reason=%s error=%s' % (
            # request.args['error_reason'],
            # request.args['error_description']
         #)
@@ -495,7 +637,7 @@ def facebook_authorized(resp):
     if me.data['email'] is None or me.data['email'] == "":
         flash('Invalid login. Please try again')
         return redirect(url_for('login'))
-    user = User.query.filter_by(email = me.data['email']).first()
+    user = User.query.filter_by(email=me.data['email']).first()
     if user is None:
         firstname, lastname = splitfacebookname(me.data['name'])
         user = User(email=me.data['email'],
@@ -508,9 +650,9 @@ def facebook_authorized(resp):
         db.session.add(user)
         db.session.commit()
     login_user(user)
-    flash('You have successfully logged in',category='success')
+    flash('You have successfully logged in', category='success')
     return redirect(request.args.get('next') or url_for('index'))
-    #return 'Logged in as id=%s name=%s  email=%s redirect=%s' % \
+    # return 'Logged in as id=%s name=%s  email=%s redirect=%s' % \
     #    (me.data['id'], me.data['name'],me.data['email'], request.args.get('next'))
 
 
@@ -519,43 +661,131 @@ def get_facebook_oauth_token():
     return session.get('oauth_token')
 
 
-@app.route('/', methods = ['GET','POST'])
-@app.route('/index', methods = ['GET', 'POST'])
-def login():
+
+@app.route('/login2', methods=['GET', 'POST'])
+def login2():
     if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('index'))
+        return redirect(url_for('events'))
     form = LoginForm()
-    mform = MainSearchForm()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if not user:
-            flash('The username or password you entered is incorrect!', category='danger')
+            flash(
+                'The username or password you entered is incorrect!',
+                category='danger')
+            return redirect(url_for('login2'))
+        if user.status == INACTIVE_USER:
+            flash(
+                'You need to confirm your registration before you log in!',
+                category='info')
+            return redirect(url_for('login2'))
+        if user.password is None or user.password == "":
+            flash(
+                'The username or password you entered is incorrect!',
+                category='danger')
+            return redirect(url_for('login2'))
+        if user and check_password_hash(user.password, form.password.data):
+            session['remember_me'] = form.remember_me.data
+            if 'remember_me' in session:
+                remember_me = session['remember_me']
+                session.pop('remember_me', None)
+            login_user(user, remember=remember_me)
+            flash('You have successfully logged in', category='success')
+            return redirect(request.args.get('next') or url_for('events'))
+        else:
+            flash('Please check your username and password!', category='danger')
+            return redirect(url_for('login2'))
+    #return render_template('users/loginBackup.html',
+    return render_template('users/login2.html',
+                           title='Log In',
+                           form=form
+                           )
+
+
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+def login():
+    if g.user is not None and g.user.is_authenticated():
+        return redirect(url_for('events'))
+    form = LoginForm()
+    mform = MainSearchForm()
+    sform = EventSearchForm()
+    nyear, nmonth, nday = time.localtime()[:3]
+    nowtoday = datetime.now()
+    year = nowtoday.year
+    month = nowtoday.month
+    day = nowtoday.day
+    tomorrow = nowtoday + timedelta(days=1)
+    day2 =  tomorrow.day
+    tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
+
+    featuredEvents = Event.query.filter_by(featured=FEATURED_EVENT).all()
+
+
+    todayEvents = Event.query.filter(
+            extract('year',Event.event_start_date) == year,
+            extract('month',Event.event_start_date) == month,
+            extract('day',Event.event_start_date) == day
+        ).limit(5).all()
+
+    tomorrowEvents = Event.query.filter(
+            extract('year',Event.event_start_date) == year,
+            extract('month',Event.event_start_date) == month,
+            extract('day',Event.event_start_date) == day2
+        ).limit(5).all()
+    print tomorrowEvents
+    #Same as Future Events
+    upcomingEvents = Event.query.filter(Event.event_start_date > tomorrow).limit(5).all()
+
+    comments = db.session.query(
+                Comment,Event
+    ).filter(Comment.event_id==Event.id).order_by(Comment.created.desc()).limit(3).all()
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if not user:
+            flash(
+                'The username or password you entered is incorrect!',
+                category='danger')
             return redirect(url_for('login'))
         if user.status == INACTIVE_USER:
-            flash('You need to confirm your registration before you log in!',category='info')
+            flash(
+                'You need to confirm your registration before you log in!',
+                category='info')
             return redirect(url_for('login'))
-        if user.password is None  or user.password == "":
-            flash('The username or password you entered is incorrect!',category='danger')
+        if user.password is None or user.password == "":
+            flash(
+                'The username or password you entered is incorrect!',
+                category='danger')
             return redirect(url_for('login'))
         if user and check_password_hash(user.password, form.password.data):
             session['remember_me'] = form.remember_me.data
             if 'remember_me' in session:
                 remember_me = session['remember_me']
-                session.pop('remember_me',None)
-            login_user(user, remember = remember_me)
-            flash('You have successfully logged in',category='success')
+                session.pop('remember_me', None)
+            login_user(user, remember=remember_me)
+            flash('You have successfully logged in', category='success')
             return redirect(request.args.get('next') or url_for('index'))
         else:
-            flash('Please check your username and password!',category='danger')
+            flash('Please check your username and password!', category='danger')
             return redirect(url_for('login'))
-    return render_template('login.html',
-        title = 'Sign In',
-        form = form,
-        mform = mform)
+    return render_template('users/loginBackup.html',
+    #return render_template('users/login.html',
+                           title='Sign In',
+                           form=form,
+                           mform=mform,
+                           sform=sform,
+                           todayEvents=todayEvents,
+                           featuredEvents=featuredEvents,
+                           upcomingEvents=upcomingEvents,
+                           tomorrowEvents=tomorrowEvents,
+                           comments=comments)
 
 
-@app.route('/mainsearch',methods=['GET','POST'])
+@app.route('/mainsearch', methods=['GET', 'POST'])
 def mainsearch():
     ads = getAds()
     form = SearchForm2()
@@ -563,7 +793,6 @@ def mainsearch():
 
     mainsearch = request.args.get("mainsearch")
     parish = request.args.get("parish")
-
 
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
@@ -582,32 +811,43 @@ def mainsearch():
             query_list.append(Recommendation.service.ilike("%"+t+"%"))
             #recommendations = recommendations.filter(Recommendation.category.ilike("%"+t+"%"))
             #recommendations = recommendations.filter(Recommendation.service.ilike("%"+t+"%"))
-    #FIXME: This worked below
+    # FIXME: This worked below
     #recommendations = Recommendation.query.filter(Recommendation.category.contains("Pet"))
     #recommendations = recommendations.filter(Recommendation.category.ilike("%Pet%"))
-    recommendations = recommendations.filter(reduce(lambda a,b:(a|b),query_list))
-
+    recommendations = recommendations.filter(
+        reduce(
+            lambda a, b: (
+                a | b), query_list))
 
     try:
-        page = int(request.args.get("page",'1'))
+        page = int(request.args.get("page", '1'))
     except ValueError:
         page = 1
 
     #recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
-    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
-                                                                               (Recommendation.rating == "Very Good",2),
-                                                                               (Recommendation.rating == "Average",3),
-                                                                               (Recommendation.rating == "Poor",4),
-                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(
+        sqlalchemy.sql.expression.case(
+            ((Recommendation.rating == "Excellent", 1),
+             (Recommendation.rating == "Very Good", 2),
+                (Recommendation.rating == "Average", 3),
+                (Recommendation.rating == "Poor", 4),
+                (Recommendation.rating == "Terrible", 5)))).paginate(
+        page, ITEMS_PER_PAGE, False)
 
-    return render_template('mainsearch.html',title='Search Results',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),mform=mform)
+    return render_template(
+        'search/mainsearch.html',
+        title='Search Results',
+        form=form,
+        recommendations=recommendations,
+        ads=ads,
+        queries=urllib.urlencode(queries_without_page),
+        mform=mform)
 
-@app.route('/mainsearch2')
+
+@app.route('/mainsearch2', methods=['GET', 'POST'])
 def mainsearch2():
-    ads = getAds()
     form = SearchForm2()
-    mform = MainSearchForm()
-    #category = form.category.data
+    name = request.args.get("name")
     category = request.args.get("category")
     #service = form.service.data
     service = request.args.get("service")
@@ -615,17 +855,23 @@ def mainsearch2():
     area = request.args.get("area")
     rating = request.args.get("rating")
     buttonclicked = request.args.get("mybtn")
-    query_dict=dict()
+    query_dict = dict()
 
     if not buttonclicked:
-        return render_template('mainsearch.html',title='Search',form=form,recommendations=[],ads=ads,queries=[],btnclicked=False,mform=mform)
+        return render_template(
+            'search/mainsearch.html',
+            title='Search',
+            form=form,
+            recommendations=[],
+            queries=[],
+            btnclicked=None
+            )
 
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
         del queries_without_page['page']
 
-
-    #if not category or not service and request.args.get("btn") == "sendsearch":
+    # if not category or not service and request.args.get("btn") == "sendsearch":
     #    flash("Please enter at least the Category and Service!",category='danger')
     #    return redirect(url_for('search'))
 
@@ -646,19 +892,47 @@ def mainsearch2():
 
     recommendations = Recommendation.query.filter_by(**query_dict)
 
+    query_list = []
+    if name:
+        name = name.split()
+        for n in name:
+            query_list.append(Recommendation.name.ilike("%"+n+"%"))
+            query_list.append(Recommendation.category.ilike("%"+n+"%"))
+            query_list.append(Recommendation.service.ilike("%"+n+"%"))
+
+        recommendations = recommendations.filter(
+            reduce(
+                lambda a, b: (
+                    a | b), query_list))
+
+
+
+
+
+
+
     try:
-        page = int(request.args.get("page",'1'))
+        page = int(request.args.get("page", '1'))
     except ValueError:
         page = 1
 
     #recommendations = recommendations.paginate(page,ITEMS_PER_PAGE,False)
-    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
-                                                                               (Recommendation.rating == "Very Good",2),
-                                                                               (Recommendation.rating == "Average",3),
-                                                                               (Recommendation.rating == "Poor",4),
-                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(
+        sqlalchemy.sql.expression.case(
+            ((Recommendation.rating == "Excellent", 1),
+             (Recommendation.rating == "Very Good", 2),
+                (Recommendation.rating == "Average", 3),
+                (Recommendation.rating == "Poor", 4),
+                (Recommendation.rating == "Terrible", 5)))).paginate(
+        page, ITEMS_PER_PAGE, False)
 
-    return render_template('mainsearch.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True,mform=mform)
+    return render_template(
+        'search/mainsearch.html',
+        title='Search',
+        form=form,
+        recommendations=recommendations,
+        queries=urllib.urlencode(queries_without_page),
+        btnclicked=True)
 
 
 @app.route('/logout')
@@ -668,7 +942,7 @@ def logout():
         db.session.add(g.user)
         db.session.commit()
     logout_user()
-    flash('You have successfully logged out!',category='success')
+    flash('You have successfully logged out!', category='success')
     return redirect(url_for('login'))
 
 
@@ -676,32 +950,47 @@ def logout():
 @login_required
 def user():
     user_email = g.user.email
-    user = User.query.filter_by(email = user_email).first()
-    if user == None:
-        flash('User not found.',category='danger')
+    user = User.query.filter_by(email=user_email).first()
+    if user is None:
+        flash('User not found.', category='danger')
         return redirect(url_for('index'))
-    return render_template('user.html',
-        user = user)
+    return render_template('users/user.html',
+                           user=user)
 
 
-@app.route('/friends', methods=['GET','POST'])
+# TODO: YOW THIS WORKS PERFECTLY
+@app.route('/friendsjs', methods=['GET', 'POST'])
+def friendsJS():
+    friends = Friend.query.all()
+    if request_wants_json():
+        return jsonify(friends=[x.to_json() for x in friends])
+    return render_template('testjs/index.html', friends=friends)
+
+
+@app.route('/friends', methods=['GET', 'POST'])
 @login_required
 def friends():
     form = FriendForm()
-    user = User.query.filter_by(id = g.user.id).first()
+    user = User.query.filter_by(id=g.user.id).first()
     friends = user.friends.order_by(Friend.firstname).all()
     ads = getAds()
     if form.validate_on_submit():
         f = Friend.query.filter_by(email=form.email.data).first()
         if f and f.owner.id == g.user.id:
-            flash('You already have a friend with this email!',category='danger')
+            flash(
+                'You already have a friend with this email!',
+                category='danger')
             return redirect(url_for('friends'))
-        friend = Friend(user_id=g.user.id,firstname=form.firstname.data,lastname=form.lastname.data,email=form.email.data)
+        friend = Friend(
+            user_id=g.user.id,
+            firstname=form.firstname.data,
+            lastname=form.lastname.data,
+            email=form.email.data)
         db.session.add(friend)
         db.session.commit()
-        flash("Your friend is now Created",category='success')
+        flash("Your friend is now Created", category='success')
         return redirect(url_for('friends'))
-    return render_template('friends.html',
+    return render_template('friends/friends.html',
                            title='Friends',
                            form=form,
                            friends=friends,
@@ -709,7 +998,7 @@ def friends():
                            )
 
 
-@app.route('/deletefriend/<int:id>',methods=['GET','POST'])
+@app.route('/deletefriend/<int:id>', methods=['GET', 'POST'])
 @login_required
 def deletefriend(id):
     friend = Friend.query.filter_by(id=int(id)).first()
@@ -721,17 +1010,18 @@ def deletefriend(id):
     return redirect(url_for('friends'))
 
 
-@app.route('/deletemultiplefriends',methods=['GET','POST'])
+@app.route('/deletemultiplefriends', methods=['GET', 'POST'])
 @login_required
 def deletemultiplefriends():
     friendlist = request.form.getlist('friends')
     if not friendlist:
-        flash("You need to select at least one friend",category='info')
+        flash("You need to select at least one friend", category='info')
         return redirect(url_for('friends'))
     for f in friendlist:
         friend = Friend.query.filter_by(id=int(f)).first()
         if friend.owner.id == g.user.id:
-            replies = ReplyRecommendation.query.filter_by(friendid=friend.id).all()
+            replies = ReplyRecommendation.query.filter_by(
+                friendid=friend.id).all()
             for r in replies:
                 db.session.delete(r)
                 db.session.commit()
@@ -739,22 +1029,22 @@ def deletemultiplefriends():
             for s in sends:
                 db.session.delete(s)
                 db.session.commit()
-            sends2 = SendRecommendation.query.filter_by(friendid=friend.id).all()
+            sends2 = SendRecommendation.query.filter_by(
+                friendid=friend.id).all()
             for s2 in sends2:
                 db.session.delete(s2)
                 db.session.commit()
             db.session.delete(friend)
             db.session.commit()
-    flash("You have deleted the selected friends",category='success')
+    flash("You have deleted the selected friends", category='success')
     return redirect(url_for('friends'))
 
 
-
-@app.route('/editrecommendation/<int:id>',methods=['GET','POST'])
+@app.route('/editrecommendation/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editrecommendation(id):
-    form = RecommendationForm();
-    recommendation = Recommendation.query.filter_by(id=int(id)).first();
+    form = RecommendationForm()
+    recommendation = Recommendation.query.filter_by(id=int(id)).first()
     if request.method == 'POST':
         if form.category.data:
             form.service.choices = getServiceList(form.category.data)
@@ -775,7 +1065,7 @@ def editrecommendation(id):
             db.session.add(recommendation)
             db.session.commit()
 
-            flash('Your changes have been saved.',category='success')
+            flash('Your changes have been saved.', category='success')
             return redirect(url_for('recommendations'))
 
     form.service.choices = getServiceList(recommendation.category)
@@ -790,29 +1080,31 @@ def editrecommendation(id):
     form.area.data = recommendation.area
     form.rating.data = recommendation.rating
     form.review.data = recommendation.review
-    return render_template('editrecommendation.html',form=form)
+    return render_template('recommendations/editrecommendation.html', form=form)
 
-@app.route('/deleterecommendation/<int:id>',methods=['GET','POST'])
+
+@app.route('/deleterecommendation/<int:id>', methods=['GET', 'POST'])
 @login_required
 def deleterecommendation(id):
     recommendation = Recommendation.query.filter_by(id=int(id)).first()
     if recommendation.user_id == g.user.id:
-        sends2 = ReplyRecommendation.query.filter_by(recommendationid=recommendation.id).all()
+        sends2 = ReplyRecommendation.query.filter_by(
+            recommendationid=recommendation.id).all()
         for s2 in sends2:
             db.session.delete(s2)
             db.session.commit()
-        sends3 = SendRecommendation.query.filter_by(recommendationid=recommendation.id).all()
+        sends3 = SendRecommendation.query.filter_by(
+            recommendationid=recommendation.id).all()
         for s3 in sends3:
             db.session.delete(s3)
             db.session.commit()
         db.session.delete(recommendation)
         db.session.commit()
-        flash("Your Recommendation is now deleted",category='success')
+        flash("Your Recommendation is now deleted", category='success')
     return redirect(url_for('recommendations'))
 
 
-
-@app.route('/editfriend/<int:id>',methods=['GET','POST'])
+@app.route('/editfriend/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editfriend(id):
     form = FriendForm()
@@ -823,18 +1115,18 @@ def editfriend(id):
         friend.email = form.email.data
         db.session.add(friend)
         db.session.commit()
-        flash('Your changes have been saved.',category='success')
+        flash('Your changes have been saved.', category='success')
         return redirect(url_for('friends'))
     else:
         form.firstname.data = friend.firstname
         form.lastname.data = friend.lastname
         form.email.data = friend.email
-    return render_template('editFriend.html',
-                          form =form,
+    return render_template('friends/editFriend.html',
+                           form=form,
                            id=id)
 
 
-@app.route('/editad/<int:id>',methods=['GET','POST'])
+@app.route('/editad/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def editad(id):
@@ -851,16 +1143,18 @@ def editad(id):
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 ad.pic = filename
             else:
-                flash('Only jpeg, jpg or png files are accepted',category='danger')
-                return redirect(url_for('editad',id=ad.id))
+                flash(
+                    'Only jpeg, jpg or png files are accepted',
+                    category='danger')
+                return redirect(url_for('editad', id=ad.id))
         ad.title = form.title.data
         ad.website = form.website.data
-        ad.body  = form.body.data
+        ad.body = form.body.data
         ad.ad_start_date = form.ad_start_date.data
         ad.ad_end_date = form.ad_end_date.data
         db.session.add(ad)
         db.session.commit()
-        flash('Your changes have been saved.',category='success')
+        flash('Your changes have been saved.', category='success')
         return redirect(url_for('listads'))
     else:
         form.title.data = ad.title
@@ -868,91 +1162,124 @@ def editad(id):
         form.body.data = ad.body
         form.ad_start_date.data = ad.ad_start_date
         form.ad_end_date.data = ad.ad_end_date
-    return render_template('editad.html',form=form,id=id,mypic=mypic)
+    return render_template('ads/editad.html', form=form, id=id, mypic=mypic)
 
 
-@app.route('/reset',methods=['GET','POST'])
+@app.route('/reset', methods=['GET', 'POST'])
 @login_required
 def reset():
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        if g.user.password == None or g.user.password == "" or g.user.password == 'NULL':
-            flash('You did not set an old password. If this is a facebook account, you should use the Forget your password link on the log in page!',category='danger')
+        if g.user.password is None or g.user.password == "" or g.user.password == 'NULL':
+            flash(
+                'You did not set an old password. If this is a facebook account, you should use the Forget your password link on the log in page!',
+                category='danger')
             return redirect(url_for('index'))
-        if check_password_hash(g.user.password,form.oldpassword.data):
-            g.user.password=generate_password_hash(form.password.data)
+        if check_password_hash(g.user.password, form.oldpassword.data):
+            g.user.password = generate_password_hash(form.password.data)
             db.session.add(g.user)
             db.session.commit()
-            flash('Your password was successfully reset!',category='success')
+            flash('Your password was successfully reset!', category='success')
             return redirect(url_for('reset'))
         else:
-            flash("Your old password is incorrect!",category='danger')
+            flash("Your old password is incorrect!", category='danger')
             return redirect(url_for('reset'))
-    return render_template('reset.html',form=form)
+    return render_template('users/reset.html', form=form)
 
 
-
-@app.route('/edit',methods=['GET','POST'])
+@app.route('/edit', methods=['GET', 'POST'])
 @login_required
 def edituser():
     form = UserForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and form.email.data != g.user.email:
-            flash('Sorry but this email is already registered at HelpJM!',category='danger')
+            flash(
+                'Sorry but this email is already registered at HelpJM!',
+                category='danger')
             return redirect(url_for('edituser'))
         g.user.firstname = form.firstname.data
         g.user.lastname = form.lastname.data
         g.user.email = form.email.data
+        g.user.phone= form.phone.data
         db.session.add(g.user)
         db.session.commit()
-        flash('Your changes have been saved.',category='success')
+        flash('Your changes have been saved.', category='success')
+        g.user.email = form.email.data
         return redirect(url_for('edituser'))
     else:
         form.firstname.data = g.user.firstname
         form.lastname.data = g.user.lastname
         form.email.data = g.user.email
-    return render_template('edituser.html',
-                          form=form)
+        form.phone.data = g.user.phone
+    return render_template('users/edituser.html',
+                           form=form)
+
+
 @app.route('/advertise')
 def advertise():
     mform = MainSearchForm()
-    return render_template('advertise.html',title='Advertise With Us',mform=mform)
+    return render_template(
+        'advertise.html',
+        title='Advertise With Us',
+        mform=mform)
+
 
 @app.route('/about')
 def about():
     mform = MainSearchForm()
-    return render_template('about.html',title='About Us',mform=mform)
+    return render_template('about.html', title='About Us', mform=mform)
+
 
 @app.route('/terms')
 def terms():
     mform = MainSearchForm()
-    return render_template('terms.html',title='Terms and Conditions',mform=mform)
+    return render_template(
+        'terms.html',
+        title='Terms and Conditions',
+        mform=mform)
+
 
 @app.route('/privacy')
 def privacy():
     mform = MainSearchForm()
-    return render_template('privacy.html',title='Privacy and Policy',mform=mform)
+    return render_template(
+        'privacy.html',
+        title='Privacy and Policy',
+        mform=mform)
+
 
 @app.route('/gettingstarted')
 def gettingstarted():
     mform = MainSearchForm()
-    return render_template('gettingstarted.html',title='Getting Started',mform=mform)
+    return render_template(
+        'gettingstarted.html',
+        title='Getting Started',
+        mform=mform)
 
 
-@app.route('/contactus',methods=['GET','POST'])
+@app.route('/contactus', methods=['GET', 'POST'])
 def contactus():
     mform = MainSearchForm()
     form = ContactUsForm()
     if form.validate_on_submit():
-        contact = ContactUs(name=form.name.data,email=form.email.data,topic=form.topic.data, message=form.message.data)
+        contact = ContactUs(
+            name=form.name.data,
+            email=form.email.data,
+            topic=form.topic.data,
+            message=form.message.data)
         db.session.add(contact)
         db.session.commit()
-        flash("Your message was sent successfully",category='success')
+        flash("Your message was sent successfully", category='success')
         return redirect(url_for('contactus'))
-    return render_template('contactus.html',title='Contact Us',form=form,mform=mform)
+    return render_template(
+        'users/contactus.html',
+        title='Contact Us',
+        form=form,
+        mform=mform)
 
-@app.route('/changepassword',methods=['GET','POST'])
+
+@app.route('/changepassword', methods=['GET', 'POST'])
 def changepassword():
     mform = MainSearchForm()
     form = ChangePasswordForm()
@@ -960,15 +1287,20 @@ def changepassword():
         email = form.email.data
         user = User.query.filter_by(email=email).first()
         if not user:
-            flash('This email is not registered!',category='danger')
+            flash('This email is not registered!', category='danger')
             return redirect(url_for('changepassword'))
         else:
             forgot_password_notification(user)
-            flash('Instructions were sent to your email',category='info')
+            flash('Instructions were sent to your email', category='info')
             return redirect(url_for('changepassword'))
-    return render_template('changepassword.html',title='Change Password',form=form,mform=mform)
+    return render_template(
+        'users/changepassword.html',
+        title='Change Password',
+        form=form,
+        mform=mform)
 
-@app.route('/forgot_password/<p>',methods=['GET','POST'])
+
+@app.route('/forgot_password/<p>', methods=['GET', 'POST'])
 def forgot_password(p):
     mform = MainSearchForm()
     form = ForgotPasswordForm()
@@ -980,18 +1312,26 @@ def forgot_password(p):
         user.confirmationid = str(uuid.uuid4())
         db.session.add(user)
         db.session.commit()
-        flash("Your password was successfully changed! You can now log in with your new password!",category='success')
+        flash(
+            "Your password was successfully changed! You can now log in with your new password!",
+            category='success')
         return redirect(url_for('login'))
-    return render_template('forgotpassword.html',title="Forgot My Password",form=form,user=user,mform=mform)
+    return render_template(
+        'users/forgotpassword.html',
+        title="Forgot My Password",
+        form=form,
+        user=user,
+        mform=mform)
 
 
-@app.route('/search', methods=['GET','POST'])
+@app.route('/search', methods=['GET', 'POST'])
 #@app.route('/search/<int:page>', methods=['GET','POST'])
 @login_required
 def search():
     ads = getAds()
     form = SearchForm()
     #category = form.category.data
+    name = request.args.get("name")
     category = request.args.get("category")
     #service = form.service.data
     service = request.args.get("service")
@@ -1000,17 +1340,23 @@ def search():
     rating = request.args.get("rating")
     recommendedby = request.args.get("recommendedby")
     buttonclicked = request.args.get("mybtn")
-    query_dict=dict()
+    query_dict = dict()
 
     if not buttonclicked:
-        return render_template('search.html',title='Search',form=form,recommendations=[],ads=ads,queries=[],btnclicked=False)
+        return render_template(
+            'search/search.html',
+            title='Search',
+            form=form,
+            recommendations=[],
+            ads=ads,
+            queries=[],
+            btnclicked=None)
 
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
         del queries_without_page['page']
 
-
-    #if not category or not service and request.args.get("btn") == "sendsearch":
+    # if not category or not service and request.args.get("btn") == "sendsearch":
     #    flash("Please enter at least the Category and Service!",category='danger')
     #    return redirect(url_for('search'))
 
@@ -1030,84 +1376,152 @@ def search():
         query_dict['rating'] = rating
 
     recommendations = Recommendation.query.filter_by(**query_dict)
+    query_list = []
+    if name:
+        name = name.split()
+        for n in name:
+            query_list.append(Recommendation.name.ilike("%"+n+"%"))
+            query_list.append(Recommendation.category.ilike("%"+n+"%"))
+            query_list.append(Recommendation.service.ilike("%"+n+"%"))
+
+        recommendations = recommendations.filter(
+            reduce(
+                lambda a, b: (
+                    a | b), query_list))
+
+
+
 
     if recommendedby == 'Friends':
         recids = []
-        user = User.query.filter_by(id = g.user.id).first()
+        user = User.query.filter_by(id=g.user.id).first()
         friends = user.friends.all()
         if not friends:
-            flash('You need to have at least one friend to perform this search',category='info')
+            flash(
+                'You need to have at least one friend to perform this search',
+                category='info')
             return redirect(url_for('search'))
         for friend in friends:
-            reply_recs = ReplyRecommendation.query.filter_by(friendid=friend.id).all()
+            reply_recs = ReplyRecommendation.query.filter_by(
+                friendid=friend.id).all()
             for reply_rec in reply_recs:
                 recids.append(reply_rec.recommendationid)
 
         if recids:
-            recommendations = recommendations.filter(Recommendation.id.in_(recids))
+            recommendations = recommendations.filter(
+                Recommendation.id.in_(recids))
     #recommendations = recommendations.all()
     try:
-        page = int(request.args.get("page",'1'))
+        page = int(request.args.get("page", '1'))
     except ValueError:
         page = 1
 
-    recommendations = recommendations.order_by(sqlalchemy.sql.expression.case(((Recommendation.rating == "Excellent",1),
-                                                                               (Recommendation.rating == "Very Good",2),
-                                                                               (Recommendation.rating == "Average",3),
-                                                                               (Recommendation.rating == "Poor",4),
-                                                                               (Recommendation.rating == "Terrible",5)))).paginate(page,ITEMS_PER_PAGE,False)
+    recommendations = recommendations.order_by(
+        sqlalchemy.sql.expression.case(
+            ((Recommendation.rating == "Excellent", 1),
+             (Recommendation.rating == "Very Good", 2),
+                (Recommendation.rating == "Average", 3),
+                (Recommendation.rating == "Poor", 4),
+                (Recommendation.rating == "Terrible", 5)))).paginate(
+        page, ITEMS_PER_PAGE, False)
 
-    return render_template('search.html',title='Search',form=form,recommendations=recommendations,ads=ads,queries=urllib.urlencode(queries_without_page),btnclicked=True)
+    return render_template(
+        'search/search.html',
+        title='Search',
+        form=form,
+        recommendations=recommendations,
+        ads=ads,
+        queries=urllib.urlencode(queries_without_page),
+        btnclicked=True)
 
-@app.route('/viewrecommendation/<int:recommendationid>',methods=['GET','POST'])
+
+@app.route(
+    '/viewrecommendation/<int:recommendationid>',
+    methods=[
+        'GET',
+        'POST'])
 def viewrecommendation(recommendationid):
     mform = MainSearchForm()
     form = ReviewForm()
-    recommendation = Recommendation.query.filter_by(id=int(recommendationid)).first()
-    reviews = Review.query.filter_by(rec_id=int(recommendationid)).order_by(Review.created).all()
-
+    recommendation = Recommendation.query.filter_by(
+        id=int(recommendationid)).first()
+    reviews = Review.query.filter_by(
+        rec_id=int(recommendationid)).order_by(
+        Review.created).all()
 
     if not recommendation:
-        flash('Sorry, but this recommendation was deleted by the Creator!',category='danger')
+        flash(
+            'Sorry, but this recommendation was deleted by the Creator!',
+            category='danger')
         return redirect(url_for('login'))
-    #if recommendation.user_id == 0:
+    # if recommendation.user_id == 0:
     #    recommender = db.session.query(Recommendation,Friend).filter(Recommendation.id==recommendation.id,Recommendation.friend_id == Friend.id).first()
     #    if recommender:
     #        recommender = recommender.Friend
-    #else:
+    # else:
     #    recommender = db.session.query(User,Recommendation).filter(User.id == Recommendation.user_id).first()
     #    recommender = recommender.User
-    recommender = db.session.query(User,Recommendation).filter(Recommendation.id==recommendation.id, User.id == Recommendation.user_id).first()
+    recommender = db.session.query(
+        User,
+        Recommendation).filter(
+        Recommendation.id == recommendation.id,
+        User.id == Recommendation.user_id).first()
     if recommender:
         recommender = recommender.User
-    return render_template('viewrecommendation.html',title='View Recommendation',recommendation=recommendation,recommender=recommender,form=form,reviews=reviews,mform=mform)
+    return render_template(
+        'recommendations/viewrecommendation.html',
+        title='View Recommendation',
+        recommendation=recommendation,
+        recommender=recommender,
+        form=form,
+        reviews=reviews,
+        mform=mform)
 
 
-@app.route('/sendrecommendation2/<int:askid>/<int:friendid>',methods=['GET','POST'])
+@app.route(
+    '/sendrecommendation2/<int:askid>/<int:friendid>',
+    methods=[
+        'GET',
+        'POST'])
 @login_required
-def sendrecommendation2(askid,friendid):
+def sendrecommendation2(askid, friendid):
     recList = []
     ask = Ask.query.filter_by(id=int(askid)).first()
     friend = Friend.query.filter_by(id=int(friendid)).first()
     if not ask or not friend:
-        flash('Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',category='danger')
+        flash(
+            'Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',
+            category='danger')
         return redirect(url_for('login'))
     asker = User.query.filter_by(id=ask.user_id).first()
-    recommendations = Recommendation.query.filter_by(user_id=g.user.id,service=ask.service,category=ask.category).all()
+    recommendations = Recommendation.query.filter_by(
+        user_id=g.user.id,
+        service=ask.service,
+        category=ask.category).all()
     recommendationlist = request.form.getlist('sendmyrecommendations')
     if not recommendationlist and request.form.get('btn') == 'send':
-        flash("You need to select at least one Recommendation", category='danger')
-        return redirect(url_for('sendrecommendation2',askid=ask.id,friendid=friend.id))
+        flash(
+            "You need to select at least one Recommendation",
+            category='danger')
+        return redirect(
+            url_for(
+                'sendrecommendation2',
+                askid=ask.id,
+                friendid=friend.id))
     if recommendationlist:
         for r in recommendationlist:
             recList.append(r)
-            replyrecommendation = ReplyRecommendation(recommendationid=int(r),friendid=friend.id,askid=ask.id,datesent=datetime.utcnow())
+            replyrecommendation = ReplyRecommendation(
+                recommendationid=int(r),
+                friendid=friend.id,
+                askid=ask.id,
+                datesent=datetime.utcnow())
             db.session.add(replyrecommendation)
             db.session.commit()
-        recommendation_notification2(friend,asker,ask,recList)
-        flash('Your Recommendations were sent successfully',category='success')
+        recommendation_notification2(friend, asker, ask, recList)
+        flash('Your Recommendations were sent successfully', category='success')
         return redirect(url_for('recommendations'))
-    return render_template('sendrecommendation2.html',
+    return render_template('recommendations/sendrecommendation2.html',
                            title="Send Recommendations",
                            ask=ask,
                            friend=friend,
@@ -1115,51 +1529,76 @@ def sendrecommendation2(askid,friendid):
                            recommendations=recommendations)
 
 
-@app.route('/recommendation/<int:askid>/<int:friendid>',methods=['GET','POST'])
-def sendrecommendation(askid,friendid):
+@app.route(
+    '/recommendation/<int:askid>/<int:friendid>',
+    methods=[
+        'GET',
+        'POST'])
+def sendrecommendation(askid, friendid):
     form = RecommendationReplyForm()
     ask = Ask.query.filter_by(id=int(askid)).first()
     friend = Friend.query.filter_by(id=int(friendid)).first()
     if not ask or not friend:
-        flash('Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',category='danger')
+        flash(
+            'Sorry, but this item was deleted by the owner! Please contact the person that sent you this request!',
+            category='danger')
         return redirect(url_for('login'))
     asker = User.query.filter_by(id=ask.user_id).first()
-    #FIXME:This will not work as I do not have the @login decorator(try using a hidden field in the form)
+    # FIXME:This will not work as I do not have the @login decorator(try using
+    # a hidden field in the form)
     rec_user = form.user_id.data
-    #TODO:Remove rec_user as we don't want to get the user ID
+    # TODO:Remove rec_user as we don't want to get the user ID
     if not rec_user:
         rec_user = 0
     #myuser =  request.form['user_id']
     if form.validate_on_submit():
-        recommendation = Recommendation(user_id = 0, category=ask.category,
-                                       service=ask.service,name=form.name.data,
-                                       company=form.company.data,phone=form.phone.data,
-                                       email=form.email.data,website=form.website.data,
-                                       parish=ask.parish,area=ask.area,rating=form.rating.data,review=form.review.data,
-                                       created=datetime.utcnow(),
-                                       friend_id = int(friendid)
-                                        )
+        recommendation = Recommendation(
+            user_id=0,
+            category=ask.category,
+            service=ask.service,
+            name=form.name.data,
+            company=form.company.data,
+            phone=form.phone.data,
+            email=form.email.data,
+            website=form.website.data,
+            parish=ask.parish,
+            area=ask.area,
+            rating=form.rating.data,
+            review=form.review.data,
+            created=datetime.utcnow(),
+            friend_id=int(friendid))
         db.session.add(recommendation)
         db.session.commit()
-        #recommendation_notification(friend,rec_user,ask)
-        replyrecommendation = ReplyRecommendation(recommendationid=recommendation.id,friendid=friend.id,askid=ask.id,datesent=datetime.utcnow())
+        # recommendation_notification(friend,rec_user,ask)
+        replyrecommendation = ReplyRecommendation(
+            recommendationid=recommendation.id,
+            friendid=friend.id,
+            askid=ask.id,
+            datesent=datetime.utcnow())
         db.session.add(replyrecommendation)
         db.session.commit()
-        recommendation_notification(friend,asker,ask,recommendation.id)
-        flash("Your Recommendation was successfully sent to  %s %s ! You can send another if you like. Or just close this page!" % (asker.firstname, asker.lastname ),category='success')
-        return redirect(url_for('sendrecommendation',askid=ask.id,friendid=friend.id))
-    return render_template("recommendationreply.html",
+        recommendation_notification(friend, asker, ask, recommendation.id)
+        flash(
+            "Your Recommendation was successfully sent to  %s %s ! You can send another if you like. Or just close this page!" %
+            (asker.firstname, asker.lastname), category='success')
+        return redirect(
+            url_for(
+                'sendrecommendation',
+                askid=ask.id,
+                friendid=friend.id))
+    return render_template("recommendations/recommendationreply.html",
                            title="Send Recommendation",
                            form=form,
                            ask=ask,
-                           asker=asker,friend=friend)
+                           asker=asker, friend=friend)
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route('/listads',methods=['GET','POST'])
+
+@app.route('/listads', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def listads():
@@ -1173,20 +1612,21 @@ def listads():
             filename = str(uuid.uuid4())
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         else:
-            flash('Only jpeg, jpg or png files are accepted',category='danger')
+            flash('Only jpeg, jpg or png files are accepted', category='danger')
             return redirect(url_for('listads'))
-        ad = Ads(title=form.title.data,website=form.website.data,body=form.body.data,pic=filename,
+        ad = Ads(title=form.title.data, website=form.website.data, body=form.body.data, pic=filename,
                  ad_start_date=form.ad_start_date.data,
                  #ad_start_date=datetime.strptime(form.ad_start_date.data, '%Y-%m-%d %H:%M:%S'),
-                ad_end_date=form.ad_end_date.data,
-                #ad_end_date=datetime.strptime(form.ad_end_date.data, '%Y-%m-%d %H:%M:%S'),
-                 user_id=g.user.id,created=datetime.utcnow()
+                 ad_end_date=form.ad_end_date.data,
+                 #ad_end_date=datetime.strptime(form.ad_end_date.data, '%Y-%m-%d %H:%M:%S'),
+                 user_id=g.user.id, created=datetime.utcnow()
                  )
         db.session.add(ad)
         db.session.commit()
-        flash('Your add was successfully Created',category='success')
+        flash('Your add was successfully Created', category='success')
         return redirect(url_for('listads'))
-    return render_template("listads.html",form=form,ads=ads)
+    return render_template("ads/listads.html", form=form, ads=ads)
+
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -1194,13 +1634,350 @@ def uploaded_file(filename):
                                filename)
 
 
-@app.route('/deletead/<int:id>',methods=['GET','POST'])
+@app.route('/deletead/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def deletead(id):
     ad = Ads.query.filter_by(id=int(id)).first()
     db.session.delete(ad)
     db.session.commit()
-    flash("Your Ad is now deleted",category='success')
+    flash("Your Ad is now deleted", category='success')
     return redirect(url_for('listads'))
+
+
+#======================EVENTS============================
+
+#helper to process youtube video links
+def getCode(uTubeCode):
+    if not uTubeCode:
+        return
+    codeList = uTubeCode.split('/')
+    if (len(codeList) == 1):
+        return codeList[0]
+    else:
+        codeList = codeList[-1]
+        return codeList
+
+
+@app.route('/events', methods=['GET', 'POST'])
+@login_required
+def events():
+
+    user = User.query.filter_by(id=g.user.id).first()
+    events = Event.query.filter_by(
+        creator=user.id,
+        active=ACTIVE_EVENT).order_by("created_date desc").all()
+    #asks = user.asks.all()
+    #asks = asks.query.filter_by(status=ACTIVE_ASK).all()
+    ads = getAds()
+    form = EventForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            print "REached Here"
+            filename = ""
+            fileThumb = ""
+            file = request.files['flyer']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = str(uuid.uuid4()) + filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                fileThumb = THUMBER(
+                    os.path.join(
+                        app.config['UPLOAD_FOLDER'],
+                        filename))
+                fileThumb = os.path.basename(fileThumb)
+            else:
+                flash(
+                    'Only jpeg, jpg or png files are accepted',
+                    category='danger')
+                return redirect(url_for('events'))
+            event = Event(
+                title=form.title.data,
+                category=form.category.data,
+                description=form.description.data,
+                event_start_date=form.event_start_date.data,
+                event_end_date=form.event_start_date.data,
+                venue=form.venue.data,
+                address=form.address.data,
+                parish=form.parish.data,
+                flyer=filename,
+                # FIXME: thumbname needs to be fixed to a function to do that
+                thumbnail=fileThumb,
+                youtube=getCode(form.youtube.data),
+                created_date=datetime.utcnow(),
+                creator=g.user.id,
+                active=ACTIVE_EVENT
+            )
+            db.session.add(event)
+            db.session.commit()
+            flash('Your event was successfully created', category='success')
+            return redirect(url_for('events'))
+    return render_template("events/events.html",
+                           title='Events',
+                           form=form,
+                           events=events,
+                           ads=ads)
+
+
+@app.route('/deleteevent/<int:id>', methods=['GET', 'POST'])
+@login_required
+def deleteevent(id):
+    event = Event.query.filter_by(id=int(id)).first()
+    if event.creator == g.user.id:
+        db.session.delete(event)
+        db.session.commit()
+        flash("Your Event is now deleted", category='success')
+        return redirect(url_for('events'))
+    flash("There is a problem deleting this event", category='danger')
+    return redirect(url_for('events'))
+
+
+@app.route('/detail/<int:id>#posts', methods=['GET', 'POST'])
+@app.route('/detail/<int:id>', methods=['GET', 'POST'])
+def detail(id):
+    event = Event.query.get_or_404(int(id))
+    user = User.query.filter_by(id=event.creator).first()
+    comments = Comment.query.filter_by(event_id=int(id)).order_by(Comment.created.desc()).all()
+    ads=getAds()
+    form = CommentForm()
+    if request.method =='POST':
+        if form.validate_on_submit():
+            comment = Comment(
+                event_id=int(id),
+                author = form.author.data,
+                content = form.content.data,
+                rating = form.rating.data,
+                created = datetime.utcnow()
+            )
+            db.session.add(comment)
+            db.session.commit()
+            num = event.comment_counting
+            if not num:
+                num = 0
+            event.comment_counting =  1 + num
+            db.session.add(event)
+            db.session.commit()
+            flash("Your comment was successfully posted.", category='success')
+            #return redirect(url_for('detail', id=id))
+            return redirect('detail/'+str(id)+'#posts',code=302)
+        else:
+            flash("Please correct the errors on the Post form. Thanks.", category='danger')
+
+    return render_template("events/detail.html",
+                           title='Detail',
+                           event=event,
+                           user=user,
+                           form=form,
+                           comments=comments,
+                           ads=ads
+                           )
+@app.route('/editevent/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editevent(id):
+    event = Event.query.get_or_404(int(id))
+    mypic = event.flyer
+    form = EventEditForm()
+    ads=getAds()
+    if form.validate_on_submit():
+        filename = ""
+        fileThumb = ""
+        file = request.files['flyer']
+        if file:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename = str(uuid.uuid4()) + filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                event.flyer = filename
+                fileThumb = THUMBER(
+                    os.path.join(
+                        app.config['UPLOAD_FOLDER'],
+                        filename))
+                event.thumbnail = os.path.basename(fileThumb)
+            else:
+                flash(
+                    'Only jpeg, jpg or png files are accepted',
+                    category='danger')
+                return redirect(url_for('editevent', id=event.id))
+        event.title = form.title.data
+        event.category = form.category.data
+        event.description = form.description.data
+        event.event_start_date = form.event_start_date.data
+        event.event_end_date = form.event_start_date.data
+        event.venue = form.venue.data
+        event.address = form.address.data
+        event.parish = form.parish.data
+        event.youtube = getCode(form.youtube.data)
+        event.created_date = datetime.utcnow()
+        db.session.add(event)
+        db.session.commit()
+        flash('Your changes have been saved.', category='success')
+        return redirect(url_for('events'))
+    else:
+        form.title.data = event.title
+        form.category.data = event.category
+        form.description.data = event.description
+        form.event_start_date.data = event.event_start_date
+        form.event_end_date.data = event.event_end_date
+        form.venue.data = event.venue
+        form.address.data = event.address
+        form.parish.data = event.parish
+        form.youtube.data = event.youtube
+    return render_template(
+        'events/editevents.html',
+        id=id,
+        form=form,
+        mypic=mypic,
+        ads=ads)
+
+
+@app.route('/eventsearch', methods=['GET', 'POST'])
+def eventsearch():
+    title = request.args.get("title")
+    category = request.args.get("category")
+    #service = form.service.data
+    event_start_date = request.args.get("event_start_date")
+    parish = request.args.get("parish")
+    query_dict = dict()
+    ads=getAds()
+
+
+    queries_without_page = request.args.copy()
+    if 'page' in queries_without_page:
+        del queries_without_page['page']
+
+    # if not category or not service and request.args.get("btn") == "sendsearch":
+    #    flash("Please enter at least the Category and Service!",category='danger')
+    #    return redirect(url_for('search'))
+
+    if category:
+        query_dict['category'] = category
+
+    if event_start_date:
+#        FIXME: This will not return match
+        query_dict['event_start_date'] = event_start_date
+
+    if parish:
+        query_dict['parish'] = parish
+
+
+    events = Event.query.filter_by(**query_dict)
+
+    query_list = []
+    if title:
+        title = title.split()
+        for t in title:
+            query_list.append(Event.title.ilike("%"+t+"%"))
+            query_list.append(Event.category.ilike("%"+t+"%"))
+
+        events = events.filter(
+            reduce(
+                lambda a, b: (
+                    a | b), query_list))
+
+    try:
+        page = int(request.args.get("page", '1'))
+    except ValueError:
+        page = 1
+
+    events = events.paginate(page,ITEMS_PER_PAGE,False)
+
+    return render_template(
+        'search/eventresults.html',
+        title='Event Search Results',
+        events=events,
+        ads=ads,
+        queries=urllib.urlencode(queries_without_page)
+    )
+
+
+@app.route('/findevents/<string:decide>', methods=['GET', 'POST'])
+def findevents(decide):
+    if decide not in ['today','tomorrow','upcoming']:
+        abort(404)
+    #year, month, day  = time.localtime()[:3]
+    today = datetime.now()
+    year = today.year
+    month = today.month
+    day = today.day
+    #year = request.args.get("year")
+    #month = request.args.get("month")
+    #day = request.args.get("day")
+    tomorrow = today + timedelta(days=1)
+    day2 =  tomorrow.day
+    tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
+
+
+
+
+
+    ads = getAds()
+    queries_without_page = request.args.copy()
+    if 'page' in queries_without_page:
+        del queries_without_page['page']
+
+    try:
+        page = int(request.args.get("page", '1'))
+    except ValueError:
+        page = 1
+
+    if (decide == 'today'):
+        events = Event.query.filter(
+            extract('year',Event.event_start_date) == year,
+            extract('month',Event.event_start_date) == month,
+            extract('day',Event.event_start_date) == day
+        ).paginate(page,ITEMS_PER_PAGE,False)
+    elif(decide == 'tomorrow'):
+        events = Event.query.filter(
+            extract('year',Event.event_start_date) == year,
+            extract('month',Event.event_start_date) == month,
+            extract('day',Event.event_start_date) == day2
+        ).paginate(page,ITEMS_PER_PAGE,False)
+    else:
+        events = Event.query.filter(Event.event_start_date > tomorrow).paginate(
+            page,ITEMS_PER_PAGE,False
+        )
+
+    return render_template(
+        'search/findevents.html',
+        title='Event Search Result',
+        events = events,
+        ads = ads,
+        queries=urllib.urlencode(queries_without_page)
+    )
+
+@app.route('/eventlist', methods=['GET', 'POST'])
+def eventlist():
+    year = request.form["year"]
+    month = request.form["month"]
+    day = request.form["day"]
+
+
+    events = Event.query.filter(
+        extract('year',Event.event_start_date) == year,
+        extract('month',Event.event_start_date) == month,
+        extract('day',Event.event_start_date) == day
+    ).all()
+
+    return jsonify(events=[x.to_json() for x in events])
+
+@app.route('/iseventlist', methods=['GET', 'POST'])
+def iseventlist():
+    year = int(request.form["year"])
+    month = int(request.form["month"])
+    day = int(request.form["day"])
+    #print year
+    #print month
+    #print day
+    month = month+1
+
+    events = Event.query.filter(
+        extract('year',Event.event_start_date) == year,
+        extract('month',Event.event_start_date) == month,
+        extract('day',Event.event_start_date) == day
+    ).all()
+
+    if events:
+        return jsonify({'answer':'T'})
+    else:
+        return jsonify({'answer':'F'})
 

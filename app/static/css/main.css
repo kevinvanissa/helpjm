@@ -1,6 +1,7 @@
 /* Move down content because we have a fixed navbar that is 50px tall */
 html,body {
   /*padding-top: 30px;*/
+  padding-top: 0px !important;
   /*padding-bottom: 20px;*/
   height:100%;
  /* The html and body elements cannot have any padding or margin. */
@@ -11,14 +12,14 @@ html,body {
   min-height: 100%;
   height: auto;
   /* Negative indent footer by its height */
-  margin: 0 auto -60px;
+  margin: 0 auto -200px;
   /* Pad bottom by footer height */
-  padding: 0 0 60px;
+  padding: 0 0 200px;
 }
 
 /* Set the fixed height of the footer here */
 #footer {
-  height: 60px;
+  min-height: 200px;
   /*background-color:#222222;*/
 }
 
@@ -39,8 +40,8 @@ html,body {
 }
 
 .detail{
-    font-style:italic;
     padding-left: 5px;
+    color:#585858;
 }
 .decordate{
     font-style:italic;
@@ -75,6 +76,11 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
     color:#EAC117;
     /*color:#339900;*/
 }
+
+.footerheading{
+    color:#EAC117;
+    font-weight:bold;
+}
 .divider{
     color:#FFFFFF;
 }
@@ -95,3 +101,41 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
     background-color:#FFFFE0 !important;
 }
 
+.myhr{
+    border-bottom: 1px solid #505050; 
+    border-top: 1px solid #101010;
+}
+/* Align labels */
+.fixlabel{
+    text-align:left;
+}
+/* End Align labels */
+
+
+/*This is for carousel*/
+.slider-size {
+    height: 400px; /* This is your slider height */
+}
+.carousel {
+    width:100%; 
+    margin:0 auto; /* center your carousel if other than 100% */ 
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.70);
+}
+
+/*End carousel*/
+h3{
+    color:#47A447;
+}
+ol.commentlist {
+    color: #555;
+    list-style-type: none;
+    margin: 1.5em 0;
+    padding: 0;
+}
+.commentlist li {
+    margin-bottom: 0.5em;
+    padding: 0.5em 1em;
+}

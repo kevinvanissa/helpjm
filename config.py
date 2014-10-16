@@ -3,6 +3,8 @@ from flask_oauth import OAuth
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+LOCALHOST_EMAIL=True
+
 UPLOAD_FOLDER = basedir+'/app/static/uploads'
 ALLOWED_EXTENSIONS = set(['jpg','png','jpeg'])
 MAX_CONTENT_LENGTH = 1 * 1024 * 1024
@@ -71,12 +73,22 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 SQLALCHEMY_RECORD_QUERIES = True
 
 # mail server settings
-MAIL_SERVER = 'smtp.googlemail.com'
-MAIL_PORT = 465
-MAIL_USE_TLS= False
-MAIL_USE_SSL= True
-MAIL_USERNAME = 'services@helpjm.com'
-MAIL_PASSWORD = 'gamma.rad4N?'
+
+
+if LOCALHOST_EMAIL:
+    MAIL_SERVER = 'localhost'
+    MAIL_PORT = 25
+    MAIL_USERNAME = None
+    MAIL_PASSWORD =  None
+else:
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS= False
+    MAIL_USE_SSL= True
+    MAIL_USERNAME = 'services@helpjm.com'
+    MAIL_PASSWORD = 'gamma.rad4N?'
+
+
 
 # administrator list
 ADMINS = ['HelpJM Team <services@helpjm.com>']

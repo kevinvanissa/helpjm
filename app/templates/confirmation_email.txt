@@ -1,9 +1,0 @@
-Dear {{user.firstname}} {{user.lastname}},
-
-
-Click here to Confirm: {{url_for('activate_user',confirmationid=user.confirmationid,_external=True)}}
-
-Regards,
-
-The HelpJM Team
-www.helpjm.com

@@ -8,7 +8,7 @@ from werkzeug import check_password_hash, generate_password_hash,secure_filename
 import os,uuid
 from app.models import User, ROLE_USER, ROLE_ADMIN,ACTIVE_ASK,INACTIVE_ASK, INACTIVE_USER,ACTIVE_USER,Ask, Friend, Recommendation,ContactUs,SendAsk,ReplyRecommendation,Ads,SendRecommendation
 from werkzeug.datastructures import ImmutableMultiDict
-
+from StringIO import StringIO
 
 from coverage import coverage
 cov = coverage(branch = True, omit = ['flask/*','test.py'])
@@ -76,11 +76,12 @@ class TestCase(unittest.TestCase):
         #    assert 'Your friend is now Created' in rv.data
         return rv
 
-    def edit_user(self,firstname,lastname,email):
+    def edit_user(self,firstname,lastname,email,phone):
         rv = self.app.post('/edit', data=dict(
             firstname=firstname,
             lastname=lastname,
-            email=email
+            email=email,
+            phone=phone
         ), follow_redirects=True)
         return rv
 
@@ -134,6 +135,7 @@ class TestCase(unittest.TestCase):
         u1 = User(firstname="Kevin",
                     lastname="Miller",
                     email="kevinvanissa@gmail.com",
+                    phone="8839487",
                     password=generate_password_hash("password123"),confirmationid=str(uuid.uuid4()))
 
         u1.status = ACTIVE_USER
@@ -142,18 +144,19 @@ class TestCase(unittest.TestCase):
 
         self.login('kevinvanissa@gmail.com', 'password123', False)
         #edit user
-        v = self.edit_user("Kevin","Miller","sdundee@yahoo.com")
+        v = self.edit_user("Kevin","Miller","sdundee@yahoo.com","8839487")
         assert 'Your changes have been saved.' in v.data
         u2 = User(firstname="Vanissa",
                     lastname="Miller",
                     email="sassyvanjay@yahoo.com",
+                    phone="8839486",
                     password=generate_password_hash("123password123"),confirmationid=str(uuid.uuid4()))
 
         u2.status = ACTIVE_USER
         db.session.add(u2)
         db.session.commit()
         self.login('sassyvanjay@yahoo.com', '123password123', False)
-        v1 = self.edit_user("Vanissa","Simmonds","sassyvanjay@yahoo.com")
+        v1 = self.edit_user("Vanissa","Simmonds","sassyvanjay@yahoo.com","8839487")
         assert 'Sorry but this email is already registered at HelpJM!' in v1.data
 
 
@@ -326,6 +329,82 @@ class TestCase(unittest.TestCase):
         rv3 = self.app.get('/main',follow_redirects=True)
         assert '1 Reply' in rv3.data
 
+#============================================================================
+        #Testing for Events
+    def add_event(self,title,category,description,event_start_date,
+                  event_end_date,venue,address,parish,flyer,youtube):
+        rv = self.app.post('/events', buffered=True,
+                           content_type='multipart/form-data',data=dict(
+            title=title,
+            category=category,
+            description=description,
+            event_start_date=event_start_date,
+            event_end_date=event_end_date,
+            venue=venue,
+            address=address,
+            parish=parish,
+            flyer=(StringIO('My File Contents'),flyer),
+            youtube=youtube
+        ), follow_redirects=True)
+        #if firstname and lastname and email:
+        #    assert 'Your friend is now Created' in rv.data
+        return rv
+
+    def edit_event(self,title,category,description,event_start_date,
+                  event_end_date,venue,address,parish,flyer,youtube):
+        rv = self.app.post('/editevent/1', buffered=True,
+                           content_type='multipart/form-data',data=dict(
+            title=title,
+            category=category,
+            description=description,
+            event_start_date=event_start_date,
+            event_end_date=event_end_date,
+            venue=venue,
+            address=address,
+            parish=parish,
+            flyer=(StringIO('My File Contents'),flyer),
+            youtube=youtube
+        ), follow_redirects=True)
+        #if firstname and lastname and email:
+        #    assert 'Your friend is now Created' in rv.data
+        return rv
+
+
+
+
+    def test_add_event(self):
+        u1 = User(firstname="Kevin",
+                    lastname="Miller",
+                    email="kevinvanissa@gmail.com",
+                    password=generate_password_hash("password123"),confirmationid=str(uuid.uuid4()))
+
+        u1.status = ACTIVE_USER
+        db.session.add(u1)
+        db.session.commit()
+
+        self.login('kevinvanissa@gmail.com', 'password123', False)
+        v = self.add_event('My Event','Party','This is the description',
+                           '2014-10-13 23:30:00','2014-10-13 23:30:00',
+                           'UWI','Mona','Kingston','test.png','')
+        assert 'Your event was successfully created'  in v.data
+
+
+    def test_edit_event(self):
+        u1 = User(firstname="Kevin",
+                    lastname="Miller",
+                    email="kevinvanissa@gmail.com",
+                    password=generate_password_hash("password123"),confirmationid=str(uuid.uuid4()))
+
+        u1.status = ACTIVE_USER
+        db.session.add(u1)
+        db.session.commit()
+
+        self.login('kevinvanissa@gmail.com', 'password123', False)
+        v = self.edit_event('My Event Edit','Party','Edit: This is the description',
+                           '2014-10-13 23:30:00','2014-10-13 23:30:00',
+                           'UWI','Mona','Kingston','test.png','')
+        print v.data
+        assert 'Your changes have been saved.'   in v.data
 
 
 
