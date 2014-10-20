@@ -114,6 +114,7 @@ var daysOfWeek = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday
                             "<b>Venue: </b><span class='detail'>"+val2.venue+
                             "</span><br /><b>Address: </b><span class='detail'>"+val2.address+
                             "</span><br /><b>Parish: </b><span class='detail'>"+val2.parish+
+                            "</span><br /><b>Event Start Time: </b><span class='detail'>"+val2.event_start_date+
                         "</span></div>"+
                     "</div>"
                             ); //end append

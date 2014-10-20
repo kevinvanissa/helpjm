@@ -5,7 +5,7 @@ from app import app, db, lm
 from forms import LoginForm, EventSearchForm, CommentForm, AskForm, FriendForm, RecommendationForm, UserForm, ContactUsForm, SearchForm, RecommendationReplyForm, RegistrationForm, ResetPasswordForm, ChangePasswordForm, AdForm, AdEditForm, ForgotPasswordForm, ReviewForm, MessageForm, MainSearchForm, SearchForm2, EventForm, EventEditForm
 from models import User, Comment, ROLE_USER, FEATURED_EVENT, NOFEATURED_EVENT, ROLE_ADMIN, ACTIVE_ASK, INACTIVE_ASK, INACTIVE_USER, ACTIVE_USER, Ask, Friend, Recommendation, ContactUs, SendAsk, ReplyRecommendation, Ads, SendRecommendation, Review, Event, ACTIVE_EVENT, INACTIVE_EVENT
 from config import ITEMS_PER_PAGE, ALLOWED_EXTENSIONS, facebook, google, REDIRECT_URI
-from helperlist import EVENT_TYPES, PARISHES, SERVICES, CATEGORIES, getServiceList, getServiceListJSON, THUMBER
+from helperlist import convertTime, EVENT_TYPES, PARISHES, SERVICES, CATEGORIES, getServiceList, getServiceListJSON, THUMBER
 from emails import ask_notification, recommendation_notification, recommendation_notification2, user_confirmation_notification, forgot_password_notification, sendrec_notification, thankyou_notification
 from werkzeug import check_password_hash, generate_password_hash, secure_filename
 import os
@@ -21,7 +21,7 @@ from sqlalchemy import or_
 from sqlalchemy.sql import extract
 import sqlalchemy
 from functools import reduce
-
+import pytz
 
 # Render Json
 def request_wants_json():
@@ -63,7 +63,7 @@ def index():
             session['question'] = form.question.data
             session['parish'] = form.parish.data
             session['area'] = form.area.data
-            session['created'] = datetime.utcnow()
+            session['created'] = datetime.now()
             return redirect(url_for('sendtofriends'))
 
     return render_template("asks/asks.html",
@@ -148,7 +148,7 @@ def createreview(recommendationid, askid):
             user_id=g.user.id,
             rec_id=recommendationid,
             review=reviewForm.review.data,
-            created=datetime.utcnow(),
+            created=datetime.now(),
             rating=reviewForm.rating.data)
         db.session.add(review)
         db.session.commit()
@@ -221,7 +221,7 @@ def sendtofriends():
                 askid=ask.id,
                 friendid=friend.id,
                 userid=user.id,
-                datesent=datetime.utcnow())
+                datesent=datetime.now())
             db.session.add(sendask)
             db.session.commit()
         del session['category']
@@ -264,7 +264,7 @@ def sendtofriendsagain(id):
                 askid=ask.id,
                 friendid=friend.id,
                 userid=user.id,
-                datesent=datetime.utcnow())
+                datesent=datetime.now())
             db.session.add(sendask)
             db.session.commit()
         flash(
@@ -298,7 +298,7 @@ def sendrectofriends(id):
             sendrec = SendRecommendation(
                 recommendationid=recommendation.id,
                 friendid=friend.id,
-                datesent=datetime.utcnow())
+                datesent=datetime.now())
             db.session.add(sendrec)
             db.session.commit()
         flash('Your Recommendation was successfully sent!', category='success')
@@ -336,7 +336,7 @@ def reopenask(id):
     ask = Ask.query.filter_by(id=int(id)).first()
     if ask.user_id == g.user.id:
         ask.status = ACTIVE_ASK
-        ask.created = datetime.utcnow()
+        ask.created = datetime.now()
         db.session.add(ask)
         db.session.commit()
     return redirect(url_for('closedasks'))
@@ -383,7 +383,7 @@ def recommendations():
                 area=form.area.data,
                 rating=form.rating.data,
                 review=form.review.data,
-                created=datetime.utcnow())
+                created=datetime.now())
             db.session.add(recommendation)
             db.session.commit()
             flash("Your Recommendation is now created!", category='success')
@@ -427,7 +427,7 @@ def load_user(id):
 def before_request():
     g.user = current_user
     # if g.user.is_authenticated():
-    #    g.user.last_seen = datetime.utcnow()
+    #    g.user.last_seen = datetime.now()
     #    db.session.add(g.user)
     #    db.session.commit()
 
@@ -938,7 +938,7 @@ def mainsearch2():
 @app.route('/logout')
 def logout():
     if g.user.is_authenticated():
-        g.user.last_seen = datetime.utcnow()
+        g.user.last_seen = datetime.now()
         db.session.add(g.user)
         db.session.commit()
     logout_user()
@@ -1061,7 +1061,7 @@ def editrecommendation(id):
             recommendation.area = form.area.data
             recommendation.rating = form.rating.data
             recommendation.review = form.review.data
-            recommendation.created = datetime.utcnow()
+            recommendation.created = datetime.now()
             db.session.add(recommendation)
             db.session.commit()
 
@@ -1515,7 +1515,7 @@ def sendrecommendation2(askid, friendid):
                 recommendationid=int(r),
                 friendid=friend.id,
                 askid=ask.id,
-                datesent=datetime.utcnow())
+                datesent=datetime.now())
             db.session.add(replyrecommendation)
             db.session.commit()
         recommendation_notification2(friend, asker, ask, recList)
@@ -1565,7 +1565,7 @@ def sendrecommendation(askid, friendid):
             area=ask.area,
             rating=form.rating.data,
             review=form.review.data,
-            created=datetime.utcnow(),
+            created=datetime.now(),
             friend_id=int(friendid))
         db.session.add(recommendation)
         db.session.commit()
@@ -1574,7 +1574,7 @@ def sendrecommendation(askid, friendid):
             recommendationid=recommendation.id,
             friendid=friend.id,
             askid=ask.id,
-            datesent=datetime.utcnow())
+            datesent=datetime.now())
         db.session.add(replyrecommendation)
         db.session.commit()
         recommendation_notification(friend, asker, ask, recommendation.id)
@@ -1619,7 +1619,7 @@ def listads():
                  #ad_start_date=datetime.strptime(form.ad_start_date.data, '%Y-%m-%d %H:%M:%S'),
                  ad_end_date=form.ad_end_date.data,
                  #ad_end_date=datetime.strptime(form.ad_end_date.data, '%Y-%m-%d %H:%M:%S'),
-                 user_id=g.user.id, created=datetime.utcnow()
+                 user_id=g.user.id, created=datetime.now()
                  )
         db.session.add(ad)
         db.session.commit()
@@ -1704,7 +1704,7 @@ def events():
                 # FIXME: thumbname needs to be fixed to a function to do that
                 thumbnail=fileThumb,
                 youtube=getCode(form.youtube.data),
-                created_date=datetime.utcnow(),
+                created_date=datetime.now(),
                 creator=g.user.id,
                 active=ACTIVE_EVENT
             )
@@ -1747,7 +1747,7 @@ def detail(id):
                 author = form.author.data,
                 content = form.content.data,
                 rating = form.rating.data,
-                created = datetime.utcnow()
+                created = datetime.now()
             )
             db.session.add(comment)
             db.session.commit()
@@ -1807,7 +1807,7 @@ def editevent(id):
         event.address = form.address.data
         event.parish = form.parish.data
         event.youtube = getCode(form.youtube.data)
-        event.created_date = datetime.utcnow()
+        event.created_date = datetime.now()
         db.session.add(event)
         db.session.commit()
         flash('Your changes have been saved.', category='success')
@@ -1836,10 +1836,19 @@ def eventsearch():
     category = request.args.get("category")
     #service = form.service.data
     event_start_date = request.args.get("event_start_date")
+    #print event_start_date
     parish = request.args.get("parish")
     query_dict = dict()
     ads=getAds()
-
+    #if event_start_date:
+        #print event_start_date
+        #datetimeobject = datetime.strptime(event_start_date, '%Y-%m-%d %H:%M:%S')
+        #year = datetimeobject.year
+        #month = datetimeobject.month
+        #day = datetimeobject.day
+        #hour = datetimeobject.hour
+        #minute = datetimeobject.minute
+        #print minute
 
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
@@ -1852,9 +1861,6 @@ def eventsearch():
     if category:
         query_dict['category'] = category
 
-    if event_start_date:
-#        FIXME: This will not return match
-        query_dict['event_start_date'] = event_start_date
 
     if parish:
         query_dict['parish'] = parish
@@ -1878,6 +1884,24 @@ def eventsearch():
         page = int(request.args.get("page", '1'))
     except ValueError:
         page = 1
+
+    if event_start_date:
+        print event_start_date
+        datetimeobject = datetime.strptime(event_start_date, '%Y-%m-%d %H:%M:%S')
+        year = datetimeobject.year
+        month = datetimeobject.month
+        day = datetimeobject.day
+        hour = datetimeobject.hour
+        minute = datetimeobject.minute
+
+        events = events.filter(
+            extract('year',Event.event_start_date) == year,
+            extract('month',Event.event_start_date) == month,
+            extract('day',Event.event_start_date) == day,
+            extract('hour',Event.event_start_date) == hour,
+            extract('minute',Event.event_start_date) == minute,
+        )
+
 
     events = events.paginate(page,ITEMS_PER_PAGE,False)
 

@@ -19,7 +19,11 @@ html,body {
 
 /* Set the fixed height of the footer here */
 #footer {
+<<<<<<< HEAD
   min-height: 200px;
+=======
+  min-height: 60px;
+>>>>>>> 28f3d3e287b2f621ef4a1baedd9b2adf9210888f
   /*background-color:#222222;*/
 }
 
@@ -73,8 +77,8 @@ a.mainlink:hover {text-decoration:none;color:#FFFFFF;}   /* mouse over link */
 a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
 
 .copyright{
-    color:#EAC117;
-    /*color:#339900;*/
+    /*color:#EAC117;*/
+    color:#FFF380;
 }
 
 .footerheading{
@@ -98,7 +102,7 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
 }
 
 .mywell{
-    background-color:#FFFFE0 !important;
+    background-color:#FFF380 !important;
 }
 
 .myhr{

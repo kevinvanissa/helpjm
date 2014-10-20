@@ -247,6 +247,7 @@ class Event(db.Model):
     def __repr__(self):
         return '<Event %r>' % (self.title)
 
+
     def to_json(self):
         obj_d = {
             'id': self.id,
@@ -256,10 +257,10 @@ class Event(db.Model):
             'venue': self.venue,
             'address': self.address,
             'parish': self.parish,
-            'thumbnail': self.thumbnail
+            'thumbnail': self.thumbnail,
+            'event_start_date': self.event_start_date.strftime("%I:%M %p")
         }
         return obj_d
-
 
 
 class Comment(db.Model):

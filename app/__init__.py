@@ -20,15 +20,20 @@ def create_phone(phoneNumber):
     f = phoneNumber[3:]
     return g+'-'+f
 
+def format_time(ltime):
+    fTime = ltime.strftime("%a %b %d, %Y @ %I:%M %p")
+    return fTime
+
 app.jinja_env.globals['create_phone'] = create_phone
 
 # datetime rendering
 app.jinja_env.globals['momentjs'] = momentjs
+app.jinja_env.globals['format_time'] =  format_time
 
 #Emails
 mail = Mail(app)
-app.debug=True
-#app.debug=False
+#app.debug=True
+app.debug=False
 if not app.debug:
     import logging
     from logging.handlers import RotatingFileHandler

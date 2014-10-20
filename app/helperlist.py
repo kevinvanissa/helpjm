@@ -2,6 +2,16 @@ from PIL import Image
 import os
 from app import app
 
+#install python-tz in ubuntu
+def convertTime(ltime):
+    import pytz, datetime
+    local = pytz.timezone ("America/Jamaica")
+    #ltime = '2014-10-18 23:37:00'
+    naive = datetime.datetime.strptime (ltime, "%Y-%m-%d %H:%M:%S")
+    local_dt = local.localize(naive, is_dst=None)
+    utc_dt = local_dt.astimezone (pytz.utc)
+    return utc_dt
+
 
 def THUMBER(image, nx=120, ny=120, name='thumb'):
     if image:
