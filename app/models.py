@@ -228,7 +228,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     event_category = db.Column(db.String(120))
-    description = db.Column(db.String(140), nullable=False)
+    description = db.Column(db.String(1000), nullable=False)
     event_start_date = db.Column(db.DateTime, nullable=False)
     event_end_date = db.Column(db.DateTime, nullable=False)
     venue = db.Column(db.String(120), nullable=False)
