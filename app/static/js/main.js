@@ -108,7 +108,7 @@ var daysOfWeek = new Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday
                     $.each(val, function(j,val2){
                             $('#eventsfordate').append(
                                   "<div class='media'>"+
-                    "<a class='pull-left' href='/detail/"+val2.id+"'><img src='/uploads/"+val2.thumbnail+"'></a>"+
+                    "<a class='pull-left' href='/detail/"+val2.id+"'><img src='/uploads/"+val2.thumbnail+"' width='120px' height='120px'></a>"+
                         "<div class='media-body'>"+
                             "<h4 class='media-heading'><a href='/detail/"+val2.id+"'>"+val2.title+"</a></h4>"+
                             "<b>Venue: </b><span class='detail'>"+val2.venue+
