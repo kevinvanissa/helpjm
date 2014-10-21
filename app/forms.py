@@ -295,7 +295,7 @@ class EventForm(Form):
         validators=[
             Length(
                 min=0,
-                max=140),Required()])
+                max=1000),Required()])
     event_start_date = DateTimeField(
         'event_start_date',
         validators=[
@@ -320,7 +320,7 @@ class EventEditForm(Form):
         validators=[
             Length(
                 min=0,
-                max=140)])
+                max=1000)])
     event_start_date = DateTimeField(
         'event_start_date',
         validators=[
@@ -359,5 +359,5 @@ class CommentForm(Form):
             Required(),
             Length(
                 min=0,
-                max=140)])
+                max=1000)])
     rating = SelectField('rating', choices=RATINGS, validators=[Required()])
