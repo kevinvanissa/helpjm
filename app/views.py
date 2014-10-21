@@ -1693,7 +1693,7 @@ def events():
                 return redirect(url_for('events'))
             event = Event(
                 title=form.title.data,
-                category=form.category.data,
+                event_category=form.event_category.data,
                 description=form.description.data,
                 event_start_date=form.event_start_date.data,
                 event_end_date=form.event_start_date.data,
@@ -1799,7 +1799,7 @@ def editevent(id):
                     category='danger')
                 return redirect(url_for('editevent', id=event.id))
         event.title = form.title.data
-        event.category = form.category.data
+        event.event_category = form.event_category.data
         event.description = form.description.data
         event.event_start_date = form.event_start_date.data
         event.event_end_date = form.event_start_date.data
@@ -1814,7 +1814,7 @@ def editevent(id):
         return redirect(url_for('events'))
     else:
         form.title.data = event.title
-        form.category.data = event.category
+        form.event_category.data = event.event_category
         form.description.data = event.description
         form.event_start_date.data = event.event_start_date
         form.event_end_date.data = event.event_end_date
@@ -1833,7 +1833,7 @@ def editevent(id):
 @app.route('/eventsearch', methods=['GET', 'POST'])
 def eventsearch():
     title = request.args.get("title")
-    category = request.args.get("category")
+    event_category = request.args.get("event_category")
     #service = form.service.data
     event_start_date = request.args.get("event_start_date")
     #print event_start_date
@@ -1858,8 +1858,8 @@ def eventsearch():
     #    flash("Please enter at least the Category and Service!",category='danger')
     #    return redirect(url_for('search'))
 
-    if category:
-        query_dict['category'] = category
+    if event_category:
+        query_dict['event_category'] = event_category
 
 
     if parish:
@@ -1873,7 +1873,7 @@ def eventsearch():
         title = title.split()
         for t in title:
             query_list.append(Event.title.ilike("%"+t+"%"))
-            query_list.append(Event.category.ilike("%"+t+"%"))
+            query_list.append(Event.event_category.ilike("%"+t+"%"))
 
         events = events.filter(
             reduce(

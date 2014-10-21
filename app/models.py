@@ -227,7 +227,7 @@ NOFEATURED_EVENT = 0
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
-    category = db.Column(db.String(120))
+    event_category = db.Column(db.String(120))
     description = db.Column(db.String(140), nullable=False)
     event_start_date = db.Column(db.DateTime, nullable=False)
     event_end_date = db.Column(db.DateTime, nullable=False)
@@ -252,7 +252,7 @@ class Event(db.Model):
         obj_d = {
             'id': self.id,
             'title': self.title,
-            'category': self.category,
+            'event_category': self.event_category,
             'description': self.description,
             'venue': self.venue,
             'address': self.address,

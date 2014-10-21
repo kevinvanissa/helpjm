@@ -177,11 +177,11 @@
 
 
 
-    <div class="form-group{% if sform.errors.category %} has-error{% endif %}">
+    <div class="form-group{% if sform.errors.event_category %} has-error{% endif %}">
         <label for="title">Category</label>
     <!--<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">-->
-                    {{ sform.category(class="form-control" )}}
-                            {% for error in sform.errors.category %}
+                    {{ sform.event_category(class="form-control" )}}
+                            {% for error in sform.errors.event_category %}
                                 <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
     </div>

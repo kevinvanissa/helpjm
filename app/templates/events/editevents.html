@@ -24,12 +24,12 @@
 
 
 
-                <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                <div class="form-group{% if form.errors.event_category %} has-error{% endif %}">
                            <label class="col-md-4 control-label"
-                               for="category">Category: <span class="help-inline myerror">*</span></label>
+                               for="event_category">Category: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
-                            {{ form.category(class="form-control")}}
-                            {% for error in form.errors.category %}
+                            {{ form.event_category(class="form-control")}}
+                            {% for error in form.errors.event_category %}
                                 <span class="help-inline myerror">[{{error}}]</span><br>
                             {% endfor %}
                         </div>
@@ -83,7 +83,7 @@
 
 
                     <div class="form-group{% if form.errors.venue %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="category">Venue: <span class="help-inline myerror">*</span></label>
+                        <label class="col-md-4 control-label" for="venue">Venue: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.venue(class="form-control")}}
                             {% for error in form.errors.venue %}
@@ -94,7 +94,7 @@
 
 
                     <div class="form-group{% if form.errors.address %} has-error{% endif %}">
-                        <label class="col-md-4 control-label" for="category">Address: <span class="help-inline myerror">*</span></label>
+                        <label class="col-md-4 control-label" for="address">Address: <span class="help-inline myerror">*</span></label>
                         <div class="col-md-8">
                             {{ form.address(class="form-control")}}
                             {% for error in form.errors.address %}

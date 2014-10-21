@@ -285,8 +285,8 @@ class MessageForm(Form):
 
 class EventForm(Form):
     title = TextField('title', validators=[Required()], filters=[strip_filter])
-    category = SelectField(
-        'category',
+    event_category = SelectField(
+        'event_category',
         choices=EVENT_TYPES,
         validators=[
             Required()])
@@ -310,8 +310,8 @@ class EventForm(Form):
 
 class EventEditForm(Form):
     title = TextField('title', validators=[Required()], filters=[strip_filter])
-    category = SelectField(
-        'category',
+    event_category = SelectField(
+        'event_category',
         choices=EVENT_TYPES,
         validators=[
             Required()])
@@ -335,8 +335,8 @@ class EventEditForm(Form):
 
 class EventSearchForm(Form):
     title = TextField('title', validators=[Required()], filters=[strip_filter])
-    category = SelectField(
-        'category',
+    event_category = SelectField(
+        'event_category',
         choices=EVENT_TYPES,
         validators=[
             Required()])
