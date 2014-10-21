@@ -1,0 +1,168 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3><span class="glyphicon glyphicon-eye-open"></span> My Open Asks ({{asks|length}})</h3> 
+            [<a href="{{url_for('closedasks')}}">Switch To Closed Asks <span class="glyphicon glyphicon-forward"></span></a>]
+            <hr>
+            {% if not asks %} 
+                <!--<br /><br /><span class="alert alert-info">You have not created any Asks as yet!</span> -->
+                <h3 >You have not created any Asks as yet!</h3>
+                <br />
+                <h4>However, before you create asks, create your friends by clicking on the Friends link above. <span class="glyphicon glyphicon-arrow-up"></span></h4>
+                <h4>Then create and send an ask to your friends. <span class="glyphicon glyphicon-arrow-right"></span>  </h4>
+            {% endif %}
+
+
+<!--<div class="row search">-->
+  <!--<div class="col-sm-8">-->
+    <!--<form role="form">-->
+            <!--<div class="input-group">-->
+              <!--<input type="text" class="form-control input-sm">-->
+              <!--<span class="input-group-btn">-->
+                <!--<button class="btn btn-default btn-sm" type="submit"><span class="glyphicon glyphicon-search"></span></button>-->
+              <!--</span>-->
+              <!--&nbsp;<span class="label label-info">Search your Asks </span>-->
+            <!--</div>-->
+    <!--</form>-->
+  <!--</div>-->
+<!--</div>-->
+
+            {% if asks %}           
+
+                <p class="mywarning">
+                     <b>NB:</b> If you want to delete an Ask, you will need to close it first. If you close an ask, all associated information will be deleted.
+                </p> 
+
+
+
+          <table class="table" >
+            <thead>
+                <tr>
+                    <th class="col-md-6">Question</th> <th class="col-md-6">Details</th>
+                </tr>
+            </thead>
+            {% endif %}
+
+
+
+                {% for ask in asks %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td class="col-md-6">
+                            {% if ask.count_replies() == 1 %}  
+                                <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Reply</span></a> 
+                            {% else %} 
+                                <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Replies</span></a> 
+                            {% endif %}
+                            <br />
+                            {{ ask.question }} <br /><br />
+                            <span class="decordate">Created: {{format_time(ask.created)}}</span> <br />
+                            <a href="{{url_for('closeask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return closeItem();"><span class="glyphicon glyphicon-off"></span> Close</a> 
+                            <a href="{{url_for('sendtofriendsagain',id=ask.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-share"></span> Resend</a> 
+                            <a href="{{url_for('more',id=ask.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-wrench"></span> More Actions</a> 
+
+                        </td>
+                        <td class="col-md-6">
+                            <span class="detailheading"><span class="badge">Category:</span></span>  <span class="detail">{{ask.category}}</span>
+                            <span class="detailheading"><span class="badge">Service:</span></span> <span class="detail">{{ask.service}}</span> 
+                            <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{ask.parish}} </span>
+                            <span class="detailheading"><span class="badge">Area:</span></span> <span class="detail">{{ask.area}}</span> 
+                        </td>
+                    </tr>
+
+            {%endfor %}
+        
+        {% if asks %} 
+        </table>
+        {% endif %}
+
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="col-md-offset-2">Create New Ask</h3> 
+            <br />
+                <form class="form-horizontal" action="" method="post" name="ask" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.service %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="service">Service: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.service(class="form-control" )}}
+                            {% for error in form.errors.service %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.question %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="question">Question: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.question(class="form-control",maxlength=140)}}
+                            {% for error in form.errors.question %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.area %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Area: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.area(class="form-control")}}
+                            {% for error in form.errors.area %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Ask to Friends </button>
+                        </div>
+                    </div>
+
+                </form>
+       
+
+            
+        {% include 'ads/ads.html' %}
+
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}
+

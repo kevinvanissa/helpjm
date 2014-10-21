@@ -1,0 +1,14 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Image Too Large</h1>
+<p style="color:red">
+Sorry, but your image is too large. <br />
+You have exceeded the limit of 1MB for your image size. <br />
+Please decrease the size of your image and reupload.
+</p>
+<br />
+<br />
+<p><a href="{{url_for('login')}}">Back</a></p>
+{% endblock %}

@@ -1,0 +1,160 @@
+﻿
+/*********************   CALENDAR ************************/
+
+.mopCalendar
+{
+	font-size:1em;
+	background-color:#3A3A3A;
+	border:1px solid #3A3A3A;
+	width:305px;
+	z-index:200; 
+}
+
+
+/*********************   HEADER ************************/
+
+
+.mopCalendarHeader
+{
+	background-color:#D6D6D6;
+	line-height:30px;
+}
+
+.mopCalendarHeader div
+{
+	background-position:center;
+	background-repeat:no-repeat;
+	/*float:left;*/
+	height:30px;
+	min-width:25px;
+}
+
+.mopCalendarHeader div:hover
+{
+	background-color:#ffc931;
+}
+.mopCalendarBtnFirst
+{
+	background-image:url('../img/first.png');
+	cursor:pointer;
+}
+
+.mopCalendarBtnPrevious
+{
+	background-image:url('../img/prev.png');
+	cursor:pointer;
+}
+
+.mopCalendarBtnNext
+{
+	background-image:url('../img/next.png');
+	cursor:pointer;
+}
+
+.mopCalendarBtnLast
+{
+	background-image:url('../img/last.png');
+	cursor:pointer;
+}
+
+.mopCalendarMonth
+{
+	width:198px;
+	text-align:center;
+	cursor:pointer;
+}
+
+.mopCalendarMonth:hover
+{
+	background-color:#ffd767;
+}
+
+/*********************   BODY ************************/
+
+.mopCalendarBody
+{
+	background-color:#F1F1F1;
+}
+
+.mopCalendarBody table
+{
+	padding:5px;
+	cursor:default;
+}
+
+.mopCalendarBody table thead
+{
+	border-bottom:1px solid #D6D6D6;
+}
+
+.mopCalendarBody table thead th
+{
+	padding-bottom:4px;
+}
+
+.mopCalendarBody table td
+{
+	text-align:center;
+	padding:4px;
+}
+
+.mopCalendarBody td:hover
+{
+    background-color:#ffd767;
+    color:#4D4D4D;
+}
+
+.mopCalendarDayRed
+{
+	color:Red;
+}
+
+.mopCalendarDayOdd
+{
+	color:#C1C1C1;
+}
+
+.mopCalendarDaySelected
+{
+	color:#F4F4F4;
+	background-color:#C7F7C7;
+}
+
+/*********************   FOOTER ************************/
+
+.mopCalendarFooter
+{
+	line-height:35px;
+	text-align:center;
+}
+
+.cdays{
+    color:#006633;
+}
+
+.cevents {
+    text-decoration:none;
+    font-weight:bold;
+    border-bottom: 1px solid #999999;
+}
+
+
+
+.mopCalendarFooter button
+{
+	border:0px;
+	background-color:#4D4D4D;
+	padding:5px;
+	margin-bottom:5px;
+	margin-right:5px;
+	min-width:50px;
+	line-height:normal;
+	cursor:pointer;
+	color:#F1F1F1;
+}        
+
+.mopCalendarFooter button:hover
+{
+	color:#4D4D4D;
+	background-color:#ffd767;
+}

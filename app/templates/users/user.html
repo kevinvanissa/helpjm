@@ -1,0 +1,29 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="span12">
+        <h4>Hi, {{user.firstname}} {{user.lastname}}!</h4>
+    <hr>
+    <h3>My Profile</h3>
+    <br />
+    <h4>{{user.firstname}} {{user.lastname}}</h4>
+    {{user.email}}
+    <br />
+    <br />
+    <br />
+    {% if user.last_seen %}
+        <p><em>Last seen on: {{format_time(user.last_seen)}}</em></p>
+    {% endif %}
+    <p>
+    {% if user.id == g.user.id %}
+        <a href="{{url_for('edituser')}}" class="btn btn-success">Edit your profile</a>
+        <a href="" class="btn btn-success">Change Password</a>
+
+    {% endif %}
+    </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% if tomorrowEvents %}                
+                    {% for event in tomorrowEvents %}
+
+
+            <div class="media">
+                    <a class="pull-left" href="{{url_for('detail',id=event.id)}}">
+                <img src="{{url_for('uploaded_file',filename=event.thumbnail)}}" width="120px" height="120px">   
+                </a>
+                <div class="media-body">
+                    <h4 class="media-heading"><a
+                    href="{{url_for('detail',id=event.id)}}">{{event.title}}</a></h4>
+                    <b>Venue:</b>
+                    <span class="detail">{{event.venue}}</span> <br />
+                    <b>Parish:</b>
+                    <span class="detail">{{event.parish}}</span> <br />
+                    <b>Start Date:</b>
+                    <span class="detail">{{format_time(event.event_start_date)}}</span> <br />
+                    <b>End Date:</b>
+                    <span class="detail">{{format_time(event.event_end_date)}}</span>
+                    <p class="pull-right"><a href="{{url_for('detail', id=event.id)}}" class="btn btn-default
+                        btn-xs">Read More <span class="glyphicon glyphicon-chevron-right"></span></a></p>
+
+
+                </div>
+                </div> <!--/. media-->
+
+
+
+
+
+                <hr>
+
+                    {% endfor %}
+<a class="btn btn-default col-md-offset-3" href="{{url_for('findevents',decide='tomorrow')}}">Show All Events
+                        for Tomorrow <span class="glyphicon glyphicon-chevron-right"></span></a> 
+
+{% else %}
+<p>
+    No Events for Tomorrow
+</p>
+{% endif %}
+

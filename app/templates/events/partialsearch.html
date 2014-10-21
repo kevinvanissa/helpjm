@@ -1,0 +1,44 @@
+{% if events.items %}                
+                    {% for event in events.items %}
+
+
+                <div class="media">
+                    <a class="pull-left" href="{{url_for('detail',id=event.id)}}">
+                <img src="{{url_for('uploaded_file',filename=event.thumbnail)}}" width="120px" height="120px">   
+                </a>
+                <div class="media-body">
+                    <h4 class="media-heading"><a
+                    href="{{url_for('detail',id=event.id)}}">{{event.title}}</a></h4>
+                    <b>Venue:</b>
+                    {{event.venue}} <br />
+                    <b>Parish:</b>
+                    {{event.parish}} <br />
+                    <b>Start Date:</b>
+                    {{format_time(event.event_start_date)}} <br />
+                    <b>End Date:</b>
+                    {{format_time(event.event_end_date)}}
+                    <p class="pull-right"><a href="{{url_for('detail',
+                        id=event.id)}}" class="btn btn-default
+                        btn-xs">Read More <span class="glyphicon glyphicon-chevron-right"></span></a></p>
+
+
+                </div>
+                </div> <!--/. media-->
+
+                <hr>
+
+                    {% endfor %}
+
+
+{% else %}
+<br />
+<br />
+        Sorry, but your search did not return any results. <br /> <br />
+        <b>Suggestions: </b> <br /> <br />
+        Try selecting a different parish. <br />
+        Make sure that your spellings are correct. <br />
+        Be more general in your search. <br /> <br />
+        <br /> 
+        <br /> 
+{% endif %}
+

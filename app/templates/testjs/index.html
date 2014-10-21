@@ -1,0 +1,18 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-12">
+    <h3>My Test</h3>
+    <hr>
+    <br />
+    <br />
+    {% for friend in friends %}
+            {{friend.firstname}}
+    {% endfor %}
+
+</div>
+    </div>
+{% endblock %}

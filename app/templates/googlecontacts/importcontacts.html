@@ -1,0 +1,54 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-12">
+    <h3>Import Contacts</h3>
+    <hr>
+        <h4> {{ contactlist|length}} Contacts Available </h4> 
+        <div class="alert alert-warning col-md-8">
+            Contacts without names will not be imported. We  will also exclude friends with emails that already exist.
+        
+        </div>
+    <br />
+
+    {% if not contactlist %}
+            <h3> Sorry, but we did not find any contacts to import </h3>
+    {% endif %}
+
+
+            {% if contactlist %}
+<form action="{{url_for('importcontacts')}}" class="col-md-6" method="post" name="importcontacts" id="importcontacts">
+            
+              <table class="table">
+                <thead><tr>
+                <th>Select</th>
+                <th>Name</th>
+                <th>Email</th>
+
+                </tr>
+                </thead>
+                {% endif %}
+
+
+            {% for contact in contactlist: %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td><input type="checkbox"  name="friends" value="{{contact['name']+'-'+contact['emails'][0]}}"></td>   
+                    <td>{{contact['name'] }}</td>   
+                    <td>{{contact['emails'][0] }}</td>   
+                </tr>
+            {% endfor %}
+
+            {% if contactlist %}
+            </table>
+            <button type="submit" class="btn btn-success btn-md"><span class="glyphicon glyphicon-import"></span> Import Selected Friends</button>
+            <a href="{{url_for('friends')}}" class="btn btn-danger">Cancel</a>
+            </form>
+            {% endif %}
+    </div>
+</div>
+
+{% endblock %}

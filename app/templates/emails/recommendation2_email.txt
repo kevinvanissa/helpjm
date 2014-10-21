@@ -1,0 +1,17 @@
+Dear {{user.firstname}} {{user.lastname}},
+
+
+{{friend.firstname}} {{friend.lastname}} responded to your ask for somewhere that provides good {{ask.service}} services.
+
+{{friend.firstname}} has {{recList|length}} recommendation(s) for you:
+
+{% for r in recList %}
+Click here to view: {{url_for('viewrecommendation',recommendationid=r,_external=True)}} 
+{% endfor %}
+
+
+Regards,
+
+
+The HelpJM Team
+www.helpjm.com

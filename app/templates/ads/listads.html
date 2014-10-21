@@ -1,0 +1,172 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>ALL ADS ({{ads|length}})</h3> 
+            <hr>
+            <br />
+            {% if not ads %} <br /><br /><span class="alert alert-info">No Ads as yet!</span> {% endif %}
+
+        
+            {% if ads %}           
+          <table class="table col-md-12">
+            <thead>
+                <tr>
+                    <th>Title</th> 
+                    <th>Website</th> 
+                    <th>Body</th> 
+                    <th>Image</th> 
+                    <th>Start Date</th> 
+                    <th>End Date</th> 
+                </tr>
+            </thead>
+            {% endif %}
+
+
+
+                {% for ad in ads %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td>
+                            <a href="{{url_for('editad',id=ad.id)}}">{{ ad.title }}</a>
+                        </td>
+
+                        <td>
+                            {{ ad.website }} 
+                        </td>
+
+                        <td>
+                            {{ ad.body }} 
+                        </td>
+
+
+                        <td>
+                            <img src="{{url_for('uploaded_file',filename=ad.pic)}}" width="107px" height="80px">
+                        </td>
+
+
+                        <td>
+                            {{ ad.ad_start_date }} 
+                        </td>
+
+                        <td>
+                            {{ ad.ad_end_date }} 
+                        </td>
+
+
+                    </tr>
+            {%endfor %}
+        
+        {% if ads %} 
+        </table>
+        {% endif %}
+
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="col-md-offset-2">Create New AD</h3> 
+            <br />
+                <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="ad" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.title %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="name">Title:</label>
+                        <div class="col-md-8">
+                            {{ form.title(class="form-control" )}}
+                            {% for error in form.errors.title %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                <div class="form-group{% if form.errors.website %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="name">Website:</label>
+                        <div class="col-md-8">
+                            {{ form.website(class="form-control" )}}
+                            {% for error in form.errors.website %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="form-group{% if form.errors.body %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="body">Body:</label>
+                        <div class="col-md-8">
+                            {{ form.body(class="form-control" )}}
+                            {% for error in form.errors.body %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.pic %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="pic">Pic:</label>
+                        <div class="col-md-8">
+                            {{ form.pic(class="form-control")}}
+                            {% for error in form.errors.pic %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.ad_start_date %} has-error{% endif %}">
+                        <!--<label class="col-md-4 control-label" for="ad_start_date">Start Date:</label>-->
+                        <!--<div class="col-md-8">-->
+<label for="dtp_input1" class="col-md-4 control-label">Start Date</label>
+<div class="input-group date form_datetime col-md-8" data-date="" data-date-format="dd MM yyyy - HH:ii:ss p" data-link-field="dtp_input1">
+                            {{ form.ad_start_date(class="form-control")}}
+
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+
+                            {% for error in form.errors.ad_start_date %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+<input type="hidden" id="dtp_input1" value="" /><br/>
+                    </div>
+
+                    <div class="form-group{% if form.errors.ad_end_date %} has-error{% endif %}">
+                        <!--<label class="col-md-4 control-label" for="ad_end_date">End Date:</label>-->
+                        <label for="dtp_input2" class="col-md-4 control-label">End Date</label>
+                        <div class="input-group date form_datetime col-md-8" data-date="" data-date-format="dd MM yyyy - HH:ii:ss p" data-link-field="dtp_input2">
+                        <!--<div class="col-md-8">-->
+                            {{ form.ad_end_date(class="form-control")}}
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                            {% for error in form.errors.ad_end_date %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+<input type="hidden" id="dtp_input2" value="" /><br/>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Create AD </button>
+                        </div>
+                    </div>
+
+                </form>
+       
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}
+

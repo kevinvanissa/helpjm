@@ -1,0 +1,19 @@
+<p>Dear {{friend.firstname}} {{friend.lastname}},</p> 
+<br />
+
+<p> {{user.firstname}} {{user.lastname}} has sent you a recommendation for somewhere that provides good {{recommendation.service }} services:</p>
+<br />
+
+<b>Name: </b> {{recommendation.name }} <br />
+{% if recommendation.company %} <b>Company: </b> {{recommendation.company}}  {% endif %} <br />
+{% if recommendation.phone %} <b>Phone: </b>{{recommendation.phone}}  {% endif %} <br />
+<b>Email: </b> {{recommendation.email }} <br />
+{% if recommendation.website %} <b>Phone: </b>{{recommendation.website}}  {% endif %} <br />
+<b>Location: </b> {{recommendation.parish }}, {{recommendation.area }} <br />
+<b>Rating: </b> {{recommendation.rating }} <br /><br />
+{% if recommendation.review %} <b>Review: </b> {{recommendation.review}}  {% endif %} <br />
+<br />
+<br />
+<p>Regards,</p>
+<p>The <code>HelpJM</code> Team</p>
+<p>www.helpjm.com</p>

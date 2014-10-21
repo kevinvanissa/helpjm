@@ -1,0 +1,155 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Edit Event </h2> 
+
+            <form class="form-horizontal" action="{{url_for('editevent',id=id)}}" method="post" enctype="multipart/form-data" name="editevent" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.title %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="title">Title: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.title(class="form-control" )}}
+                            {% for error in form.errors.title %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.description %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="description">Description: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.description(class="form-control",maxlength=140 )}}
+                            {% for error in form.errors.description %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.event_start_date %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="event_start_date">Start Date: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.event_start_date(class="form-control")}}
+                            {% for error in form.errors.event_start_date %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.event_end_date %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="event_end_date">End Date: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.event_end_date(class="form-control")}}
+                            {% for error in form.errors.event_end_date %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.venue %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Venue: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.venue(class="form-control")}}
+                            {% for error in form.errors.venue %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                   
+                    <div class="form-group{% if form.errors.longitude %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="longitude">Longitude: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.longitude(class="form-control")}}
+                            {% for error in form.errors.longitude %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    
+                    <div class="form-group{% if form.errors.latitude %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="latitude">Latitude: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.latitude(class="form-control")}}
+                            {% for error in form.errors.latitude %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.flyer %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="flyer">Flyer: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.flyer(class="form-control")}}
+
+                        <img src="{{url_for('uploaded_file',filename=mypic)}}" width="120px" height="120px">
+                            {% for error in form.errors.flyer %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.youtube %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="flyer">Youtube: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.youtube(class="form-control")}}
+                            {% for error in form.errors.youtube %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Create an Event </button>
+                        </div>
+                    </div>
+
+                </form>
+       
+
+
+
+
+
+
+
+        </div>
+
+        <div class="col-md-4">
+            <h2>Advertisement</h2> 
+
+           
+        </div>
+    </div>
+{% endblock %}
+

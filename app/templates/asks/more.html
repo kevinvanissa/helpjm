@@ -1,0 +1,325 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+
+    <div class="col-md-4">
+        <h3>Replies ({{recommendations|length}})</h3>
+    <hr>
+    {% if not recommendations %}
+        <br />
+        <h4> <span class="help-inline myerror">[No one has replied to your Ask as yet]</span></h4>
+    {% endif %}
+
+    {% for recommendation in recommendations %}
+
+        <div>
+
+    <a data-toggle="modal" href="#myModal_{{recommendation.Friend.id}}" class="btn btn-xs btn-success">View Reply</a> 
+            <span class="view_rec"><br />from {{recommendation.Friend.firstname}} {{recommendation.Friend.lastname}}</span><br />
+    </div>
+
+    <br />
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal_{{recommendation.Friend.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Recommendation</h4>
+        </div>
+        <div class="modal-body">
+            <p>
+
+                <b>{{recommendation.Friend.firstname}} {{recommendation.Friend.lastname}}'s </b>recommendation for somewhere that provides good {{recommendation.Recommendation.service}} Services.
+<h4>{{recommendation.Recommendation.name}} {% if recommendation.Recommendation.company %}- {{recommendation.Recommendation.company}} {% endif %}</h4>
+    {% if recommendation.Recommendation.phone %}<span class="detailheading">Phone:</span> <span class="detail">{{ create_phone(recommendation.Recommendation.phone)}}</span>, {% endif %}
+    {% if recommendation.Recommendation.email %}<span class="detailheading">Email:</span> <span class="detail"><a href="mailto:{{recommendation.Recommendation.email}}">{{recommendation.Recommendation.email}}</a></span>, {% endif %}
+    {% if recommendation.Recommendation.website %}<span class="detailheading">Website:</span> <span class="detail"><a href="http://{{recommendation.Recommendation.website}}" target="_blank">{{recommendation.Recommendation.website}}</a></span>, {% endif %}
+    {% if recommendation.Recommendation.parish %}<span class="detailheading">Parish:</span> <span class="detail">{{recommendation.Recommendation.parish}}</span>, {% endif %}
+    {% if recommendation.Recommendation.area %}<span class="detailheading">Area:</span> <span class="detail">{{recommendation.Recommendation.area}}</span> {% endif %}
+
+
+<h4>{% if recommendation.Friend %}{{recommendation.Friend.firstname}}'s Review:{% else %}User Review: {% endif %}</h4>
+    <br />
+    <div class="alert alert-info">
+        {% if recommendation.Recommendation.review %}<span class="viewreview">{{recommendation.Recommendation.review}}</span>{% else %} <span class="help-inline myerror">[Recommender did not write a review ]</span>{% endif %} <br />
+    <br /> 
+    <b>Rating:</b> <span class='label label-{%if recommendation.Recommendation.rating=='Excellent' %}success{% elif recommendation.Recommendation.rating=='Very Good'%}primary{% elif recommendation.Recommendation.rating=='Average'%}default{% elif recommendation.Recommendation.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{recommendation.Recommendation.rating}}</span> &nbsp;
+    
+    {% if recommendation.Recommendation.rating == 'Excellent' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+    {% elif recommendation.Recommendation.rating == 'Very Good' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif recommendation.Recommendation.rating == 'Average' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif recommendation.Recommendation.rating == 'Poor' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% else %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% endif %} 
+
+    <br /> 
+    <b>Created:</b> <i>{{ format_time(recommendation.Recommendation.created) }}</i>
+    </div>
+
+    <hr>
+            </p>
+            <div class="row">
+            <div class="col-md-6">
+
+                <form action="{{url_for('sendthankyou',friendid=recommendation.Friend.id,recommendationid=recommendation.Recommendation.id,askid=id)}}" method="post" name="thankyou" role="form">
+                    {{messageForm.hidden_tag()}}
+                    <div class="form-group{% if messageForm.errors.message %} has-error{% endif %}">
+                        <label for="message">Thank You Message: <span class="help-inline myerror">*</span></label>
+                        {{ messageForm.message(class="form-control",placeholder='Send a short thank you message to '+ recommendation.Friend.firstname)}}
+                            {% for error in messageForm.errors.message %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Message</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-6">
+                <form action="{{url_for('createreview',recommendationid=recommendation.Recommendation.id,askid=id)}}" method="post" name="myreview" role="form">
+                    {{reviewForm.hidden_tag()}}
+                    <div class="form-group{% if reviewForm.errors.review %} has-error{% endif %}">
+                        <label for="review">Write Your Review: <span class="help-inline myerror">*</span></label>
+                            {{ reviewForm.review(class="form-control",maxlength=140,placeholder='Review this recommendation')}}
+                            {% for error in reviewForm.errors.review %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                    </div>
+                    <div class="form-group{% if reviewForm.errors.rating %} has-error{% endif %}">
+                        <label for="rating">Rating: <span class="help-inline myerror">*</span></label>
+                            {{ reviewForm.rating(class="form-control")}}
+                            {% for error in reviewForm.errors.rating %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                    </div>
+
+
+
+                    <div class="form-group">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Post Review</button>
+                    </div>
+                </form>
+
+            </div>
+
+
+        </div>
+
+        <h3>Other Reviews ({{recommendation.Recommendation.allreviews.all() | length}})</h3>
+        <i><b>NB:</b> These Reviews are from persons who were sent this recommendation by their friends.</i>
+        <br />
+        <br />
+
+    
+    {% if recommendation.Recommendation.allreviews.all() %}
+
+{% for  review in recommendation.Recommendation.allreviews %}
+
+<div class="alert alert-warning">
+        <span class="viewreview">{{review.review}}</span>
+    <br /> 
+    <br /> 
+    <b>Rating:</b> <span class='label label-{%if review.rating=='Excellent' %}success{% elif review.rating=='Very Good'%}primary{% elif review.rating=='Average'%}default{% elif review.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{review.rating}}</span> &nbsp;
+    
+    {% if review.rating == 'Excellent' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+    {% elif review.rating == 'Very Good' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif review.rating == 'Average' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+
+    {% elif review.rating == 'Poor' %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% else %}
+        <span class="glyphicon glyphicon-star"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+        <span class="glyphicon glyphicon-star-empty"></span>
+    {% endif %} 
+
+    <br /> 
+    <b>Created:</b> <i>{{ format_time(review.created)}} by {{review.reviewowner.firstname}} {{review.reviewowner.lastname}}</i>
+    </div>
+    <br />
+{% endfor %}
+{% else %}
+            <br />
+            <h4> <i>Be the first friend to review this recommendation.</i> </h4>
+        
+        {% endif %}
+
+
+
+
+
+
+        </div> <!-- modal-body -->
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+
+    
+    {% endfor %}
+
+    </div>
+
+<div class="col-md-4">
+    <h3>Friends Sent</h3>
+    <hr>
+
+    {% if not frienddict %}
+        <br />
+        <h4> <span class="help-inline myerror">[No Friends Sent]</span></h4>
+        {% endif %}
+
+    {% for f,x in frienddict.items() %}
+        <b>Name: </b> {{f.firstname}} {{f.lastname}} <br />
+        <b>Email: </b>{{f.email}} <br />
+        <b>How Many Times Sent: </b> {{x}}
+        <br />
+        <hr>
+    {% endfor %}
+
+    <br />
+    </div>
+
+
+<div class="col-md-4">
+    <h3>Edit and Send a New Ask</h3>
+    <hr>
+        <span class="label label-danger col-md-offset-4">
+            NB: This Action will create a New Ask!! 
+        </span> <br /> <br />
+
+
+        <form class="form-horizontal" action="{{url_for('index')}}" method="post" name="askedit" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.service %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="service">Service: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.service(class="form-control" )}}
+                            {% for error in form.errors.service %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                   <div class="form-group{% if form.errors.question %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="question">Question: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.question(class="form-control",maxlength=140)}}
+                            {% for error in form.errors.question %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group{% if form.errors.area %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Area: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.area(class="form-control")}}
+                            {% for error in form.errors.area %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Ask to Friends </button>
+                        </div>
+                    </div>
+
+                </form>
+
+
+
+
+
+    </div>
+
+
+
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% if comments %}    
+                    <ol class="commentlist">
+                    {% for comment in comments %}
+                    <li class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                    <b><a href="{{url_for('detail',id=comment.Event.id)}}">{{comment.Event.title}}</a></b> <br />
+                    <!--START RATING SECTION-->
+                    {% if comment.Comment.rating %} 
+
+                    {% if comment.Comment.rating == 'Excellent' %}
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                        {% elif comment.Comment.rating == 'Very Good' %}
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+
+                        {% elif comment.Comment.rating == 'Average' %}
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+
+                        {% elif comment.Comment.rating == 'Poor' %}
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                        {% else %}
+                            <span class="glyphicon glyphicon-star"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                            <span class="glyphicon glyphicon-star-empty"></span>
+                        {% endif %} 
+                    {% endif %} 
+                    <!--END RATING SECTION-->
+                    <br />
+                    <span class="decordate">By {{comment.Comment.author}} on {{format_time(comment.Comment.created)}}</span>
+                    <br />
+                                            {{comment.Comment.content}} <br />
+                            </li>
+                     {% endfor %}
+                     </ol>
+
+{% else %}
+<p>
+    No Recent Comments
+</p>
+{% endif %}
+

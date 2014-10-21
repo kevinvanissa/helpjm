@@ -1,0 +1,289 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+
+        <div class="col-md-8">
+
+      <h3>Featured Events</h3>
+      <hr>
+<div id="carousel-example-generic" class="carousel slide" data-ride="carousel" style="width:100%">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+  </ol>
+
+  <!-- Wrapper for slides -->
+  <div class="carousel-inner">
+                    {% include 'events/partialfeatured.html' %}
+  </div>   <!--end .\carousel-inner-->
+ 
+  <!-- Controls -->
+  <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </a>
+  <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+    <span class="glyphicon glyphicon-chevron-right"></span>
+  </a>
+</div>
+   <br />
+  <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<div class="fb-like" data-href="http://www.helpjm.com/" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>        
+            <br />
+            <br />
+          <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist" id="myTab">
+        <li class="active"><a href="#todayevents" role="tab" data-toggle="tab">Today's Events</a></li>
+        <li><a href="#tomorrowevents" role="tab" data-toggle="tab">Tomorrow's Events</a></li>
+        <li><a href="#upcomingevents" role="tab" data-toggle="tab">Future Events</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div class="tab-pane active" id="todayevents">
+                <br />
+                    {% include 'events/partialtoday.html' %}
+            </div>
+
+
+            <div class="tab-pane" id="tomorrowevents">
+                <br />
+                    {% include 'events/partialtomorrow.html' %}
+            </div>
+            <div class="tab-pane" id="upcomingevents">
+                <br />
+                    {% include 'events/partialupcoming.html' %}
+            </div>
+        </div>
+
+        </div>
+        <!--./col-md-8-->
+
+
+
+
+
+        <div class="col-md-4">
+
+<div class="row">
+    <div class="col-md-12">
+            <h3>Event Calendar</h3> 
+            <hr>
+    
+<div class="mopCalendar">
+	<div class="mopCalendarHeader">
+        <table>
+            <tr>
+                <td><div class="mopCalendarBtnFirst"></div></td>
+                <td><div class="mopCalendarBtnPrevious"></div></td>
+                <td><div class="mopCalendarMonth"></div></td>
+                <td><div class="mopCalendarBtnNext"></div></td>
+                <td><div class="mopCalendarBtnLast"></div></td>
+            </tr>
+        </table>
+	</div>
+
+	<div class="mopCalendarBody">
+
+	    <table style="width:100%;" id="tabler">
+	    <thead>
+	        <tr>
+	            <th class="mopCalendarDayRed">Sun</th>
+	            <th>Mon</th>
+	            <th>Tue</th>
+	            <th>Wed</th>
+	            <th>Thu</th>
+	            <th>Fri</th>
+	            <th class="mopCalendarDayRed">Sat</th>    
+	        </tr>
+	    </thead>
+
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	    
+    </table>
+
+	</div>
+
+	<div class="mopCalendarFooter">
+	    <button class="mopCalendarBtnToday">Today</button>
+	</div>
+</div>
+</div><!--End Row-->
+
+</div> <!--End Row-->
+
+
+    <script type="text/javascript">
+            $(document).ready(
+                function()
+                {
+                    $(".mopCalendar").mopCalendar(new Date());
+               }
+               );
+        </script>
+
+
+
+<br />
+
+
+<!-- Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+          <div id="eventsfordate"></div> 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Events Search</h3>
+        <hr>
+        <form role="form" action="{{url_for('eventsearch')}}" class="form
+            col-md-10" method="GET" id="searchevent" name="searchevent"
+            onsubmit="return validateEventSearchForm();">
+  
+    <div class="form-group{% if sform.errors.title %} has-error{% endif %}">
+        <label for="title">Title</label>
+    <!--<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">-->
+                    {{ sform.title(class="form-control" )}}
+                            {% for error in sform.errors.title %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+
+
+    <div class="form-group{% if sform.errors.category %} has-error{% endif %}">
+        <label for="title">Category</label>
+    <!--<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">-->
+                    {{ sform.category(class="form-control" )}}
+                            {% for error in sform.errors.category %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+
+
+    <div class="form-group{% if sform.errors.event_start_date %} has-error{% endif %}">
+        <label for="event_start_date">Start Date</label>
+
+      <div class="input-group date form_datetime" data-date="" data-date-format="dd MM yyyy - HH:ii:ss" data-link-field="dtp_input1">
+    <!--<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">-->
+                    {{ sform.event_start_date(class="form-control" )}}
+                            {% for error in sform.errors.event_start_date %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+
+                    <input type="hidden" id="dtp_input1" value="" /><br/>
+    </div>
+
+
+
+
+
+
+    <div class="form-group{% if sform.errors.parish %} has-error{% endif %}">
+        <label for="parish">Parish</label>
+    <!--<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">-->
+                    {{ sform.parish(class="form-control" )}}
+                            {% for error in sform.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+
+  
+  <button type="submit" class="btn btn-success">Search Events</button>
+</form>
+</div>
+<!--end col-md-12-->
+</div> 
+<!--End Row-->
+
+<br />
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3 >Recent Reviews</h3>
+                <hr>
+                    {% include 'comments/partialcomments.html' %}
+            </div>
+        </div>
+ 
+       <!--<div class="center well mywell">-->
+        <!--<form class="form-horizontal" role="form" method="post">-->
+                    <!--{{form.hidden_tag()}}-->
+
+            <!--<legend>Events Search</legend>-->
+                   <!--<div class="form-group{% if form.errors.email %} has-error{% endif %}">-->
+                    <!--<div class="col-md-8">-->
+                            <!--{{ form.email(class="form-control",placeholder="Email")}}-->
+                            <!--{% for error in form.errors.email %}-->
+                                <!--<span class="help-inline myerror">[{{error}}]</span><br>-->
+                            <!--{% endfor %}-->
+                    <!--</div>-->
+                <!--</div>-->
+
+            
+
+                   <!--<div class="form-group{% if form.errors.password %} has-error{% endif %}">-->
+                    <!--<div class="col-md-8">-->
+                            <!--{{ form.password(class="form-control",placeholder="Password")}}-->
+                            <!--{% for error in form.errors.password %}-->
+                                <!--<span class="help-inline myerror">[{{error}}]</span><br>-->
+                            <!--{% endfor %}-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                    <!--<div class="checkbox">-->
+                        <!--<label for="remember_me" class="control-label">-->
+                        <!--{{ form.remember_me()}}-->
+                        <!--Remember me-->
+                        <!--</label>-->
+                    <!--</div> <br />-->
+
+                <!--<div class="form-group">-->
+                    <!--<div class="col-md-12">-->
+                        <!--<button type="submit" class="btn btn-success btn-block"><span class="glyphicon glyphicon-lock"></span> Log In</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<a href="{{url_for('register')}}">Sign up with HelpJM</a> <br />-->
+                <!--<a href="{{url_for('changepassword')}}">Forgot your password? </a>-->
+        <!--</form>-->
+        <!--</div>-->
+        <!--<a href="{{url_for('loginf')}}"><img src='/static/img/login_facebook.png'></a> <br />-->
+
+        </div>
+    </div>
+
+
+    <br />
+
+{% endblock %}

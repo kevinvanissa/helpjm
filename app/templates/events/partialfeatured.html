@@ -1,0 +1,40 @@
+{% if featuredEvents %}
+
+{% for event in featuredEvents %}
+
+<!--<div class="item {% if loop.index==1%}active{% endif %}">-->
+                <!--<img src="{{url_for('uploaded_file',filename=event.flyer)}}" width="100%" height="315px">   -->
+        <div class="item {% if loop.index==1%}active{% endif %}">
+             <div style="background:url({{url_for('uploaded_file',filename=event.flyer)}}) center center; background-size:cover;" class="slider-size">
+                <div class="carousel-caption">
+                    <b><a
+                    href="{{url_for('detail',id=event.id)}}"><span
+                        style="color:white;">{{event.title}}</span></a> </b> <br />
+                        {{format_time(event.event_start_date)}} 
+                </div>
+            </div>
+          </div>
+
+{% endfor %}
+
+
+{% else %}
+        <div class="item active">
+            <img src="/static/img/featured1.jpg" width="100%" height="315px;" alt="...">
+        <div class="carousel-caption">
+            <h2>Featured Event 1</h2>
+        </div>
+        </div>
+
+
+    <div class="item">
+            <img src="/static/img/featured2.jpg" width="100%" height="315px;" alt="...">
+        <div class="carousel-caption">
+            <h2>Featured Event 2</h2>
+        </div>
+        </div>
+
+{% endif %}
+
+
+

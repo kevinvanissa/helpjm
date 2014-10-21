@@ -1,0 +1,235 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3><span class="glyphicon glyphicon-eye-open"></span> My Current Events ({{events|length}})</h3> 
+            <!--[<a href="">Switch To Past Events <span class="glyphicon glyphicon-forward"></span></a>]-->
+            <hr>
+            {% if not events %} 
+                <!--<br /><br /><span class="alert alert-info">You have not created any Asks as yet!</span> -->
+                <h3 >You have not created any Events as yet!</h3>
+                <br />
+                <h4>Create an Event. <span class="glyphicon glyphicon-arrow-right"></span>  </h4>
+            {% endif %}
+
+
+<!--<div class="row search">-->
+  <!--<div class="col-sm-8">-->
+    <!--<form role="form">-->
+            <!--<div class="input-group">-->
+              <!--<input type="text" class="form-control input-sm">-->
+              <!--<span class="input-group-btn">-->
+                <!--<button class="btn btn-default btn-sm" type="submit"><span class="glyphicon glyphicon-search"></span></button>-->
+              <!--</span>-->
+              <!--&nbsp;<span class="label label-info">Search your Asks </span>-->
+            <!--</div>-->
+    <!--</form>-->
+  <!--</div>-->
+<!--</div>-->
+
+            {% if events %}           
+
+
+          <table class="table" >
+            <thead>
+                <tr>
+                    <th class="col-md-6">Events</th> <th class="col-md-6">Details</th>
+                </tr>
+            </thead>
+            {% endif %}
+
+
+
+                {% for event in events %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                        <td class="col-md-6">
+                            <b>{{ event.title }}</b> 
+                            <br />
+                            <br />
+                            <img src="{{url_for('uploaded_file',filename=event.thumbnail)}}" width="120px" height="120px">
+                                <br />
+                                <br />
+                            <span class="decordate">Created: {{format_time(event.created_date)}}</span> <br />
+                            <a href="{{url_for('deleteevent',id=event.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return deleteItem();"><span class="glyphicon glyphicon-remove"></span> Delete</a> 
+                            <a href="{{url_for('editevent', id=event.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span> Edit</a> 
+
+                        </td>
+                        <td class="col-md-6">
+
+                            <span class="decordate">Start Date: {{format_time(event.event_start_date)}}</span> <br />
+                                                        <span class="detailheading"><span
+                                    class="badge">Category:</span></span>  <span class="detail">{{event.category}}</span>
+                            <span class="detailheading"><span class="badge">Venue:</span></span> <span class="detail">{{event.venue}}</span> 
+                            <span class="detailheading"><span class="badge">Address:</span></span> <span class="detail">{{event.address}}</span> 
+                            <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{event.parish}} </span>
+
+                            <br />
+                            <br />
+                    {{ event.description }} 
+                            <br />
+
+
+
+
+                        </td>
+                    </tr>
+
+            {% endfor %}
+        
+        {% if events %} 
+        </table>
+        {% endif %}
+
+        </div>
+
+        <div class="col-md-4">
+            <h3 class="col-md-offset-2">Create New Event</h3> 
+            <br />
+                <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" name="event" role="form">
+                    {{form.hidden_tag()}}
+
+                    <div class="form-group{% if form.errors.title %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="title">Title: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.title(class="form-control" )}}
+                            {% for error in form.errors.title %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.category %} has-error{% endif %}">
+                           <label class="col-md-4 control-label"
+                               for="category">Category: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control")}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group{% if form.errors.description %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="description">Description: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{
+                            form.description(class="form-control",maxlength=1000)}}
+                            {% for error in form.errors.description %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+            <div class="form-group{% if form.errors.event_start_date %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="dtp_input1">Start Date: <span class="help-inline myerror">*</span></label>
+                        <div class="input-group date form_datetime col-md-8" data-date="" data-date-format="dd MM yyyy - HH:ii:ss" data-link-field="dtp_input1">
+                            {{ form.event_start_date(class="form-control")}}
+                    <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        </div>
+                    <input type="hidden" id="dtp_input1" value="" /><br/>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.event_end_date %} has-error{% endif %}">
+                       <label class="col-md-4 control-label" for="dtp_input2">End Date: <span class="help-inline myerror">*</span></label>
+                        <div class="input-group date form_datetime col-md-8" data-date="" data-date-format="dd MM yyyy - HH:ii:ss" data-link-field="dtp_input2">
+                            {{ form.event_end_date(class="form-control")}}
+                    <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        </div>
+                    <input type="hidden" id="dtp_input2" value="" /><br/>
+                    </div>
+
+
+                
+                   
+                    <div class="form-group{% if form.errors.venue %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="venue">Venue: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.venue(class="form-control")}}
+                            {% for error in form.errors.venue %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                <div class="form-group{% if form.errors.address %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="address">Address: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.address(class="form-control")}}
+                            {% for error in form.errors.address %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                
+                       <div class="form-group{% if form.errors.parish %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="parish">Parish: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.parish(class="form-control")}}
+                            {% for error in form.errors.parish %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                   
+                    <div class="form-group{% if form.errors.flyer %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="flyer">Flyer: <span class="help-inline myerror">*</span></label>
+                        <div class="col-md-8">
+                            {{ form.flyer(class="form-control")}}
+                            <span style="color:blue;">[Max Size: 1MB]</span>
+                            {% for error in form.errors.flyer %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.youtube %} has-error{% endif %}">
+                           <label class="col-md-4 control-label" for="flyer">Youtube:</label>
+                        <div class="col-md-8">
+                            {{ form.youtube(class="form-control")}}
+                            {% for error in form.errors.youtube %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Create an Event </button>
+                        </div>
+                    </div>
+
+                </form>
+       
+
+            
+        {% include 'ads/ads.html' %}
+
+
+        </div>
+
+
+    </div>
+
+
+
+{% endblock %}
+

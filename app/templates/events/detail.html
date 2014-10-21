@@ -1,0 +1,164 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-8">
+        <h3 style="color:green"><b>{{ event.title }}</b></h3>
+
+    <hr>
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            <b>Category: </b> <span class="detail">{{event.category}}</span> <br />
+            <b>Start Date: </b> <span class="detail">{{format_time(event.event_start_date)}}</span> <br />
+            <br />
+            <br />
+        </div>
+        <div class="col-md-6">
+            <b>Venue: </b> <span class="detail">{{event.venue}}</span> <br />
+            <b>Address: </b> <span class="detail">{{event.address}}</span><br />
+            <b>Parish: </b> <span class="detail">{{event.parish}} </span><br />
+            <br />
+            <br />
+        </div>
+    </div>
+
+<div class="row">
+        <div class="col-md-12">
+                <img src="{{url_for('uploaded_file',filename=event.flyer)}}" width="600px" height="400px">   
+        </div>
+    </div>
+
+<div class="row">
+        <div class="col-md-6"1>
+        <h3>Description</h3>
+        <hr>
+            {{event.description}} <br />
+            <hr>
+        </div>
+    </div>
+
+<div class="row">
+        <div class="col-md-6"1>
+        <h3>Event Creator</h3>
+        <hr>
+        <b>Creator:</b> <span class="detail">{{user.firstname}} {{user.lastname}}</span> <br />
+        <b>Email:</b> <span class="detail">{{user.email}}</span> <br />
+        <b>Phone: </b> <span class="detail">{{create_phone(user.phone)}}</span> <br />
+            <hr>
+        </div>
+    </div>
+
+
+<div class="row">
+        <div class="col-md-6"1>
+        <h3>Location</h3>
+        <hr>
+            <address>
+                {{event.venue}} {{event.address}} {{event.parish}}
+            </address>
+
+         <hr>
+        </div>
+    </div>
+
+
+
+<div class="row">
+        <div class="col-md-6"1>
+        <h3>Youtube</h3>
+        <hr>
+{%if event.youtube %}
+    <div class="pad_detail">
+        <iframe width="420" height="315" src="http://www.youtube.com/embed/{{event.youtube}}">
+    </iframe>
+   </div> 
+   {% else %}
+    <h4>No Youtube Video Embedded</h4>
+{% endif %}
+            <hr>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="row"> 
+<div class="col-md-6">
+<h3>Post a Comment</h3>
+
+<form role="form" class="form" method="POST" name="comment">
+    {{form.hidden_tag()}}
+  
+    <div class="form-group{% if form.errors.author %} has-error{% endif %}">
+        <label for="title">Name<span class="help-inline myerror">*</span></label>
+                    {{ form.author(class="form-control" )}}
+                            {% for error in form.errors.author %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+
+
+    <div class="form-group{% if form.errors.content %} has-error{% endif %}">
+        <label for="title">Comment<span class="help-inline myerror">*</span></label>
+                    {{ form.content(class="form-control" )}}
+                            {% for error in form.errors.content %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+
+
+    <div class="form-group{% if form .errors.rating %} has-error{% endif %}">
+        <label for="title">Rating<span class="help-inline myerror">*</span></label>
+                    {{ form.rating(class="form-control" )}}
+                            {% for error in form.errors.rating %}
+                                <span class="help-inline myerror">[{{error}}]</span><br>
+                            {% endfor %}
+    </div>
+
+  <button type="submit" class="btn btn-success">Post Comment</button>
+</form>
+
+    <br />
+
+       </div>
+</div> <!-- end row -->
+
+    </div> <!--./col-md-8 -->
+
+
+         <div class="col-md-4">
+            {% include 'ads/ads.html' %}
+        </div><!--./col-md-4-->
+
+
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+<hr>  
+    <a name="posts"></a>
+        <h3>Comments ({{comments|length }}) </h3>
+        <br />
+        <ol class="commentlist">
+        {% for comment in comments %}
+        <li class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+        <b>{{comment.author}}</b> <br />
+        <span class="decordate">Posted on {{(comment.created)}}</span> <br />
+           {% include 'comments/partialrating.html' %} 
+           <br />
+            {{comment.content }} <br />
+           </li> 
+           <br />
+        {% endfor %}
+        </ol>
+</div> 
+</div> 
+        
+        
+{% endblock %}

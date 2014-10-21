@@ -1,0 +1,45 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+<div class="row">
+    <div class="col-md-8">
+    <h3>Send Recommendation to Friends</h3>
+    <hr>
+    <br />
+    {% if friends %}
+    <form action="{{url_for('sendrectofriends',id=id)}}" method="post" name="sendmultiplefriends" id="sendmultiplefriends">
+                    {% for friend in friends %}
+
+                    <input type="checkbox"  name="emailfriends" value="{{friend.id}}"> {{friend.firstname }} {{friend.lastname}} <br />
+
+                    {% endfor %}
+            <br />
+            <br />
+            <button type="submit" class="btn btn-primary btn-xs" name="btn" value="send">Send Selected Friends</button>
+
+            <a href="{{url_for('recommendations')}}" class="btn btn-danger btn-xs">Cancel</a>
+                </form>
+
+            {% else %}
+    
+                <h3>You have not created any Friends as yet!</h3>
+                <br />
+                <h4>Begin by creating your friends. Click on the Friends link above <span class="glyphicon glyphicon-arrow-up"></span></h4>
+
+
+            {% endif %}
+
+
+
+    </div>
+
+    <div class="col-md-4">
+        {% include 'ads/ads.html' %}
+    </div>
+
+
+</div>
+{% endblock %}
