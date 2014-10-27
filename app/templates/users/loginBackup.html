@@ -65,17 +65,17 @@
         <!--./col-md-8-->
 
 
-
-
-
-        <div class="col-md-4">
+       <div class="col-md-4">
 
 <div class="row">
     <div class="col-md-12">
             <h3>Event Calendar</h3> 
             <hr>
-    
-<div class="mopCalendar">
+<div class="loading">    
+    <img src="/static/img/loading.gif" width="50px; height="50px;">
+    Loading...
+</div>
+<div class="mopCalendar" style="display: none;">
 	<div class="mopCalendarHeader">
         <table>
             <tr>
@@ -127,9 +127,17 @@
             $(document).ready(
                 function()
                 {
+                    
                     $(".mopCalendar").mopCalendar(new Date());
                }
                );
+
+            $(window).load(function() {
+
+                $(".loading").fadeOut("fast");
+                $(".mopCalendar").fadeIn("slow");
+            });
+
         </script>
 
 
