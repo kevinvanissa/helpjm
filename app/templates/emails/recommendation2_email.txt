@@ -13,5 +13,5 @@ Click here to view: {{url_for('viewrecommendation',recommendationid=r,_external=
 Regards,
 
 
-The HelpJM Team
-www.helpjm.com
+The DehSuh Team
+www.dehsuh.com

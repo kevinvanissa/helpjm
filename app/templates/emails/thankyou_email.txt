@@ -13,5 +13,5 @@ You recommended: {{ recommendation.name}}.
 
 
 Regards,
-The HelpJM Team
-www.helpjm.com
+The DehSuh Team
+www.dehsuh.com

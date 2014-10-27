@@ -12,5 +12,5 @@ Click here to respond(No need for registration): {{url_for('sendrecommendation',
 
 
 Regards,
-The HelpJM Team
-www.helpjm.com
+The DehSuh Team
+www.dehsuh.com
