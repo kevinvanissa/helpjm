@@ -1609,7 +1609,7 @@ def listads():
         file = request.files['pic']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filename = str(uuid.uuid4())
+            filename = str(uuid.uuid4()) + filename
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         else:
             flash('Only jpeg, jpg or png files are accepted', category='danger')

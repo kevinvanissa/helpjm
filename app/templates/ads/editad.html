@@ -54,7 +54,7 @@
                         <div class="col-md-8">
                             {{ form.pic(class="form-control")}}
                             <img src="{{url_for('uploaded_file',filename=mypic)}}" width="107px" height="80px">
-
+                        <span style="color:blue;">[width:200px and height:100px]</span>
                             {% for error in form.errors.pic %}
                                 <span class="help-inline">[{{error}}]</span><br>
                             {% endfor %}

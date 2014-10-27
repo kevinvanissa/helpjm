@@ -114,6 +114,7 @@
                         <label class="col-md-4 control-label" for="pic">Pic:</label>
                         <div class="col-md-8">
                             {{ form.pic(class="form-control")}}
+                        <span style="color:blue;">[width:200px and height:100px]</span>
                             {% for error in form.errors.pic %}
                                 <span class="help-inline">[{{error}}]</span><br>
                             {% endfor %}

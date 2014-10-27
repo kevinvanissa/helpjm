@@ -19,11 +19,8 @@ html,body {
 
 /* Set the fixed height of the footer here */
 #footer {
-<<<<<<< HEAD
   min-height: 200px;
-=======
   min-height: 60px;
->>>>>>> 28f3d3e287b2f621ef4a1baedd9b2adf9210888f
   /*background-color:#222222;*/
 }
 
@@ -53,9 +50,6 @@ html,body {
     color:#003300;
 }
 
-#ad_table{
-    margin-top: 40px;
-}
 
 .view_rec{
     font-style:italic;
@@ -143,3 +137,18 @@ ol.commentlist {
     margin-bottom: 0.5em;
     padding: 0.5em 1em;
 }
+
+
+/*AD START */
+.adbody{
+    color:#9197a3;
+}
+
+.adtitle{
+    color:#47A447;
+}
+
+#addiv{
+    margin-top:40px;
+}
+/*END AD*/
