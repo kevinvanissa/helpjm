@@ -1696,7 +1696,7 @@ def events():
                 event_category=form.event_category.data,
                 description=form.description.data,
                 event_start_date=form.event_start_date.data,
-                event_end_date=form.event_start_date.data,
+                event_end_date=form.event_end_date.data,
                 venue=form.venue.data,
                 address=form.address.data,
                 parish=form.parish.data,
@@ -1802,7 +1802,7 @@ def editevent(id):
         event.event_category = form.event_category.data
         event.description = form.description.data
         event.event_start_date = form.event_start_date.data
-        event.event_end_date = form.event_start_date.data
+        event.event_end_date = form.event_end_date.data
         event.venue = form.venue.data
         event.address = form.address.data
         event.parish = form.parish.data
