@@ -2,9 +2,9 @@
 <html>
   <head>
     {% if title %}
-    <title>{{title}} - HelpJM</title>
+    <title>{{title}} - DehSuh</title>
     {% else %}
-    <title>HelpJM</title>
+    <title>DehSuh</title>
     {% endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" type="image/png" href="/static/img/favicon.png" />
@@ -57,8 +57,8 @@
         <div class="navbar-collapse collapse">
        
             <ul class="nav navbar-nav nav-pills">
-                {% if not g.user.is_authenticated() %}
                 <li {% if request.path == "/" or request.path =="/index" %}class="active"{% endif %} ><a href="{{url_for('login')}}">Home</a></li>
+                {% if not g.user.is_authenticated() %}
                 <li {% if request.path == "/gettingstarted"%}class="active"{% endif %} ><a href="{{url_for('gettingstarted')}}">Getting Started</a></li>
                 <li {% if request.path == "/about"%}class="active"{% endif %} ><a href="{{url_for('about')}}">About Us</a></li>
                 <li {% if request.path == "/contactus"%}class="active"{% endif %} ><a href="{{url_for('contactus')}}">Contact Us</a></li>
@@ -103,10 +103,20 @@
       
               {% if g.user.is_authenticated() %}
             <ul class="nav navbar-nav navbar-right nav-pills">
-              <li {% if  request.path == "/edit" %}class="active"{% endif %}><a href="{{ url_for('edituser')}}">Your Profile</a></li>
-              <li {% if  request.path == "/reset" %}class="active"{% endif %}><a href="{{ url_for('reset')}}">Reset Password</a></li>
-              <li><a href="{{ url_for('logout') }}">Logout</a></li>
+              
+            <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span
+                    class="glyphicon glyphicon-user"></span> {{g.user.firstname}} {{g.user.lastname}} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+               <li {% if  request.path == "/edit" %}class="active"{% endif %}><a
+                   href="{{ url_for('edituser')}}"><span class="glyphicon glyphicon-edit"></span> Edit Profile</a></li>
+              <li {% if  request.path == "/reset" %}class="active"{% endif %}><a
+                  href="{{ url_for('reset')}}"><span class="glyphicon glyphicon-refresh"></span> Reset Password</a></li>
+              <li><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+        </ul>
+    </li>
             </ul>
+
               {% endif %}
 
         {% if not g.user.is_authenticated() %}
