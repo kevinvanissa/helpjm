@@ -720,6 +720,8 @@ def login():
     day = nowtoday.day
     tomorrow = nowtoday + timedelta(days=1)
     day2 =  tomorrow.day
+    month2 = tomorrow.month
+    year2 = tomorrow.year
     tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
 
     featuredEvents = Event.query.filter_by(featured=FEATURED_EVENT).all()
@@ -732,8 +734,8 @@ def login():
         ).limit(5).all()
 
     tomorrowEvents = Event.query.filter(
-            extract('year',Event.event_start_date) == year,
-            extract('month',Event.event_start_date) == month,
+            extract('year',Event.event_start_date) == year2,
+            extract('month',Event.event_start_date) == month2,
             extract('day',Event.event_start_date) == day2
         ).limit(5).all()
     print tomorrowEvents
@@ -1927,11 +1929,11 @@ def findevents(decide):
     #month = request.args.get("month")
     #day = request.args.get("day")
     tomorrow = today + timedelta(days=1)
+    year2 = tomorrow.year
+    month2 = tomorrow.month
     day2 =  tomorrow.day
+
     tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
-
-
-
 
 
     ads = getAds()
@@ -1952,8 +1954,8 @@ def findevents(decide):
         ).paginate(page,ITEMS_PER_PAGE,False)
     elif(decide == 'tomorrow'):
         events = Event.query.filter(
-            extract('year',Event.event_start_date) == year,
-            extract('month',Event.event_start_date) == month,
+            extract('year',Event.event_start_date) == year2,
+            extract('month',Event.event_start_date) == month2,
             extract('day',Event.event_start_date) == day2
         ).paginate(page,ITEMS_PER_PAGE,False)
     else:
