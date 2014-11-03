@@ -16,8 +16,8 @@ FACEBOOK_APP_SECRET =  '15b7b78f8813f7ad5e9cffb94d795158'
 #Google
 # You must configure these 3 values from Google APIs console
 # https://code.google.com/apis/console
-GOOGLE_CLIENT_ID = '697382520711.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 's8Utw2krnBFQwcANZrDhPKap'
+GOOGLE_CLIENT_ID = '864880640386-3p6ncggl7modfn8rckmisl1uvl0itehk.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = 'eQMe_OLWIGA1R5gD8QRMoAMz'
 REDIRECT_URI = '/authorized'
 
 
