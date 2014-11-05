@@ -1197,7 +1197,7 @@ def edituser():
         user = User.query.filter_by(email=form.email.data).first()
         if user and form.email.data != g.user.email:
             flash(
-                'Sorry but this email is already registered at HelpJM!',
+                'Sorry but this email is already registered at DehSuh!',
                 category='danger')
             return redirect(url_for('edituser'))
         g.user.firstname = form.firstname.data

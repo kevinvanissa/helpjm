@@ -34,8 +34,8 @@ app.jinja_env.globals['format_time'] =  format_time
 
 #Emails
 mail = Mail(app)
-#app.debug=True
-app.debug=False
+app.debug=True
+#app.debug=False
 if not app.debug:
     import logging
     from logging.handlers import RotatingFileHandler

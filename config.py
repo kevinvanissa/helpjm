@@ -3,7 +3,8 @@ from flask_oauth import OAuth
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-LOCALHOST_EMAIL=False
+#LOCALHOST_EMAIL=False
+LOCALHOST_EMAIL=True
 
 UPLOAD_FOLDER = basedir+'/app/static/uploads'
 ALLOWED_EXTENSIONS = set(['jpg','png','jpeg'])
