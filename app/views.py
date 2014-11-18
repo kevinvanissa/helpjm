@@ -416,8 +416,6 @@ def internal_error(error):
     db.session.rollback()
     return render_template('errors/413.html'), 413
 
-
-
 @lm.user_loader
 def load_user(id):
     return User.query.get(int(id))

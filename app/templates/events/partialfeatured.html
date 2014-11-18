@@ -5,12 +5,13 @@
 <!--<div class="item {% if loop.index==1%}active{% endif %}">-->
                 <!--<img src="{{url_for('uploaded_file',filename=event.flyer)}}" width="100%" height="315px">   -->
         <div class="item {% if loop.index==1%}active{% endif %}">
-             <div style="background:url({{url_for('uploaded_file',filename=event.flyer)}}) center center; background-size:cover;" class="slider-size">
+             <div id="feature_div" style="background:url({{url_for('uploaded_file',filename=event.flyer)}}) center center; background-size:cover;" class="slider-size">
                 <div class="carousel-caption">
                     <b><a
                     href="{{url_for('detail',id=event.id)}}"><span
                         style="color:white;">{{event.title}}</span></a> </b> <br />
-                        {{format_time(event.event_start_date)}} 
+                        {{format_time(event.event_start_date)}} <br />
+                        <b><a href="{{url_for('detail',id=event.id)}}">Go to Detail >>  </a> </b>
                 </div>
             </div>
           </div>

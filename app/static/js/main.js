@@ -1,5 +1,10 @@
 $(document).ready(function(){
 
+  $("#feature_div").click(function(){
+        window.location = $(this).find("a:first").attr("href");
+        return false;
+    });
+
     //alert($('#main-navbar').css("height"));
 
     $("#category").change(function(){
