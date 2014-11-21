@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,date
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
@@ -9,7 +9,7 @@ from helperlist import convertTime, EVENT_TYPES, PARISHES, SERVICES, CATEGORIES,
 from emails import ask_notification, recommendation_notification, recommendation_notification2, user_confirmation_notification, forgot_password_notification, sendrec_notification, thankyou_notification
 from werkzeug import check_password_hash, generate_password_hash, secure_filename
 import os
-import time
+import time, calendar
 import uuid
 from decorators import admin_required
 import random
@@ -41,6 +41,121 @@ def getAds():
     all_ads = list(Ads.query.all())
     random.shuffle(all_ads)
     return all_ads[:3]
+
+
+#===============================Calendar ==================
+
+def getFirstDay(year,month):
+    daycount=0
+    cal = calendar.Calendar(6)
+    month_days = cal.itermonthdays(year,month)
+    for day in month_days:
+        if not day:
+            daycount = daycount + 1
+        else:
+            break
+    return daycount
+
+
+@app.route('/displaycal', methods=['GET', 'POST'])
+def displaycal():
+#def createCalendar(year, month, change):
+    mnames = "Placeholder January February March April May June July August September October November December"
+    mnames = mnames.split()
+    #copied from previous function
+    year = request.form["year"]
+    month = request.form["month"]
+    change = request.form["change"]
+
+
+    if (year == "None" or month == "None"):
+        year, month = time.localtime()[:2]
+    else:
+        year=int(year)
+        month=int(month)
+        change=change
+        if change in ("next", "prev"):
+            now, mdelta = date(year,month,15), timedelta(days=31)
+            if change == "next": mod = mdelta
+            elif change == "prev": mod = -mdelta
+            year, month = (now+mod).timetuple()[:2]
+
+    cal = calendar.Calendar(6)
+    month_days = cal.itermonthdays(year, month)
+    nyear, nmonth, nday = time.localtime()[:3]
+    lst=[[]]
+    week = 0
+    count = 0
+
+    for day in month_days:
+        count = count + 1
+        entries = current = False
+        if day:
+            events = Event.query.filter(
+                    extract('year',Event.event_start_date) == year,
+                    extract('month',Event.event_start_date) == month,
+                extract('day',Event.event_start_date) == day
+            ).first()
+            if events:
+                entries = True
+            #if event_type:
+                #entries = db(db.event.event_start_date.day()==day) (db.event.event_start_date.month()==month) (db.event.event_start_date.year()==year) (db.event.event_type==event_type).select()
+            #else:
+                #entries = db(db.event.event_start_date.day()==day) (db.event.event_start_date.month()==month) (db.event.event_start_date.year()==year).select()
+            #pass
+            if day == nday and year == nyear and month == nmonth:
+                current = True
+        lst[week].append((day, entries, current))
+        if len(lst[week]) == 7:
+            lst.append([])
+            week += 1
+        firstDayMonth = getFirstDay(year, month)
+        padcalendar1 = 42 - count
+        padcalendar = range(padcalendar1)
+        padfeb= range(7)
+
+    prev ="\"prev\""
+    next ="\"next\""
+    none ="\"None\""
+
+    table = "<div class='myCalendar'>"
+    table += "<table id='calTable' width=100% >"
+    table += "<tr id='calHeader1'><td class='myHover'><a href='javascript:getCalendar("+str(year)+","+str(month)+","+prev+")'><img src='/static/img/prev.png'></a></td><td colspan='5' style='text-align:center;'>"+mnames[month]+" "+str(year)+"</td><td class='myHover'><a href='javascript:getCalendar("+str(year)+","+str(month)+","+next+")'><img src='/static/img/next.png'></a></td></tr>"
+    table+="<tr id='calHeader'>"
+    table+="<th><span style='color:red;'>Sun</span></th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th><span style='color:red;'>Sat</span></th>"
+    table+="</tr>"
+    count = 0
+
+    #calDict = createCalendar(year,month,change)
+    #for week in calDict['month_days']:
+    for week in lst:
+        count = count + 1
+        table+="<tr>"
+        for day, events, current in week:
+            if events:
+                table+="<td class='myHover'><a href='javascript:showEvents("+str(year)+","+str(month)+","+str(day)+") '><b><span class='cevents'>"+str(day)+"</span></b></a></td>"
+            elif current:
+                table+="<td class='today myHover'>"+str(day)+"</td>"
+            elif(day == 0):
+                table+="<td><span class='hidezero'>"+str(day)+"</span></td>"
+            else:
+                table+="<td class='myHover'>"+str(day)+"</td>"
+            #print day, current
+        table+= "</tr>"
+
+
+    table+="</table>"
+    table += ""
+    table+="</div>"
+    table+="<div class='calFooter'><table id='calTable2' width='100%'><tr><td><a class='btn btn-default' href='javascript:getCalendar("+none+","+none+","+none+")'>Today</a></td></tr></table></div>"
+    #print count
+
+    #return dict(year=year,month=month, month_days=lst, mname=mnames[month],
+            #padcalendar=padcalendar,
+            #firstDayMonth=firstDayMonth,padfeb=padfeb
+            #)
+    return table
+#===============================Calendar ==================
 
 
 @app.route('/main', methods=['GET', 'POST'])

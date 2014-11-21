@@ -90,6 +90,19 @@ $(window).load(function () {
    $('body').css('padding-top', parseInt($('#main-navbar').css("height"))+30);         
 }); 
 
+
+function getCalendar(year,month,change){
+$.post('/displaycal',
+            {'year':year,'month':month,'change':change},
+            function(data){
+                $('#myCalendar').html(data)                                
+                //$.each(data,function(i,val){
+                     //});//end first each
+            });
+}//end getCalendar
+
+
+
 function showEvents(year,month,day){
 var m_names = new Array("January", "February", "March", 
 "April", "May", "June", "July", "August", "September", 
