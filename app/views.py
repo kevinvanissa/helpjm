@@ -31,7 +31,7 @@ def request_wants_json():
         request.accept_mimetypes[best] > \
         request.accept_mimetypes['text/html']
 
-
+    
 @login_required
 def getAds1():
     return [1, 2, 3]
@@ -188,7 +188,8 @@ def index():
                            ads=ads
                            )
 
-
+    
+    
 @app.route('/closedasks', methods=['GET', 'POST'])
 @login_required
 def closedasks():
@@ -1943,7 +1944,7 @@ def editevent(id):
         form=form,
         mypic=mypic,
         ads=ads)
-
+        
 
 @app.route('/eventsearch', methods=['GET', 'POST'])
 def eventsearch():

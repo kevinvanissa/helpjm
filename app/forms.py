@@ -332,7 +332,8 @@ class EventEditForm(Form):
     flyer = FileField('flyer')
     youtube = TextField('youtube', filters=[strip_filter])
 
-
+    
+    
 class EventSearchForm(Form):
     title = TextField('title', validators=[Required()], filters=[strip_filter])
     event_category = SelectField(
