@@ -5,5 +5,5 @@ Click here to Confirm: {{url_for('activate_user',confirmationid=user.confirmatio
 
 Regards,
 
-The DehSuh Team
-www.dehsuh.com
+The ServiceJA Team
+www.serviceja.com

@@ -19,7 +19,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
 
 def ask_notification(friend, user, ask):
     send_email(
-        "[DehSuh] %s %s needs good %s services ?" %
+        "[ServiceJA] %s %s needs good %s services ?" %
         (user.firstname, user.lastname, ask.service), ADMINS[0], [
             friend.email], render_template(
             "emails/ask_email.txt", friend=friend, user=user, ask=ask), render_template(
@@ -28,7 +28,7 @@ def ask_notification(friend, user, ask):
 
 def thankyou_notification(friend, user, recommendation, message):
     send_email(
-        "[DehSuh] %s %s is thanking you for the Recommendation that you sent." %
+        "[ServiceJA] %s %s is thanking you for the Recommendation that you sent." %
         (user.firstname,
          user.lastname),
         ADMINS[0],
@@ -50,7 +50,7 @@ def thankyou_notification(friend, user, recommendation, message):
 
 def recommendation_notification(friend, user, ask, recommendationid):
     send_email(
-        "[DehSuh] %s %s has a recommendation for you" %
+        "[ServiceJA] %s %s has a recommendation for you" %
         (friend.firstname,
          friend.lastname),
         ADMINS[0],
@@ -72,7 +72,7 @@ def recommendation_notification(friend, user, ask, recommendationid):
 
 def recommendation_notification2(friend, user, ask, recList):
     send_email(
-        "[DehSuh] %s %s has recommendations for you" %
+        "[ServiceJA] %s %s has recommendations for you" %
         (friend.firstname,
          friend.lastname),
         ADMINS[0],
@@ -94,7 +94,7 @@ def recommendation_notification2(friend, user, ask, recList):
 
 def sendrec_notification(friend, user, recommendation):
     send_email(
-        "[DehSuh] %s %s has a recommendation for you" %
+        "[ServiceJA] %s %s has a recommendation for you" %
         (user.firstname,
          user.lastname),
         ADMINS[0],
@@ -114,7 +114,7 @@ def sendrec_notification(friend, user, recommendation):
 
 def user_confirmation_notification(user):
     send_email(
-        "[DehSuh] Registration Confirmation for %s %s " %
+        "[ServiceJA] Registration Confirmation for %s %s " %
         (user.firstname, user.lastname), ADMINS[0], [
             user.email], render_template(
             "emails/confirmation_email.txt", user=user), render_template(
@@ -122,7 +122,7 @@ def user_confirmation_notification(user):
 
 
 def forgot_password_notification(user):
-    send_email("[DehSuh] Password Recovery",
+    send_email("[ServiceJA] Password Recovery",
                ADMINS[0],
                [user.email],
                render_template("emails/forgot_password_email.txt", user=user),

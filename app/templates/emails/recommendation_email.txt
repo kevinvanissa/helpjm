@@ -9,5 +9,5 @@ Click here to view: {{url_for('viewrecommendation',recommendationid=recid,_exter
 Regards,
 
 
-The DehSuh Team
-www.dehsuh.com
+The ServiceJA Team
+www.serviceja.com

@@ -13,5 +13,5 @@ Click here to view: {{url_for('viewrecommendation',recommendationid=r,_external=
 Regards,
 
 
-The DehSuh Team
-www.dehsuh.com
+The ServiceJA Team
+www.serviceja.com
