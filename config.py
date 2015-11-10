@@ -87,12 +87,12 @@ else:
     #MAIL_PORT = 578
     MAIL_USE_TLS= False
     MAIL_USE_SSL= True
-    MAIL_USERNAME = 'admin@dehsuh.com'
+    MAIL_USERNAME = 'admin@serviceja.com'
     MAIL_PASSWORD = 'gamma.rad4N?'
 
 
 
 # administrator list
-ADMINS = ['DehSuh Team <admin@dehsuh.com>']
+ADMINS = ['ServiceJA Team <admin@serviceja.com>']
 
 
