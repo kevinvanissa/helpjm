@@ -6,7 +6,6 @@ from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_
 from flask.ext.mail import Mail
 from momentjs import momentjs
 
-from  viewRest import view_rest
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -17,7 +16,6 @@ lm.init_app(app)
 lm.login_view = 'login'
 
 
-app.register_blueprint(view_rest)
 
 # render phone number
 def create_phone(phoneNumber):
