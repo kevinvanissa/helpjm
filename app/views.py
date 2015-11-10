@@ -822,8 +822,8 @@ def login2():
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def login():
-    #if g.user is not None and g.user.is_authenticated():
-        #return redirect(url_for('ex'))
+    if g.user is not None and g.user.is_authenticated():
+        return redirect(url_for('index'))
     form = LoginForm()
     mform = MainSearchForm()
     sform = EventSearchForm()
@@ -884,12 +884,12 @@ def login():
                 session.pop('remember_me', None)
             login_user(user, remember=remember_me)
             flash('You have successfully logged in', category='success')
-            return redirect(request.args.get('next') or url_for('events'))
+            return redirect(request.args.get('next') or url_for('index'))
         else:
             flash('Please check your username and password!', category='danger')
             return redirect(url_for('login'))
-    return render_template('users/loginBackup.html',
-    #return render_template('users/login.html',
+    #return render_template('users/loginBackup.html',
+    return render_template('users/login.html',
                            title='Sign In',
                            form=form,
                            mform=mform,

@@ -2,9 +2,9 @@
 <html>
   <head>
     {% if title %}
-    <title>{{title}} - DehSuh</title>
+    <title>{{title}} - ServiceJA </title>
     {% else %}
-    <title>DehSuh</title>
+    <title>ServiceJA </title>
     {% endif %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" type="image/png" href="/static/img/favicon.png" />
@@ -72,20 +72,10 @@
                 {% endif %}
 
               {% if g.user.is_authenticated() %}
-
-
-              <li {% if request.path == "/events"%}class="active"{% endif %}><a href="{{url_for('events')}}">My Events</a></li>
-
-    <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Services <b class="caret"></b></a>
-        <ul class="dropdown-menu">
               <li {% if request.path == "/main"%}class="active"{% endif %}><a href="{{url_for('index')}}">My Asks</a></li>
               <li {% if request.path == "/recommendations"%}class="active"{% endif %}><a href="{{url_for('recommendations')}}">My Recommendations</a></li>
               <li {% if request.path == "/friends"%}class="active"{% endif %}><a href="{{url_for('friends')}}">Friends</a></li>
               <li {% if request.path == "/search"%}class="active"{% endif %}><a href="{{url_for('search')}}">Search</a></li>
-        </ul>
-    </li>
-
 
               {% if g.user.is_admin() %}
 
@@ -93,11 +83,7 @@
 
               {% endif %}
 
-
-
               {% endif %}
-
-
             </ul>
 
       
@@ -122,7 +108,6 @@
         {% if not g.user.is_authenticated() %}
 
         <a href="{{url_for('register')}}"><button class="btn btn-success pull-right" style="margin-top:10px;">Register</button></a>
-                <a href="{{url_for('login2')}}"><button class="btn btn-success pull-right" style="margin-top:10px;margin-right:5px;">Log In</button></a>
     <!--<form action="{{url_for('mainsearch')}}" method="get" class="navbar-form navbar-right" role="search" name="main_search_form" id="main_search_form" onsubmit="return validateMainSearch();">-->
 
             
@@ -162,7 +147,7 @@
                 
             <div class="col-md-8">
             <p class="pull-left">
-                <h4 class="footerheading">DehSuh </h4>
+                <h4 class="footerheading">ServiceJA  </h4>
                 <a href="{{url_for('gettingstarted')}}" class="mainlink">Getting Started</a> <br />
                 <a href="{{url_for('terms')}}" class="mainlink">Terms and Conditions</a> <br />
                 <a href="{{url_for('privacy')}}" class="mainlink">Privacy Policy</a> <br />
@@ -201,7 +186,7 @@
             <div class="row">
                 <div clas="col-md-12">
                 <hr class="myhr">
-                <span class="copyright col-md-offset-6">Copyright &copy; DehSuh 2013. </span>
+                <span class="copyright col-md-offset-6">Copyright &copy; ServiceJA  2013. </span>
                 <br />
                 <br />
                 </div>
