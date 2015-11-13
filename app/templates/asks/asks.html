@@ -40,7 +40,7 @@
                 </p> 
 
 
-
+        <div class="table-responsive">
           <table class="table" >
             <thead>
                 <tr>
@@ -68,17 +68,17 @@
 
                         </td>
                         <td class="col-md-6">
-                            <span class="detailheading"><span class="badge">Category:</span></span>  <span class="detail">{{ask.category}}</span>
-                            <span class="detailheading"><span class="badge">Service:</span></span> <span class="detail">{{ask.service}}</span> 
-                            <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{ask.parish}} </span>
-                            <span class="detailheading"><span class="badge">Area:</span></span> <span class="detail">{{ask.area}}</span> 
+                            <span class="detailheading"><span style="text-decoration:bold;">Category:</span></span>  <span class="detail">{{ask.category}}</span> <br />
+                            <span class="detailheading"><span style="text-decoration:bold;">Service:</span></span> <span class="detail">{{ask.service}}</span><br /> 
+                            <span class="detailheading"><span style="text-decoration:bold;">Parish:</span></span> <span class="detail">{{ask.parish}} </span><br />
+                            <span class="detailheading"><span style="text-decoration:bold;">Area:</span></span> <span class="detail">{{ask.area}}</span> 
                         </td>
                     </tr>
 
             {%endfor %}
         
         {% if asks %} 
-        </table>
+        </table> </div>
         {% endif %}
 
         </div>
