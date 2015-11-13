@@ -40,11 +40,11 @@
                 </p> 
 
 
-        <div class="table-responsive">
+
           <table class="table" >
             <thead>
                 <tr>
-                    <th>Question</th> <th>Details</th>
+                    <th class="col-md-6">Question</th> <th class="col-md-6">Details</th>
                 </tr>
             </thead>
             {% endif %}
@@ -53,7 +53,7 @@
 
                 {% for ask in asks %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
-                        <td>
+                        <td class="col-md-6">
                             {% if ask.count_replies() == 1 %}  
                                 <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Reply</span></a> 
                             {% else %} 
@@ -67,7 +67,7 @@
                             <a href="{{url_for('more',id=ask.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-wrench"></span> More Actions</a> 
 
                         </td>
-                        <td>
+                        <td class="col-md-6">
                             <span class="detailheading"><span style="text-decoration:bold;">Category:</span></span>  <span class="detail">{{ask.category}}</span> <br />
                             <span class="detailheading"><span style="text-decoration:bold;">Service:</span></span> <span class="detail">{{ask.service}}</span><br /> 
                             <span class="detailheading"><span style="text-decoration:bold;">Parish:</span></span> <span class="detail">{{ask.parish}} </span><br />
@@ -78,7 +78,7 @@
             {%endfor %}
         
         {% if asks %} 
-        </table> </div>
+        </table>
         {% endif %}
 
         </div>

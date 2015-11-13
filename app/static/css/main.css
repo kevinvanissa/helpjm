@@ -9,7 +9,7 @@ html,body {
 }
 body{
     /*background:yellow;*/
-    background: url('/static/img/bg.png') repeat scroll 0% 0% #222;
+    /*background: url('/static/img/bg.png') repeat scroll 0% 0% #222;*/
 }
 
 /* Wrapper for page content to push down footer */
@@ -25,10 +25,10 @@ body{
   margin-bottom:-200px;
   padding-bottom:200px;
   background:#FFFFFF;
-  -webkit-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.4);  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
-  -moz-box-shadow:    0 0 5px 2px rgba(0, 0, 0, 0.4);  /* Firefox 3.5 - 3.6 */
-  box-shadow:         0 0 5px 2px rgba(0, 0, 0, 0.4);  /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
-  border: 1px solid gray;
+  /*-webkit-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.4);  [> Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ <]*/
+  /*-moz-box-shadow:    0 0 5px 2px rgba(0, 0, 0, 0.4);  [> Firefox 3.5 - 3.6 <]*/
+  /*box-shadow:         0 0 5px 2px rgba(0, 0, 0, 0.4);  [> Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 <]*/
+  /*border: 1px solid gray;*/
 }
 
 

@@ -25,7 +25,6 @@
 
                 <form action="{{url_for('deletemultiplefriends')}}" method="post" onsubmit="return deleteMultipleItems()" name="deletemultiplefriends" id="deletemultiplefriends">
                     {{form.hidden_tag()}}
-                    <div class="table-responsive">
             <table class="table">
                 <thead><tr>
                 <th>Select</th>
@@ -52,7 +51,7 @@
             {% endfor %}
 
             {% if friends %}
-            </table> </div>
+            </table> 
             <button type="submit" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Delete Selected Friends</button>
 
             </form>
