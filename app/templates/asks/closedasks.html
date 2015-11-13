@@ -44,10 +44,10 @@
                             <a href="{{url_for('deleteask',id=ask.id)}}" class="btn btn-xs btn-danger" onclick="javascript:return deleteItem();"><span class="glyphicon glyphicon-trash"></span> Delete</a> 
                         </td>
                         <td class="col-md-6">
-                            <span class="detailheading"><span class="badge">Category:</span></span>  <span class="detail">{{ask.category}}</span>
-                            <span class="detailheading"><span class="badge">Service:</span></span> <span class="detail">{{ask.service}}</span> 
-                            <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{ask.parish}} </span>
-                            <span class="detailheading"><span class="badge">Area:</span></span> <span class="detail">{{ask.area}}</span> 
+                            <span class="detailheading"><span style="font-style:bold;">Category:</span></span>  <span class="detail">{{ask.category}}</span><br />
+                            <span class="detailheading"><span style="font-style:bold;">Service:</span></span> <span class="detail">{{ask.service}}</span><br /> 
+                            <span class="detailheading"><span style="font-style:bold">Parish:</span></span> <span class="detail">{{ask.parish}} </span><br />
+                            <span class="detailheading"><span style="font-style:bold">Area:</span></span> <span class="detail">{{ask.area}}</span> 
                         </td>
                     </tr>
 
@@ -130,15 +130,8 @@
                 </form>
 
 
-
-
-
-
-
-
-
             {% if False %}
-            <h3 class="col-md-offset-2">HelpJM Ads</h3> 
+            <h3 class="col-md-offset-2">ServiceJA Ads</h3> 
             {% endif %}
 
         {% include 'ads/ads.html' %}
