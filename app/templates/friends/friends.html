@@ -28,11 +28,11 @@
                     <div class="table-responsive">
             <table class="table">
                 <thead><tr>
-                <th class="col-md-1">Select</th>
-                <th class="col-md-3">First Name</th>
-                <th class="col-md-3">Last Name</th>
-                <th class="col-md-4">Email</th>
-                <th class="col-md-1">Edit</th>
+                <th>Select</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Edit</th>
 
                 </tr>
                 </thead>
@@ -41,11 +41,11 @@
 
             {% for friend in friends: %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
-                        <td class="col-md-1"><input type="checkbox"  name="friends" value="{{friend.id}}"></td>   
-                    <td class="col-md-3">{{friend.firstname}}</td>   
-                    <td class="col-md-3">{{friend.lastname}}</td>   
-                    <td class="col-md-4">{{friend.email}}</td>   
-                    <td class="col-md-1"> 
+                        <td><input type="checkbox"  name="friends" value="{{friend.id}}"></td>   
+                    <td>{{friend.firstname}}</td>   
+                    <td>{{friend.lastname}}</td>   
+                    <td>{{friend.email}}</td>   
+                    <td> 
                         <a href="{{url_for('editfriend',id=friend.id)}}" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-edit"></span> Edit</a> 
                     </td>   
                 </tr>
