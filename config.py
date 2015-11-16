@@ -83,8 +83,8 @@ if LOCALHOST_EMAIL:
     MAIL_PASSWORD =  None
 else:
     MAIL_SERVER = 'smtp.googlemail.com'
-    #MAIL_PORT = 465
-    MAIL_PORT = 578
+    MAIL_PORT = 465
+    #MAIL_PORT = 578
     MAIL_USE_TLS= False
     MAIL_USE_SSL= True
     MAIL_USERNAME = 'admin@serviceja.com'
