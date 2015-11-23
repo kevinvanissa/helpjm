@@ -827,38 +827,36 @@ def login():
     form = LoginForm()
     mform = MainSearchForm()
     sform = EventSearchForm()
-    nyear, nmonth, nday = time.localtime()[:3]
-    nowtoday = datetime.now()
-    year = nowtoday.year
-    month = nowtoday.month
-    day = nowtoday.day
-    tomorrow = nowtoday + timedelta(days=1)
-    day2 =  tomorrow.day
-    month2 = tomorrow.month
-    year2 = tomorrow.year
-    tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
+    #nyear, nmonth, nday = time.localtime()[:3]
+    #nowtoday = datetime.now()
+    #year = nowtoday.year
+    #month = nowtoday.month
+    #day = nowtoday.day
+    #tomorrow = nowtoday + timedelta(days=1)
+    #day2 =  tomorrow.day
+    #month2 = tomorrow.month
+    #year2 = tomorrow.year
+    #tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
 
-    featuredEvents = Event.query.filter_by(featured=FEATURED_EVENT).all()
+    #featuredEvents = Event.query.filter_by(featured=FEATURED_EVENT).all()
 
+    #todayEvents = Event.query.filter(
+    #        extract('year',Event.event_start_date) == year,
+    #        extract('month',Event.event_start_date) == month,
+    #        extract('day',Event.event_start_date) == day
+    #    ).limit(5).all()
 
-    todayEvents = Event.query.filter(
-            extract('year',Event.event_start_date) == year,
-            extract('month',Event.event_start_date) == month,
-            extract('day',Event.event_start_date) == day
-        ).limit(5).all()
-
-    tomorrowEvents = Event.query.filter(
-            extract('year',Event.event_start_date) == year2,
-            extract('month',Event.event_start_date) == month2,
-            extract('day',Event.event_start_date) == day2
-        ).limit(5).all()
-    print tomorrowEvents
+    #tomorrowEvents = Event.query.filter(
+    #        extract('year',Event.event_start_date) == year2,
+    #        extract('month',Event.event_start_date) == month2,
+    #        extract('day',Event.event_start_date) == day2
+    #    ).limit(5).all()
     #Same as Future Events
-    upcomingEvents = Event.query.filter(Event.event_start_date > tomorrow).limit(5).all()
+    #upcomingEvents = Event.query.filter(Event.event_start_date > tomorrow).limit(5).all()
 
-    comments = db.session.query(
-                Comment,Event
-    ).filter(Comment.event_id==Event.id).order_by(Comment.created.desc()).limit(3).all()
+    #comments = db.session.query(
+    #            Comment,Event
+    #).filter(Comment.event_id==Event.id).order_by(Comment.created.desc()).limit(3).all()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -893,12 +891,12 @@ def login():
                            title='Sign In',
                            form=form,
                            mform=mform,
-                           sform=sform,
-                           todayEvents=todayEvents,
-                           featuredEvents=featuredEvents,
-                           upcomingEvents=upcomingEvents,
-                           tomorrowEvents=tomorrowEvents,
-                           comments=comments)
+                           sform=sform)
+                           #todayEvents=todayEvents,
+                           #featuredEvents=featuredEvents
+                           #upcomingEvents=upcomingEvents,
+                           #tomorrowEvents=tomorrowEvents,
+                           #comments=comments)
 
 
 @app.route('/mainsearch', methods=['GET', 'POST'])
