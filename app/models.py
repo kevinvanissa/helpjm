@@ -12,6 +12,7 @@ INACTIVE_ASK = 0
 ACTIVE_AD = 1
 INACTIVE_AD = 0
 
+
 db.Table('hellosendask',
          db.Column('askid', db.Integer, db.ForeignKey('ask.id')),
          db.Column('friendid', db.Integer, db.ForeignKey('friend.id')),
@@ -217,6 +218,25 @@ class Ads(db.Model):
     def __repr__(self):
         return '<Ad %r>' % (self.title)
 
+#===================================Recipe====================
+
+class Recipe(db.Model ):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25))
+    serving = db.Column(db.String(120), nullable=False)
+    category = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.String(140))
+    ingredients = db.Column(db.String(140))
+    instructions = db.Column(db.String(140))
+    picture = db.Column(db.String(100))
+    user_id = db.Column(db.Integer, db.ForeignKey(u'user.id'), nullable=False, index=True)
+    created = db.Column(db.DateTime)
+
+class MealPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    recipe_id = db.Column(db.Integer, db.ForeignKey(u'recipe.id'), nullable=False)
+    day = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(u'user.id'), nullable=False, index=True)
 #===================================DehSuh====================
 ACTIVE_EVENT = 1
 INACTIVE_EVENT = 0

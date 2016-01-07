@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, BooleanField, SelectField, TextAreaField, HiddenField, IntegerField, FormField, PasswordField, SelectMultipleField, FileField, DateTimeField, DecimalField
 from wtforms.validators import Required, Length, Email, EqualTo, ValidationError
-from helperlist import CATEGORIES, PARISHES, RATINGS, SCOPE, EVENT_TYPES
+from helperlist import CATEGORIES, PARISHES, RATINGS, SCOPE, EVENT_TYPES, RECIPE_CATEGORY,RECIPE_SERVINGS
 
 from app import db
 
@@ -93,7 +93,6 @@ class AskForm(Form):
     parish = SelectField('parish', choices=PARISHES, validators=[Required()])
     area = TextField('area', validators=[Required()], filters=[strip_filter])
 
-
 class FriendForm(Form):
     firstname = TextField('firstname', validators=[Required()])
     lastname = TextField('lastname', validators=[Required()])
@@ -132,6 +131,7 @@ class RecommendationForm(Form):
     area = TextField('area', validators=[Required()], filters=[strip_filter])
     rating = SelectField('rating', choices=RATINGS, validators=[Required()])
     review = TextAreaField('review', validators=[Length(min=0, max=140)])
+
 
 
 class AdForm(Form):
@@ -362,3 +362,53 @@ class CommentForm(Form):
                 min=0,
                 max=1000)])
     rating = SelectField('rating', choices=RATINGS, validators=[Required()])
+
+
+#=============================RECIPE============================
+
+class RecipeForm(Form):
+    name = TextField('name', validators=[Required()], filters=[strip_filter])
+    serving = SelectField(
+        'serving',
+        choices=RECIPE_SERVINGS,
+        validators=[
+            Required()])
+    category = SelectField(
+        'category',
+        choices=RECIPE_CATEGORY,
+        validators=[
+            Required()])
+
+    description = TextAreaField(
+        'description',
+        validators=[
+            Length(
+                min=0,
+                max=1000),Required()])
+
+    ingredients = TextAreaField(
+        'ingredients',
+        validators=[
+            Length(
+                min=0,
+                max=1000),Required()])
+
+    instructions = TextAreaField(
+        'instructions',
+        validators=[
+            Length(
+                min=0,
+                max=1000),Required()])
+
+    picture = FileField('picture')
+
+class RecipeSearchForm(Form):
+    name = TextField('name', validators=[Required()], filters=[strip_filter])
+    category = SelectField(
+        'category',
+        choices=RECIPE_CATEGORY,
+        validators=[
+            Required()])
+
+
+
