@@ -59,6 +59,39 @@ def createServiceList(filename):
     return l
 
 
+RECIPE_CATEGORY=[
+    ('', '-- Choose a Category --'),
+    ('Breakfast','Breakfast'),
+    ('Lunch','Lunch'),
+    ('Dinner','Dinner'),
+    ('Dessert','Dessert'),
+    ('Appetizer','Appetizer'),
+    ('Drinks','Drinks'),
+    ('Snacks','Snacks')
+]
+
+RECIPE_SERVINGS=[
+    ('', '-- Choose Servings --'),
+    ('1 to 2 Servings','1 to 2 Servings'),
+    ('2 to 4 Servings','2 to 4 Servings'),
+    ('4 to 6 Servings','4 to 6 Servings'),
+    ('6 to 8 Servings','6 to 8 Servings'),
+    ('8 to 10 Servings','8 to 10 Servings'),
+    ('More than 10','More than 10')
+]
+
+DAYS=[
+    ('', '-- Choose a Day --'),
+    ('Sunday','Sunday'),
+    ('Monday','Monday'),
+    ('Tuesday','Tuesday'),
+    ('Wednesday','Wednesday'),
+    ('Thursday','Thursday'),
+    ('Friday','Friday'),
+    ('Saturday','Saturday')
+]
+
+
 EVENT_TYPES = [
     ('', '-- Choose a Category --'),
     ('Party','Party'),

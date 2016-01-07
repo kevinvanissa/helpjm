@@ -2,8 +2,8 @@ from datetime import datetime, timedelta,date
 from flask import render_template, flash, redirect, session, url_for, request, g, jsonify, send_from_directory, abort
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from forms import LoginForm, EventSearchForm, CommentForm, AskForm, FriendForm, RecommendationForm, UserForm, ContactUsForm, SearchForm, RecommendationReplyForm, RegistrationForm, ResetPasswordForm, ChangePasswordForm, AdForm, AdEditForm, ForgotPasswordForm, ReviewForm, MessageForm, MainSearchForm, SearchForm2, EventForm, EventEditForm
-from models import User, Comment, ROLE_USER, FEATURED_EVENT, NOFEATURED_EVENT, ROLE_ADMIN, ACTIVE_ASK, INACTIVE_ASK, INACTIVE_USER, ACTIVE_USER, Ask, Friend, Recommendation, ContactUs, SendAsk, ReplyRecommendation, Ads, SendRecommendation, Review, Event, ACTIVE_EVENT, INACTIVE_EVENT
+from forms import LoginForm, EventSearchForm, CommentForm, AskForm, FriendForm, RecommendationForm, UserForm, ContactUsForm, SearchForm, RecommendationReplyForm, RegistrationForm, ResetPasswordForm, ChangePasswordForm, AdForm, AdEditForm, ForgotPasswordForm, ReviewForm, MessageForm, MainSearchForm, SearchForm2, EventForm, EventEditForm,RecipeForm, RecipeSearchForm
+from models import User, Comment, ROLE_USER, FEATURED_EVENT, NOFEATURED_EVENT, ROLE_ADMIN, ACTIVE_ASK, INACTIVE_ASK, INACTIVE_USER, ACTIVE_USER, Ask, Friend, Recommendation, ContactUs, SendAsk, ReplyRecommendation, Ads, SendRecommendation, Review, Event, ACTIVE_EVENT, INACTIVE_EVENT, MealPlan, Recipe
 from config import ITEMS_PER_PAGE, ALLOWED_EXTENSIONS, facebook, google, REDIRECT_URI
 from helperlist import convertTime, EVENT_TYPES, PARISHES, SERVICES, CATEGORIES, getServiceList, getServiceListJSON, THUMBER
 from emails import ask_notification, recommendation_notification, recommendation_notification2, user_confirmation_notification, forgot_password_notification, sendrec_notification, thankyou_notification
@@ -22,6 +22,7 @@ from sqlalchemy.sql import extract
 import sqlalchemy
 from functools import reduce
 import pytz
+from sqlalchemy.orm import aliased
 
 # Render Json
 def request_wants_json():
@@ -157,6 +158,186 @@ def displaycal():
     return table
 #===============================Calendar ==================
 
+#===============================START RECIPE ==================
+@app.route('/createrecipe', methods=['GET','POST'])
+@login_required
+def createrecipe():
+    form = RecipeForm()
+    if form.validate_on_submit():
+        filename = ""
+        file = request.files['picture']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filename=str(uuid.uuid4())+filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+        else:
+            flash('Only jpeg, jpg or png files are accepted',category='danger')
+            return redirect(url_for('createrecipe'))
+        recipe=Recipe(
+                name=form.name.data,
+                serving=form.serving.data,
+                category=form.category.data,
+                description=form.description.data,
+                ingredients=form.ingredients.data,
+                instructions=form.instructions.data,
+                picture=filename,
+                user_id=g.user.id,
+                created=datetime.now()
+                )
+        db.session.add(recipe)
+        db.session.commit()
+        flash('Your recipe was created',category='success')
+        return redirect(url_for('createrecipe'))
+
+    return render_template("recipe/createrecipe.html",
+            title='Create Recipe',
+            form=form
+            )
+
+
+
+@app.route('/mealplan', methods=['GET','POST'])
+@login_required
+def mealplan():
+    DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']    
+    breakfast = list(Recipe.query.filter_by(category='Breakfast').all())
+    random.shuffle(breakfast)
+    #breakfast = breakfast[:1]
+    breakfast = breakfast[:7]
+
+    lunch = list(Recipe.query.filter_by(category='Lunch').all())
+    random.shuffle(lunch)
+    lunch = lunch[:7]
+
+    dinner = list(Recipe.query.filter_by(category='Dinner').all())
+    random.shuffle(dinner)
+    dinner = dinner[:7]
+    
+    #buttonclicked = request.args.get("mbtn")
+    buttonclicked = request.form.get("mbtn")
+    if buttonclicked:
+        db.session.query(MealPlan).delete()
+        db.session.commit()
+
+    meals = MealPlan.query.all()
+
+    if not meals:
+        for index, day in enumerate(DAYS):
+            if index<len(breakfast):
+                mealPlanBreakfast = MealPlan(recipe_id=breakfast[index].id,day=day,user_id=g.user.id)
+                db.session.add(mealPlanBreakfast)
+            if index<len(lunch):
+                mealPlanLunch = MealPlan(recipe_id=lunch[index].id,day=day,user_id=g.user.id)
+                db.session.add(mealPlanLunch)
+            if index<len(dinner):
+                mealPlanDinner = MealPlan(recipe_id=dinner[index].id,day=day,user_id=g.user.id)
+                db.session.add(mealPlanDinner)
+            db.session.commit()
+        """
+        mealPlanBreakfast = MealPlan(recipe_id=1,day='Sunday',user_id=g.user.id)
+        mealPlanLunch = MealPlan(recipe_id=2,day='Sunday',user_id=g.user.id)
+        mealPlanDinner = MealPlan(recipe_id=3,day='Sunday',user_id=g.user.id)
+        db.session.add(mealPlanBreakfast)
+        db.session.add(mealPlanLunch)
+        db.session.add(mealPlanDinner)
+        db.session.commit()
+        """
+
+    recipes = db.session.query(Recipe,MealPlan).filter(Recipe.id==MealPlan.recipe_id,MealPlan.user_id==g.user.id).all()
+    
+
+    return render_template("recipe/mealplan.html",
+            title='Meal Plan',
+            recipes=recipes,
+            days=DAYS
+            )
+
+@app.route('/recipe/<int:id>', methods=['GET'])
+@login_required
+def recipedetail(id):
+    recipe = Recipe.query.get_or_404(int(id))
+    ingredients = (recipe.ingredients).split('\n')
+    instructions = (recipe.instructions).split('\n')
+    return render_template("recipe/recipedetail.html",
+            title='Recipe Detail',
+            recipe=recipe,
+            ingredients=ingredients,
+            instructions=instructions
+            )   
+
+@app.route('/shoppinglist', methods=['GET'])
+@login_required
+def shoppinglist():
+    ingredients=[]
+    ingredients2=[]
+    items = db.session.query(MealPlan,Recipe).filter(MealPlan.recipe_id==Recipe.id).all()
+    for item in items:
+        ingredients.append((item.Recipe.ingredients).split('\n'))
+    for ingredient in ingredients:
+        for i in ingredient:
+            k=i.split()[2:]
+            if k:
+                joined = ' '.join(k)
+                if joined  not in ingredients2:
+                    ingredients2.append(joined) 
+            
+    return render_template("recipe/shoppinglist.html",
+            title='Shopping List',
+            ingredients2=ingredients2
+            )
+
+@app.route('/recipesearch', methods=['GET','POST'])
+@login_required
+def recipesearch():
+    form = RecipeSearchForm()
+    name = request.args.get("name")
+    category = request.args.get("category")
+    buttonclicked = request.args.get("mybtn")
+    query_dict= dict()
+
+    if not buttonclicked:
+        return render_template(
+            'recipe/recipesearch.html',
+            title='Search Recipe',
+            form=form,
+            recipes=[],
+            queries=[],
+            btnclicked=None)
+
+    queries_without_page = request.args.copy()
+    if 'page' in queries_without_page:
+        del queries_without_page['page']
+
+    if category:
+        query_dict['category'] = category
+
+    recipes = Recipe.query.filter_by(**query_dict)
+    query_list = []
+    if name:
+        name = name.split()
+        for n in name:
+            query_list.append(Recipe.name.ilike("%"+n+"%"))
+            query_list.append(Recipe.category.ilike("%"+n+"%"))
+        recipes = recipes.filter(
+                reduce(
+                    lambda a, b:(
+                        a | b),query_list))
+    
+    try:
+        page = int(request.args.get("page",'1'))
+    except ValueError:
+        page=1
+    recipes = recipes.order_by(Recipe.name).paginate(page, ITEMS_PER_PAGE, False)
+    
+    return render_template(
+        'recipe/recipesearch.html',
+        title='Recipe Search',
+        form=form,
+        recipes=recipes,
+        queries=urllib.urlencode(queries_without_page),
+        btnclicked=True)
+
+#===============================END RECIPE ==================
 
 @app.route('/main', methods=['GET', 'POST'])
 @login_required
@@ -1737,7 +1918,7 @@ def listads():
                  )
         db.session.add(ad)
         db.session.commit()
-        flash('Your add was successfully Created', category='success')
+        flash('Your Ad was successfully Created', category='success')
         return redirect(url_for('listads'))
     return render_template("ads/listads.html", form=form, ads=ads)
 
@@ -1757,6 +1938,16 @@ def deletead(id):
     db.session.commit()
     flash("Your Ad is now deleted", category='success')
     return redirect(url_for('listads'))
+
+#======================RECIPES============================
+
+
+
+
+
+
+
+
 
 
 #======================EVENTS============================

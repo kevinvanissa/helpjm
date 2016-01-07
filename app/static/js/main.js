@@ -33,6 +33,25 @@ $(document).ready(function(){
 });
 
 
+$(document).ready(function(){
+	var maxField = 10; //Input fields increment limitation
+	var addButton = $('.add_button'); //Add button selector
+	var wrapper = $('.field_wrapper'); //Input field wrapper
+	var fieldHTML = '<div><input type="text" name="field_name[]" value=""/><a href="javascript:void(0);" class="remove_button" title="Remove field"><img src="/static/img/remove-icon.png"/></a></div>'; //New input field html 
+	var x = 1; //Initial field counter is 1
+	$(addButton).click(function(){ //Once add button is clicked
+		if(x < maxField){ //Check maximum number of input fields
+			x++; //Increment field counter
+			$(wrapper).append(fieldHTML); // Add field html
+		}
+	});
+	$(wrapper).on('click', '.remove_button', function(e){ //Once remove button is clicked
+		e.preventDefault();
+		$(this).parent('div').remove(); //Remove field html
+		x--; //Decrement field counter
+	});
+});
+
 
 $('#question').maxlength({
 alwaysShow: true,
@@ -235,6 +254,19 @@ function validateMainSearch(){
     }
     return true;
 }
+
+function validateRecipeSearch(){
+    var name =  document.forms["search_form"]["name"].value
+    var category =  document.forms["search_form"]["category"].value
+    if ((category == null || category == "") && ( name == null || name =="")){
+                alert("Enter at least one field.");
+                return false;
+    }
+    return true;
+}
+
+
+
 
 
 
