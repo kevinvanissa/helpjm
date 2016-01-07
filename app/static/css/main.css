@@ -113,6 +113,10 @@ a.mainlink:active {text-decoration:none; color:#B0B0B0;}  /* selected link */
 .mywell{
     background-color:#FFF380 !important;
 }
+.mywell2{
+    background-color:#DFF0D8 !important;
+}
+
 
 .myhr{
     border-bottom: 1px solid #505050; 

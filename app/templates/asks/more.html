@@ -93,7 +93,7 @@
             </p>
             <div class="row">
             <div class="col-md-6">
-
+                <div class="well mywell">
                 <form action="{{url_for('sendthankyou',friendid=recommendation.Friend.id,recommendationid=recommendation.Recommendation.id,askid=id)}}" method="post" name="thankyou" role="form">
                     {{messageForm.hidden_tag()}}
                     <div class="form-group{% if messageForm.errors.message %} has-error{% endif %}">
@@ -107,10 +107,11 @@
                     <div class="form-group">
                             <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Send Message</button>
                     </div>
-                </form>
+                </form> </div>
             </div>
 
             <div class="col-md-6">
+                <div class="well mywell2">
                 <form action="{{url_for('createreview',recommendationid=recommendation.Recommendation.id,askid=id)}}" method="post" name="myreview" role="form">
                     {{reviewForm.hidden_tag()}}
                     <div class="form-group{% if reviewForm.errors.review %} has-error{% endif %}">
@@ -133,7 +134,7 @@
                     <div class="form-group">
                             <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-envelope"></span> Post Review</button>
                     </div>
-                </form>
+                </form> </div>
 
             </div>
 
