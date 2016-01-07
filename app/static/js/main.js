@@ -255,5 +255,18 @@ function validateMainSearch(){
     return true;
 }
 
+function validateRecipeSearch(){
+    var name =  document.forms["search_form"]["name"].value
+    var category =  document.forms["search_form"]["category"].value
+    if ((category == null || category == "") && ( name == null || name =="")){
+                alert("Enter at least one field.");
+                return false;
+    }
+    return true;
+}
+
+
+
+
 
 
