@@ -307,7 +307,7 @@ def recipesearch():
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
         del queries_without_page['page']
-
+    
     if category:
         query_dict['category'] = category
 
