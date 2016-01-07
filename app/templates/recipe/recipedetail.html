@@ -1,0 +1,39 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<h3>{{recipe.name}} ({{recipe.category}}) </h3>
+<div class="row">
+    <div class="col-md-10">
+    <br />
+
+
+        <div class="row">
+            <div class="col-md-5">
+                <b>Serving:</b> {{recipe.serving}} <br /> <br />
+        {{recipe.description}} 
+            </div>
+
+            <div class="col-md-5">
+                <img class="img-responsive" src="{{url_for('uploaded_file',filename=recipe.picture)}}" width="500px">   
+            </div>
+        </div>
+<hr>
+        <b>Ingredients:</b> <br />
+                <ul>
+                {% for ingredient in ingredients %}
+                    <li>{{ingredient}} </li> 
+                {% endfor %}
+                </ul> 
+                <br />
+                <b>Instructions:</b> <br />
+                <ol>
+                {% for instruction in instructions %}
+                    <li>{{instruction}} </li> 
+                {% endfor %}
+                </ol> 
+                 
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Hi, {{g.user.firstname}} {{g.user.lastname}}!</h4>
+{% include 'flash.html' %}
+
+<div class="row">
+    <div class="col-md-8">
+        <h3><span class="glyphicon glyphicon-search"></span> Search for a Recipe</h3>
+        <hr>
+        {% if recipes.items %}
+        <h4>{% if recipes.total %}Total Results: {{recipes.total}} {% else %}0{% endif %}</h4>
+        <span class="badge">{{recipes.page}} of 
+            {{recipes.pages}} {% if recipes.pages == 1%}page{% else %}pages{% endif %}</span>
+        {% endif %}
+
+    <br />
+    <br />
+    {% if not recipes.items %} 
+        {% if btnclicked %}
+        Sorry, but your search did not return any results. <br /> <br />
+        <b>Suggestions: </b> <br /> <br />
+        Try selecting a different parish. <br />
+        Make sure that your spellings are correct. <br />
+        Be more general in your search. <br /> <br />
+
+        {% else %}
+            <h4> Enter search values using the "Search" form </h4>
+        {% endif %}
+
+    {% endif %}
+
+
+
+        {% if recipes.items %}
+        <table class="table">
+<thead><tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Serving</th>
+                <th>Category</th>
+                <th>Picture</th>
+                </tr>
+                </thead>
+
+        {% endif %}
+
+
+        {% for recipe in recipes.items %}
+                    <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
+                <td><a href="{{url_for('recipedetail',id=recipe.id)}}">{{recipe.name}}</a></td> 
+                <td>{{recipe.description}}</td> 
+                <td>{{recipe.serving}}</td>
+                <td>{{recipe.category}}</td> 
+                <td><img class="img-responsive" src="{{url_for('uploaded_file',filename=recipe.picture)}}" width="200px"></td>
+            </tr>
+        {% endfor %}
+
+{% if recipes.items %} </table> {% endif %}
+<br />
+<br />
+
+{% if recipes.items %}
+
+<ul class="pager">
+    {% if recipes.has_prev %}
+        <li class="previous"><a href="?page={{recipes.prev_num}}&amp;{{queries}}"><span class="glyphicon glyphicon-backward"></span> Prev</a></li>
+    {% else %}
+    <li class="previous disabled"><a href="#">Prev</a></li>
+    {% endif %}
+    {% if recipes.has_next %}
+        <li class="next"><a href="?page={{recipes.next_num}}&amp;{{queries}}">Next <span class="glyphicon glyphicon-forward"></span></a></li>
+    {% else %}
+    <li class="next disabled"><a href="#">Next</a></li>
+    {% endif %}
+</ul>
+{% endif %}
+
+
+            </div>
+
+
+    <div class="col-md-4">
+    <h3 class="col-md-offset-3">Search</h3>
+    <br />
+
+    <form class="form-horizontal" action="" method="get" name="search_form" id="search_form" onsubmit="return validateRecipeSearch();" role="form">
+
+                <div class="form-group{% if form.errors.post %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="name">Recipe: </label>
+                        <div class="col-md-8">
+                            {{ form.name(class="form-control",placeholder="Search by name..")}}
+                            {% for error in form.errors.name %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group{% if form.errors.post %} has-error{% endif %}">
+                        <label class="col-md-4 control-label" for="category">Category:</label>
+                        <div class="col-md-8">
+                            {{ form.category(class="form-control" )}}
+                            {% for error in form.errors.category %}
+                                <span class="help-inline">[{{error}}]</span><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-8">
+                            <button type="submit" class="btn btn-success" name="btn" value="sendsearch"><span class="glyphicon glyphicon-search"></span> Search</button>
+                            <input type="hidden" name="mybtn" value="sendsearch">
+                        </div>
+                    </div>
+                </form>
+    </div>
+
+
+</div>
+{% endblock %}

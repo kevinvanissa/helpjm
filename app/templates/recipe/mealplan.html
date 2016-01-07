@@ -1,0 +1,39 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+    <h3>Meal Plan</h3>
+    <hr>
+<div class="row">
+    <div class="col-md-12">
+    <br />
+
+ <form class="form-horizontal" action="" method="post">
+     <button type="submit" class="btn btn-success">Recreate Meal Plan</button>
+     <input type="hidden" name="mbtn" value="recreate">
+ </form>
+
+ {% if not recipes %}
+    <br />
+    <b><span style="color:red;">Sorry. There are no recipes to create a meal plan.</span></b>
+ {% endif %}
+
+
+    {% for day in days %}
+    <h3>{{day}}</h3>
+        {% for recipe in recipes %}
+            <ul>
+                {% if recipe.MealPlan.day==day and recipe.Recipe.category=='Breakfast' %}<li>Breakfast: <a href="{{url_for('recipedetail',id=recipe.Recipe.id)}}">{{recipe.Recipe.name}}</a></li>{% endif %}
+                {% if recipe.MealPlan.day==day and recipe.Recipe.category=='Lunch' %}<li>Lunch: <a href="{{url_for('recipedetail',id=recipe.Recipe.id)}}">{{recipe.Recipe.name}}</a></li>{% endif %}
+                {% if recipe.MealPlan.day==day and recipe.Recipe.category=='Dinner' %}<li>Dinner: <a href="{{url_for('recipedetail',id=recipe.Recipe.id)}}">{{recipe.Recipe.name}}</a></li>{% endif %}
+            </ul>
+        {% endfor %}
+    {% endfor %}
+
+
+
+    
+    </div>
+</div>
+{% endblock %}

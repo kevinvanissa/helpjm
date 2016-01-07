@@ -1,0 +1,26 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'flash.html' %}
+<h3>Shopping List</h3>
+    <hr>
+<div class="row">
+    <div class="col-md-12">
+
+{% if not ingredients2 %}
+    <br />
+    <b><span style="color:red;">Sorry. There are no items to display.</span></b>
+ {% endif %}
+
+
+
+            <ol>
+            {% for ingredient in ingredients2 %}
+               <li> {{ingredient}}</li>  
+            {% endfor %}
+ 
+            </ol>
+    </div>
+</div>
+{% endblock %}
