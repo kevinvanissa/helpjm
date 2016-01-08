@@ -391,14 +391,14 @@ class RecipeForm(Form):
         validators=[
             Length(
                 min=0,
-                max=1000),Required()])
+                max=2000),Required()])
 
     instructions = TextAreaField(
         'instructions',
         validators=[
             Length(
                 min=0,
-                max=1000),Required()])
+                max=2000),Required()])
 
     picture = FileField('picture')
 
