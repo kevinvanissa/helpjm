@@ -4,6 +4,9 @@
 {% block content %}
 {% include 'flash.html' %}
 <h3>{{recipe.name}} ({{recipe.category}}) </h3>
+{% if g.user.is_admin() %}
+    <a href="{{url_for('editrecipe',id=recipe.id)}}" class="btn btn-warning">Edit Recipe </a>
+{% endif %}
 <div class="row">
     <div class="col-md-10">
     <br />

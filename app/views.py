@@ -196,6 +196,54 @@ def createrecipe():
 
 
 
+@app.route('/editrecipe/<int:id>', methods=['GET','POST'])
+@admin_required
+@login_required
+def editrecipe(id):
+    recipe = Recipe.query.get_or_404(int(id))
+    mypic = recipe.picture
+    form = RecipeForm()
+    if form.validate_on_submit():
+        filename = ""
+        file = request.files['picture']
+        if file:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filename=str(uuid.uuid4())+filename
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+                recipe.picture = filename
+            else:
+                flash('Only jpeg, jpg or png files are accepted',category='danger')
+                return redirect(url_for('editrecipe',id=recipe.id))
+        recipe.name=form.name.data
+        recipe.serving=form.serving.data
+        recipe.category=form.category.data
+        recipe.description=form.description.data
+        recipe.ingredients=form.ingredients.data
+        recipe.instructions=form.instructions.data
+        db.session.add(recipe)
+        db.session.commit()
+        flash('Your recipe changes have been saved.',category='success')
+        return redirect(url_for('recipedetail',id=recipe.id))
+    else:
+        form.name.data = recipe.name
+        form.serving.data = recipe.serving
+        form.category.data = recipe.category
+        form.description.data = recipe.description
+        form.ingredients.data = recipe.ingredients
+        form.instructions.data = recipe.instructions
+
+    return render_template("recipe/editrecipe.html",
+            title='Edit Recipe',
+            form=form,
+            id=id,
+            mypic=mypic
+            )
+
+
+
+
+
 @app.route('/mealplan', methods=['GET','POST'])
 @login_required
 def mealplan():
