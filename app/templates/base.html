@@ -46,6 +46,8 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 </script>
+
+{% if 'Android' not in  request.headers.get('User-Agent') %}
 <div id="main-navbar" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 <!--<div id="main-navbar" class="navbar navbar-inverse" role="navigation">-->
       <div class="container">
@@ -82,7 +84,7 @@
               <li {% if request.path == "/main"%}class="active"{% endif %}><a href="{{url_for('index')}}">My Asks</a></li>
               <li {% if request.path == "/recommendations"%}class="active"{% endif %}><a href="{{url_for('recommendations')}}">My Recommendations</a></li>
               <li {% if request.path == "/friends"%}class="active"{% endif %}><a href="{{url_for('friends')}}">Friends</a></li>
-              <li {% if request.path == "/search"%}class="active"{% endif %}><a href="{{url_for('search')}}">Search</a></li>
+              <li {% if request.path == "/search"%}class="active"{% endif %}><a href="{{url_for('search')}}">Search Services</a></li>
 
 
         <ul class="nav navbar-nav navbar-right nav-pills">
@@ -95,8 +97,8 @@
                    href="{{ url_for('createrecipe')}}"><span class="glyphicon glyphicon-thumbs-up"></span> Create Recipe</a></li>
                {% endif %}
               <li {% if  request.path == "/mealplan" %}class="active"{% endif %}><a
-                  href="{{ url_for('mealplan')}}"><span class="glyphicon glyphicon-calendar"></span> Create Meal Plan</a></li>
-              <li><a href="{{ url_for('shoppinglist') }}"><span class="glyphicon glyphicon-shopping-cart"></span> Create Shopping List</a></li>
+                  href="{{ url_for('mealplan')}}"><span class="glyphicon glyphicon-calendar"></span> Generate Meal Plan</a></li>
+              <li><a href="{{ url_for('shoppinglist') }}"><span class="glyphicon glyphicon-shopping-cart"></span> Generate Shopping List</a></li>
               <li><a href="{{ url_for('recipesearch') }}"><span class="glyphicon glyphicon-search"></span> Search Recipes</a></li>
         </ul>
         </li>
@@ -148,6 +150,7 @@
         </div><!--/.navbar-collapse -->
       </div>
     </div>
+    {% endif %}
         <div id="contentdiv" class="container">
             {% block content %}{% endblock %}
             <br />
@@ -160,7 +163,7 @@
         <!--<div class="row"></div>-->
   <!--</div>-->
   <!--</div>-->
-
+        {% if 'Android' not in  request.headers.get('User-Agent') %}
         <div id="footer" class="navbar-inverse"> 
             <div class="container">
             <div class="row">
@@ -203,9 +206,6 @@
                 </div>
 
 
-
-
-
            </div><!--end row-->
                 </div>
             </div>
@@ -221,6 +221,7 @@
             </div> <!--end other row-->
             </div>
         </div>
+        {% endif %}
 
 
 <script type="text/javascript">

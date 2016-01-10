@@ -8,8 +8,11 @@
     <h3>Contact Us</h3>
     <hr>
     <br />
+
+        {% if 'Android' not in  request.headers.get('User-Agent') %}
     <h4 class="col-md-offset-4"> You can email us at: <a href="mailto:admin@serviceja.com">admin@serviceja.com</a></h4>
     <h4 class="col-md-offset-6"><b>OR</b></h4>
+    {% endif %}
     <h4 class="col-md-offset-4">Send us a message using the form below:</h4>
 
     <br />

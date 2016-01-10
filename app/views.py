@@ -409,6 +409,9 @@ def index():
             session['area'] = form.area.data
             session['created'] = datetime.now()
             return redirect(url_for('sendtofriends'))
+        else:
+            flash('Please check the errors in the Ask Form!',category='danger')
+            redirect(url_for("index",title="Home",form=form,asks=asks,ads=ads,))
 
     return render_template("asks/asks.html",
                            title='Home',
@@ -1086,6 +1089,7 @@ def login():
     #comments = db.session.query(
     #            Comment,Event
     #).filter(Comment.event_id==Event.id).order_by(Comment.created.desc()).limit(3).all()
+    #print request.headers.get('User-Agent')
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
