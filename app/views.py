@@ -736,6 +736,9 @@ def recommendations():
             db.session.commit()
             flash("Your Recommendation is now created!", category='success')
             return redirect(url_for('recommendations'))
+        #else:
+            #flash("Please fix the errors in the Recommendation Form!", category='danger')
+            #return redirect(url_for("recommendations",title="Recommendations",form=form,recommendations=recommendations,ads=ads,))
     return render_template("recommendations/recommendations.html",
                            title='Recommendations',
                            form=form,
