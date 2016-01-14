@@ -25,7 +25,7 @@
           <table class="table" >
             <thead>
                 <tr>
-                    <th class="col-md-6">Review</th> <th class="col-md-6">Details</th>
+                    <th class="col-md-12">Recommendation Details</th> 
                 </tr>
             </thead>
             {% endif %}
@@ -34,7 +34,18 @@
 
                 {% for recommendation in recommendations %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
-                        <td class="col-md-6">
+                        <td class="col-md-12">
+
+<span class="detailheading">Category:</span> <span class="detail">{{recommendation.category}}</span>
+                            <span class="detailheading">Service:</span> <span class="detail">{{recommendation.service}}</span> 
+                            <span class="detailheading">Name:</span> <span class="detail">{{ recommendation.name }}</span> 
+                            {% if recommendation.company %}<span class="detailheading">Company:</span> <span class="detail">{{recommendation.company }}</span>{% endif %} 
+                            <span class="detailheading">Phone:</span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>
+                            {% if recommendation.email %}<span class="detailheading">Email:</span> <span class="detail">{{ recommendation.email }}</span>{% endif %}
+                            {% if recommendation.website %}<span class="detailheading">Website:</span> <span class="detail">{{ recommendation.website }}</span>{% endif %}
+                            <span class="detailheading">Parish:</span> <span class="detail">{{recommendation.parish}}</span>
+                            <span class="detailheading">Area:</span> <span class="detail">{{recommendation.area}}</span> <br /><br />
+
                             {% if recommendation.review %} 
 <span class="detailheading">Rating:</span> <span class='label label-{%if recommendation.rating=='Excellent' %}primary{% elif recommendation.rating=='Very Good'%}info{% elif recommendation.rating=='Average'%}default{% elif recommendation.rating=='Poor' %}warning{% else %}danger{% endif %}'> {{recommendation.rating}}</span> &nbsp;
 
@@ -71,34 +82,20 @@
         <span class="glyphicon glyphicon-star-empty"></span>
         <span class="glyphicon glyphicon-star-empty"></span>
     {% endif %} 
-
-<br />
-<br />
-                 {{ recommendation.review }} 
-
+    <br />
+    <br />
+    <span class="detailheading"><span style="text-decoration:bold;">Review:</span></span> <p>{{recommendation.review}} </p>
                             {% else %}
                 <span class="help-inline myerror">[No Review Here]</span> 
                             {% endif %}
-                            <br />
-                            <br />
                                                         <br />
                             <span class="decordate">Created: {{format_time(recommendation.created)}}</span> <br />
 
-                            <a href="{{url_for('sendrectofriends',id=recommendation.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-envelope"></span> Send to a Friend</a> 
+                            <a href="{{url_for('sendrectofriends',id=recommendation.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-envelope"></span> Send to Friend</a> 
                             <a href="{{url_for('editrecommendation',id=recommendation.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-wrench"></span> Update</a> 
                             <a href="{{url_for('deleterecommendation',id=recommendation.id)}}" class="btn btn-xs btn-danger" onclick="javascript:return deleteItem();"><span class="glyphicon glyphicon-trash"></span> Delete</a> 
                         </td>
-                        <td class="col-md-6">
-                            <span class="detailheading"><span class="badge">Category:</span></span> <span class="detail">{{recommendation.category}}</span>
-                            <span class="detailheading"><span class="badge">Service:</span></span> <span class="detail">{{recommendation.service}}</span> 
-                            <span class="detailheading"><span class="badge">Name:</span></span> <span class="detail">{{ recommendation.name }}</span> 
-                            {% if recommendation.company %}<span class="detailheading"><span class="badge">Company:</span></span> <span class="detail">{{recommendation.company }}</span>{% endif %} 
-                            <span class="detailheading"><span class="badge">Phone:</span></span> <span class="detail">{{ create_phone(recommendation.phone)}}</span>
-                            {% if recommendation.email %}<span class="detailheading"><span class="badge">Email:</span></span> <span class="detail">{{ recommendation.email }}</span>{% endif %}
-                            {% if recommendation.website %}<span class="detailheading"><span class="badge">Website:</span></span> <span class="detail">{{ recommendation.website }}</span>{% endif %}
-                            <span class="detailheading"><span class="badge">Parish:</span></span> <span class="detail">{{recommendation.parish}}</span>
-                            <span class="detailheading"><span class="badge">Area:</span></span> <span class="detail">{{recommendation.area}}</span> 
-                        </td>
+                            
                     </tr>
 
             {%endfor %}

@@ -44,7 +44,7 @@
           <table class="table" >
             <thead>
                 <tr>
-                    <th class="col-md-6">Question</th> <th class="col-md-6">Details</th>
+                    <th class="col-md-12">Ask Detail</th> 
                 </tr>
             </thead>
             {% endif %}
@@ -53,26 +53,29 @@
 
                 {% for ask in asks %}
                     <tr class="{% if loop.index % 2==0 %}even{%else%}odd{% endif %}">
-                        <td class="col-md-6">
+                        <td class="col-md-12">
                             {% if ask.count_replies() == 1 %}  
                                 <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Reply</span></a> 
                             {% else %} 
                                 <a href="{{url_for('more',id=ask.id)}}"><span class="replies">{{ask.count_replies()}} Replies</span></a> 
                             {% endif %}
                             <br />
-                            {{ ask.question }} <br /><br />
+
+                            <span class="detailheading"><span style="text-decoration:bold;">Category:</span></span> <span class="detail">{{ask.category}}</span> 
+                            <span class="detailheading"><span style="text-decoration:bold;">Service:</span></span> <span class="detail">{{ask.service}}</span> 
+                            <span class="detailheading"><span style="text-decoration:bold;">Parish:</span></span> <span class="detail">{{ask.parish}} </span>
+                            <span class="detailheading"><span style="text-decoration:bold;">Area:</span></span> <span class="detail">{{ask.area}}</span> 
+                            <br />
+                            <br />
+                            <span class="detailheading"><span style="text-decoration:bold;">Question:</span></span> <p>{{ ask.question }}</p> <br />
+
                             <span class="decordate">Created: {{format_time(ask.created)}}</span> <br />
                             <a href="{{url_for('closeask',id=ask.id)}}" class="btn btn-xs btn-warning" onclick="javascript:return closeItem();"><span class="glyphicon glyphicon-off"></span> Close</a> 
                             <a href="{{url_for('sendtofriendsagain',id=ask.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-share"></span> Resend</a> 
                             <a href="{{url_for('more',id=ask.id)}}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-wrench"></span> More Actions</a> 
 
                         </td>
-                        <td class="col-md-6">
-                            <span class="detailheading"><span style="text-decoration:bold;">Category:</span></span>  <span class="detail">{{ask.category}}</span> <br />
-                            <span class="detailheading"><span style="text-decoration:bold;">Service:</span></span> <span class="detail">{{ask.service}}</span><br /> 
-                            <span class="detailheading"><span style="text-decoration:bold;">Parish:</span></span> <span class="detail">{{ask.parish}} </span><br />
-                            <span class="detailheading"><span style="text-decoration:bold;">Area:</span></span> <span class="detail">{{ask.area}}</span> 
-                        </td>
+                            
                     </tr>
 
             {%endfor %}
