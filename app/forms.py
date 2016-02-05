@@ -12,7 +12,9 @@ FRIENDSLIST = [
 strip_filter = lambda x: x.strip() if x else None
 
 def validate_phone(form, field):
-    message = "7 digits only please."
+    message = "7 digits only please with no space."
+    if not field.data:
+        return True
     if not field.data.isdigit():
         raise ValidationError(message)
     if int(field.data) > 0000000 and int(field.data) < 9999999 and len(field.data) == 7:
@@ -67,7 +69,7 @@ class UserForm(Form):
     firstname = TextField('firstname', [Required()])
     lastname = TextField('lastname', [Required()])
     email = TextField('email', [Required(), Email()])
-    phone = TextField('phone', validators=[Required(), validate_phone])
+    #phone = TextField('phone', validators=[validate_phone])
 
 class AskForm(Form):
 
@@ -332,8 +334,8 @@ class EventEditForm(Form):
     flyer = FileField('flyer')
     youtube = TextField('youtube', filters=[strip_filter])
 
-    
-    
+
+
 class EventSearchForm(Form):
     title = TextField('title', validators=[Required()], filters=[strip_filter])
     event_category = SelectField(

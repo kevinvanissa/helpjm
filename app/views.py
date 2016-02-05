@@ -32,7 +32,7 @@ def request_wants_json():
         request.accept_mimetypes[best] > \
         request.accept_mimetypes['text/html']
 
-    
+
 @login_required
 def getAds1():
     return [1, 2, 3]
@@ -247,7 +247,7 @@ def editrecipe(id):
 @app.route('/mealplan', methods=['GET','POST'])
 @login_required
 def mealplan():
-    DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']    
+    DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
     breakfast = list(Recipe.query.filter_by(category='Breakfast').all())
     random.shuffle(breakfast)
     #breakfast = breakfast[:1]
@@ -260,7 +260,7 @@ def mealplan():
     dinner = list(Recipe.query.filter_by(category='Dinner').all())
     random.shuffle(dinner)
     dinner = dinner[:7]
-    
+
     #buttonclicked = request.args.get("mbtn")
     buttonclicked = request.form.get("mbtn")
     if buttonclicked:
@@ -292,7 +292,7 @@ def mealplan():
         """
 
     recipes = db.session.query(Recipe,MealPlan).filter(Recipe.id==MealPlan.recipe_id,MealPlan.user_id==g.user.id).all()
-    
+
 
     return render_template("recipe/mealplan.html",
             title='Meal Plan',
@@ -311,7 +311,7 @@ def recipedetail(id):
             recipe=recipe,
             ingredients=ingredients,
             instructions=instructions
-            )   
+            )
 
 @app.route('/shoppinglist', methods=['GET'])
 @login_required
@@ -327,8 +327,8 @@ def shoppinglist():
             if k:
                 joined = ' '.join(k)
                 if joined  not in ingredients2:
-                    ingredients2.append(joined) 
-            
+                    ingredients2.append(joined)
+
     return render_template("recipe/shoppinglist.html",
             title='Shopping List',
             ingredients2=ingredients2
@@ -355,7 +355,7 @@ def recipesearch():
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:
         del queries_without_page['page']
-    
+
     if category:
         query_dict['category'] = category
 
@@ -370,13 +370,13 @@ def recipesearch():
                 reduce(
                     lambda a, b:(
                         a | b),query_list))
-    
+
     try:
         page = int(request.args.get("page",'1'))
     except ValueError:
         page=1
     recipes = recipes.order_by(Recipe.name).paginate(page, ITEMS_PER_PAGE, False)
-    
+
     return render_template(
         'recipe/recipesearch.html',
         title='Recipe Search',
@@ -420,8 +420,8 @@ def index():
                            ads=ads
                            )
 
-    
-    
+
+
 @app.route('/closedasks', methods=['GET', 'POST'])
 @login_required
 def closedasks():
@@ -1551,7 +1551,6 @@ def edituser():
         g.user.firstname = form.firstname.data
         g.user.lastname = form.lastname.data
         g.user.email = form.email.data
-        g.user.phone= form.phone.data
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.', category='success')
@@ -1561,7 +1560,6 @@ def edituser():
         form.firstname.data = g.user.firstname
         form.lastname.data = g.user.lastname
         form.email.data = g.user.email
-        form.phone.data = g.user.phone
     return render_template('users/edituser.html',
                            form=form)
 
@@ -2188,7 +2186,7 @@ def editevent(id):
         form=form,
         mypic=mypic,
         ads=ads)
-        
+
 
 @app.route('/eventsearch', methods=['GET', 'POST'])
 def eventsearch():
