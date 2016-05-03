@@ -2291,7 +2291,6 @@ def findevents(decide):
 
     tomorrow = tomorrow.replace(hour=23, minute=59, second=59,microsecond=0)
 
-
     ads = getAds()
     queries_without_page = request.args.copy()
     if 'page' in queries_without_page:

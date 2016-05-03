@@ -4,7 +4,6 @@ from flask import render_template
 from config import ADMINS
 from decorators import async
 
-
 @async
 def send_async_email(msg):
     mail.send(msg)
