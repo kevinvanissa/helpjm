@@ -318,7 +318,7 @@ def recipedetail(id):
 def shoppinglist():
     ingredients=[]
     ingredients2=[]
-    items = db.session.query(MealPlan,Recipe).filter(MealPlan.recipe_id==Recipe.id).all()
+    items = db.session.query(MealPlan,Recipe).filter(MealPlan.recipe_id==Recipe.id,MealPlan.user_id==g.user.id).all()
     for item in items:
         ingredients.append((item.Recipe.ingredients).split('\n'))
     for ingredient in ingredients:
@@ -333,6 +333,7 @@ def shoppinglist():
             title='Shopping List',
             ingredients2=ingredients2
             )
+
 
 @app.route('/recipesearch', methods=['GET','POST'])
 @login_required
