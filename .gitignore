@@ -3,4 +3,7 @@
 app.db
 flask
 *.mo
+config.py
+*.sql
+
 
